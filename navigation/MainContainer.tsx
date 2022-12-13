@@ -12,7 +12,7 @@ import InitialSetupScreen from './screens/InitialSetupScreen';
 import PulseScreen from './screens/PulseScreen';
 import WeightScreen from './screens/WeightScreen';
 
-//Screen names
+// Screen names
 const homeName = 'Home';
 const profileName = 'Profile';
 const messagesName = 'Messages';
@@ -28,8 +28,14 @@ function App() {
     <Tab.Navigator
       initialRouteName={initialSetupName}
       screenOptions={({route}) => ({
+        activeTintColor: 'black',
+        inactiveTintColor: 'grey',
+        labelStyle: {paddingBottom: 10, fontSize: 10},
+        style: {padding: 10, paddingTop: 20, height: 70},
+        activeBackgroundColor: '#EEEEEE',
+        inactiveBackgroundColor: '#EEEEEE',
         tabBarIcon: ({focused, color, size}) => {
-          let iconName;
+          let iconName:string = "home";
           switch (route.name) {
             case homeName:
               iconName = focused ? 'home' : 'home-outline';
@@ -41,18 +47,9 @@ function App() {
               iconName = focused ? 'mail' : 'mail-outline';
               break;
           }
-          // You can return any component that you like here!
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-      })}
-      screenOptions={{
-        activeTintColor: 'black',
-        inactiveTintColor: 'grey',
-        labelStyle: {paddingBottom: 10, fontSize: 10},
-        style: {padding: 10, paddingTop: 20, height: 70},
-        activeBackgroundColor: '#EEEEEE',
-        inactiveBackgroundColor: '#EEEEEE',
-      }}>
+      })}>
       <Tab.Screen name={homeName} component={HomeScreen}/>
       <Tab.Screen name={messagesName} component={MessagesScreen} />
       <Tab.Screen name={profileName} component={ProfileScreen} />
