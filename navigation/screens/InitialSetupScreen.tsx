@@ -6,7 +6,7 @@ import { Button } from '@react-native-material/core';
 import { TextInput } from 'react-native-paper'
 import TextInputMask from 'react-native-text-input-mask';
 
-export default function InitialSetupScreen({navigation}) {
+export default function InitialSetupScreen({navigation}:{navigation:any}) {
 
   const [text, setText] = useState("");
 
@@ -47,7 +47,7 @@ export default function InitialSetupScreen({navigation}) {
           activeOutlineColor='#D72C06'
           />
         <View style={styles.maskedInputContainer}>
-          <Text style={{fontSize: 16, font: 'signika', color: 'black'}}>Phone: </Text>
+          <Text style={{fontSize: 16, color: 'black'}}>Phone: </Text>
           <TextInputMask
             style={styles.maskedEntry}
             mask={'+1 ([000]) [000]-[0000]'}
@@ -56,7 +56,7 @@ export default function InitialSetupScreen({navigation}) {
             placeholderTextColor="grey"/>
         </View>
         <View style={styles.maskedInputContainer}>
-          <Text style={{fontSize: 16, font: 'signika', color: 'black'}}>Birthday: </Text>
+          <Text style={{fontSize: 16, color: 'black'}}>Birthday: </Text>
           <TextInputMask
             style={styles.maskedEntry}
             mask={'[00]{/}[00]{/}[0000]'}
@@ -73,7 +73,7 @@ export default function InitialSetupScreen({navigation}) {
           activeOutlineColor='#D72C06'
           />
         <View style={styles.maskedInputContainer}>
-          <Text style={{fontSize: 16, font: 'signika', color: 'black'}}>E.C. Phone: </Text>
+          <Text style={{fontSize: 16, color: 'black'}}>E.C. Phone: </Text>
           <TextInputMask
             style={styles.maskedEntry}
             mask={'+1 ([000]) [000]-[0000]'}

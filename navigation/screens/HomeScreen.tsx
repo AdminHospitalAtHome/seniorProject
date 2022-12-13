@@ -4,7 +4,7 @@ import {StyleSheet, View, Text, ScrollView} from 'react-native';
 
 // import Boxes from './Boxes';
 
-export default function HomeScreen({navigation}) {
+export default function HomeScreen({navigation}:{navigation:any}) {
   return (
     <ScrollView style={styles.pageContainer}>
             <View style={styles.box}>
@@ -24,7 +24,10 @@ export default function HomeScreen({navigation}) {
             <View style={styles.box}>
                 <View style={styles.inner}>
                     <Text
-                    onPress={() => navigation.navigate('Weight')}>Weight</Text>
+                    onPress={() => navigation.navigate('Weight', {
+                        id:"mazanyam@rose-hulman.edu", 
+                        password:"yeah"
+                      })}>Weight</Text>
                 </View>
             </View>
 

@@ -1,138 +1,85 @@
-import React, {useState, useEffect, Component} from 'react';
-import {
-    AppRegistry,
-    StyleSheet,
-    Text,
-    View,
-    button
-} from 'react-native';
+import React, { useState, useEffect, Component } from 'react';
 import GoogleFit, { Scopes } from 'react-native-google-fit';
-//var [weight, setWeight] = useState(0);
-//global.result = [];
+import { DataList, PageHeader, SingleValueChart } from '../../components/MeasurementPageComponents';
+import Config from 'react-native-config'
+import { ListItem } from '@react-native-material/core';
 
+class WeightData {
+  dateString:string;
+  lbs:number;
+  constructor(dateString:string, lbs:number) {
+    this.dateString = dateString;
+    this.lbs = lbs;
+  }
+}
 
-export default class WeightScreen extends Component {
+export default function WeightScreen({route}:{route:any}) {
+  const { id, password } = route.params;
 
- state={weight: 0};
- updateState=(value)=>{this.setState({weight: value})};
-  getWeight() {
-        //const [result, setResult] = useState([]);
-        var today = new Date();
-        var lastMonthDate = new Date(
-            today.getFullYear(),
-            today.getMonth() - 1,
-            today.getDate(),
-        );
-        const opt = {
-              startDate: lastMonthDate.toISOString(), // required ISO8601Timestamp
-              endDate: today.toISOString(),
-              unit: 'kg', // required; default 'kg'
-              bucketUnit: 'HOUR', // optional - default "DAY". Valid values: "NANOSECOND" | "MICROSECOND" | "MILLISECOND" | "SECOND" | "MINUTE" | "HOUR" | "DAY"
-              bucketInterval: 1, // optional - default 1.
-              ascending: false, // optional; default false
-            };
-
-        GoogleFit.getWeightSamples(opt).then((res) => {
-          console.log(res);
-          //this.updateState(res[0].value);
-          //console.log("first log: " + this.state.weight);
-          //setResult(res[0].value);
-          //console.log(res[0].value);
-
-          //this.getResult(res);
-          //console.log("result " + result);
-        });
-        //return (result);
-        //console.log("result out: " + result);
-    };
-
-  render() {
-  console.log("second log: " + this.state.weight);
+  const [data, setData] = useState<WeightData[]>([new WeightData("", 0)]);
   const options = {
-             scopes: [
-               Scopes.FITNESS_ACTIVITY_READ,
-               Scopes.FITNESS_ACTIVITY_WRITE,
-               Scopes.FITNESS_BODY_READ,
-               Scopes.FITNESS_BODY_WRITE,
-             ],
-           };
-      GoogleFit.checkIsAuthorized().then(() => {
-            var authorized = GoogleFit.isAuthorized;
-            console.log(authorized);
-            if (authorized) {
-              const doSth = this.getWeight();
-              //console.log("work?: " + doSth);
-            } else {
-              // Authentication if already not authorized for a particular device
-              GoogleFit.authorize(options)
-                .then(authResult => {
-                  if (authResult.success) {
-                    console.log('AUTH_SUCCESS');
-
-                    // if successfully authorized, fetch data
-                  } else {
-                    console.log('AUTH_DENIED ' + authResult.message);
-                  }
-                })
-                .catch(() => {
-                  dispatch('AUTH_ERROR');
-                });
-              }
-            });
-  return(
-
-    <View style={[{flex: 1}]}>
-          <View style={styles.row}>
-            <View style={[styles.row_2, styles.containerBlue]}>
-              <Text style={styles.textContainerBlue}>Weight</Text>
-            </View>
-            <View style={[styles.row_2, styles.containerWhite]}>
-              <Text style={styles.textContainerWhite}> hhh </Text>
-            </View>
-          </View>
-
-          <View style={styles.row}>
-                  <View style={[styles.row_2, styles.containerBlue]}>
-                     <Text
-                             onPress={() => this.forceUpdate()}
-                             >
-                             update
-                           </Text>
-                  </View>
-
-                </View>
-
-        </View>
-      );
+    scopes: [
+      Scopes.FITNESS_BODY_READ,
+      Scopes.FITNESS_BODY_WRITE,
+    ]
   };
-};
 
-const styles = StyleSheet.create({
- row: {
-     flexDirection: 'row',
-     height: 30,
-     margin: 10,
-     marginTop: 12,
-   },
-   row_2: {
-     flex: 2,
-   },
-   containerBlue: {
-     marginTop: 10,
-     height: 50,
-     backgroundColor: '#187FA1',
-     color: 'white',
-   },
-   textContainerBlue: {
-     paddingTop: 15,
-     paddingLeft: 15,
-     color: 'white',
-   },
-   textContainerWhite: {
-     paddingTop: 15,
-     paddingLeft: 70,
-     color: '#187FA1',
-   },
-});
+  useEffect(() => {
+    async function fetchPatientData() {
+      /* TODO: Abstract out */
+      const Buffer = require("buffer").Buffer;
+      let encodedAuth = new Buffer(id + ":" + password).toString("base64");
 
-AppRegistry.registerComponent('WeightScreen', () => WeightScreen);
+      var myHeaders = new Headers();
+      myHeaders.append("Authorization", `Basic ${encodedAuth}`);
+
+      var requestOptions = {
+        method: 'POST',
+        headers: myHeaders,
+        redirect: 'follow'
+      };
+      console.log("*********************************************");
+      console.log("CALLING GetPatientMeasurements AZURE FUNCTION");
+      console.log("*********************************************");
+
+      /* ------------------ */
+      const url = `https://hospital-at-home-app.azurewebsites.net/api/GetPatientMeasurements?code=${Config.GET_PATIENT_MEASUREMENTS_FUNCTION_KEY}&type=weight`;
+      fetch(url, requestOptions)
+        .then(response => response.text())
+        .then(result => JSON.parse(result).feed)
+        .then(arr => {
+          const fetched = [];
+          for (var obj of arr) {
+            fetched.push(new WeightData(obj.datetime, obj.lbs));
+          }
+          setData(fetched);
+        })
+        .catch(error => console.log('error', error));
+    }
+    fetchPatientData();
+  }, []);
+
+  return (
+    <React.Fragment key={"weight"}>
+      {PageHeader()}
+      {SingleValueChart(
+        data.map((datum) => {
+          return({
+            value: datum.lbs,
+            date: datum.dateString
+          });
+        })
+      )}
+      {DataList(
+        data.map((datum) => {
+          return(
+            <ListItem
+              title = {`${datum.lbs} lbs`}
+              secondaryText = {datum.dateString}
+            />
+          );
+        })
+      )}
+    </React.Fragment>
+  );
+}
