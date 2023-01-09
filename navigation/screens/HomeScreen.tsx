@@ -16,30 +16,39 @@ export default function HomeScreen({navigation}:{navigation:any}) {
             </View>
 
             <View style={styles.box}>
-                <View style={styles.inner}>
+                <View style={styles.inner}  onStartShouldSetResponder={() => navigation.navigate('Blood Pressure', {
+                        id:"mazanyam@rose-hulman.edu", 
+                        password:"yeah"
+                      })}>
                     <Text>Blood Pressure</Text>
                 </View>
             </View>
 
             <View style={styles.box}>
-                <View style={styles.inner}>
-                    <Text
-                    onPress={() => navigation.navigate('Weight', {
+                <View style={styles.inner}  onStartShouldSetResponder={() => navigation.navigate('Weight', {
                         id:"mazanyam@rose-hulman.edu", 
                         password:"yeah"
-                      })}>Weight</Text>
+                      })}>
+                    <Text
+                   >Weight</Text>
                 </View>
             </View>
 
             <View style={styles.box}>
-                <View style={styles.inner}>
+                <View style={styles.inner}  onStartShouldSetResponder={() => navigation.navigate('Temperature', {
+                        id:"mazanyam@rose-hulman.edu", 
+                        password:"yeah"
+                      })}>
                     <Text>Temperature</Text>
                 </View>
             </View>
 
             <View style={styles.box}>
-                <View style={styles.inner}>
-                    <Text>Oxygen Saturation</Text>
+                <View style={styles.inner}  onStartShouldSetResponder={() => navigation.navigate('Oxygen Saturation', {
+                        id:"mazanyam@rose-hulman.edu", 
+                        password:"yeah"
+                      })}>
+                      <Text>Oxygen Saturation</Text>
                 </View>
             </View>
 

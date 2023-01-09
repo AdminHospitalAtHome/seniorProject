@@ -69,6 +69,61 @@ export function SingleValueChart(entries: any[]) {
   );
 }
 
+export function DoubleValueChart(entries: any[]) {
+  return(
+    <LineChart
+      data={{
+        labels: entries.map((entry) => Array.from(entry.date)[9] == 'T'?
+          entry.date.substring(5,9):
+          entry.date.substring(5,10)),
+        datasets: [
+          {
+            data: entries.map((entry) => {
+              return(entry.first_value);
+            }),
+            color: (opacity = 1) => `rgba(0,0,110, ${opacity})`
+          },
+          {
+            data: entries.map((entry) => {
+              return(entry.second_value);
+            }),
+            color: (opacity = 1) => `rgba(0,100,176, ${opacity})`
+          },{data: [150], withDots: false,}, // TODO: Find a better way of doing this
+        ],
+      }}
+      //yLabelsOffset={20}
+      //xLabelsOffset={100}
+      segments={6}
+      fromZero={true}
+      width={Dimensions.get('window').width - 16} // from react-native
+      height={220}
+      //xAxisInterval={230}
+      yAxisLabel={''}
+      verticalLabelRotation={-70}
+      xLabelsOffset={10}
+      chartConfig={{
+        backgroundColor: '#1cc910',
+        backgroundGradientFrom: '#eff3ff',
+        backgroundGradientTo: '#efefef',
+        decimalPlaces: 2, // optional, defaults to 2dp
+        color: (opacity = 255) => `rgba(0, 0, 0, ${opacity})`,
+        strokeWidth: 6,
+        //color: () => 'transparent',
+        //textAnchor="middle"
+        //propsForHorizontalLabels=[textAnchor="middle"],
+        style: {
+          borderRadius: 16,
+        },
+      }}
+      bezier
+      style={{
+        marginVertical: 8,
+        borderRadius: 16,
+      }}
+    />
+  );
+}
+
 export function PageHeader() {
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -121,6 +176,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'grey',
     fontSize: 5,
+    marginLeft: 240
   },
   plus2:{
       width: 50,

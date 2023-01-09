@@ -11,6 +11,9 @@ import MessagesScreen from './screens/MessagesScreen';
 import InitialSetupScreen from './screens/InitialSetupScreen';
 import PulseScreen from './screens/PulseScreen';
 import WeightScreen from './screens/WeightScreen';
+import BloodPressureScreen from './screens/BloodPressureScreen';
+import TemperatureScreen from './screens/TemperatureScreen';
+import OxygenSaturationScreen from './screens/OxygenSaturationScreen'
 
 // Screen names
 const homeName = 'Home';
@@ -19,6 +22,9 @@ const messagesName = 'Messages';
 const initialSetupName = 'Initial Profile Setup';
 const pulseName = 'Pulse';
 const weightName = 'Weight';
+const bloodPressureName = 'Blood Pressure';
+const temperatureName = 'Temperature';
+const oxygenSaturationName = 'Oxygen Saturation';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -64,6 +70,9 @@ function MainContainer() {
      <Stack.Screen name="Main" component={App} options={{ headerShown: false }}/>
      <Stack.Screen name={pulseName} component={PulseScreen}/>
      <Stack.Screen name={weightName} component={WeightScreen}/>
+     <Stack.Screen name={bloodPressureName} component={BloodPressureScreen}/>
+     <Stack.Screen name={temperatureName} component={TemperatureScreen}/>
+     <Stack.Screen name={oxygenSaturationName} component={OxygenSaturationScreen}/>
     </Stack.Navigator>
   </NavigationContainer>
   );
