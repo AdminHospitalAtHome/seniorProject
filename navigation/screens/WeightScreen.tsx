@@ -1,7 +1,7 @@
 import React, { useState, useEffect, Component } from 'react';
-import GoogleFit, { Scopes } from 'react-native-google-fit';
+//import GoogleFit, { Scopes } from 'react-native-google-fit';
 import { DataList, PageHeader, SingleValueChart } from '../../components/MeasurementPageComponents';
-import Config from 'react-native-config'
+import Config from 'react-native-config';
 import { ListItem } from '@react-native-material/core';
 
 class WeightData {
@@ -17,12 +17,12 @@ export default function WeightScreen({route}:{route:any}) {
   const { id, password } = route.params;
 
   const [data, setData] = useState<WeightData[]>([new WeightData("", 0)]);
-  const options = {
-    scopes: [
-      Scopes.FITNESS_BODY_READ,
-      Scopes.FITNESS_BODY_WRITE,
-    ]
-  };
+  // const options = {
+  //   scopes: [
+  //     Scopes.FITNESS_BODY_READ,
+  //     Scopes.FITNESS_BODY_WRITE,
+  //   ]
+  // };
 
   useEffect(() => {
     async function fetchPatientData() {
