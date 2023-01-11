@@ -184,7 +184,7 @@ export default function InitialSetupScreen({navigation}: {navigation: any}) {
                 console.log(
                   `Information List:\n First Name: ${FNText}\n Last Name: ${LNText}\n Email: ${Email}\n Phone: ${Phone}\n DOB: ${DOB}\n EMCName: ${EMCName}\n EMCPhone: ${EMCPhone}`,
                 );
-                //navigation.navigate('MainContainer');
+                navigation.navigate('MainContainer');
               }
             }}
           />
