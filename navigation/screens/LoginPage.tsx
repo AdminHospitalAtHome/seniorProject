@@ -2,8 +2,11 @@ import * as React from 'react';
 import {StyleSheet, View, Text, TextInput, Image, Button, Alert, TouchableOpacity, ScrollView, State} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useState} from 'react';
+import InitialSetupScreen from './InitialSetupScreen';
+export default function SettingsScreen({navigation}:{navigation:any}) {
 
-const SettingsScreen = () => {
+
+// const SettingsScreen = () => {
   const [emailInputValue, setEmailInputValue] = useState('');
   const [passwordInputValue, setPasswordInputValue] = useState('');
   const [emailMessage, setEmailMessage] = useState('');
@@ -25,6 +28,7 @@ const SettingsScreen = () => {
     }
   }
 
+  
   return (
     <ScrollView style={styles.pageContainer}>
       <View style={styles.pageTitleContainer}>
@@ -35,7 +39,7 @@ const SettingsScreen = () => {
           <View style={styles.infoContainer}>
              <TextInput placeholder={'Email'} onChangeText={(data) => setEmailInputValue(data)} style={styles.inputText} />
              <Text style={styles.formatMessage}> {emailMessage} </Text>
-             <TextInput placeholder={'Password'} onChangeText={(data) => setPasswordInputValue(data)} style={styles.inputText} />
+             <TextInput secureTextEntry={true} placeholder={'Password'} onChangeText={(data) => setPasswordInputValue(data)} style={styles.inputText} />
              <Text style={styles.formatMessage}> {passwordMessage} </Text>
           </View>
           <TouchableOpacity
@@ -48,7 +52,7 @@ const SettingsScreen = () => {
 
           <TouchableOpacity
             style={styles.emeregencyButton}
-            onPress={() => navigation.navigate('Initial Setup Page')}
+            onPress={() => navigation.navigate('InitialSetupScreen')}
             underlayColor="#fff">
             <Text style={styles.emeregencyText}>Sign Up Instead</Text>
           </TouchableOpacity>
@@ -57,7 +61,7 @@ const SettingsScreen = () => {
     </ScrollView>
   );
 }
-
+// }
 const styles = StyleSheet.create({
   pageContainer: {
     backgroundColor: '#FFFFFF',
@@ -184,4 +188,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default SettingsScreen;
+//  export default SettingsScreen(navigation)
