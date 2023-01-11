@@ -1,0 +1,2 @@
+global.email = [''];
+global.password = [''];
