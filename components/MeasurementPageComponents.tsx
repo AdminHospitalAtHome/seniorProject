@@ -10,6 +10,7 @@ export function DataList(listItems: any[]) {
         {listItems.map((listItem: any) => {
           return(
             <Surface
+              key={listItem.key}
               elevation={2}
               category="medium"
               style={{ width: 370, height: 70 }}>

@@ -16,7 +16,7 @@ class WeightData {
 export default function WeightScreen({route}:{route:any}) {
   const { id, password } = route.params;
 
-  const [data, setData] = useState<WeightData[]>([new WeightData("", 0)]);
+  const [data, setData] = useState<WeightData[]>([]);
   // const options = {
   //   scopes: [
   //     Scopes.FITNESS_BODY_READ,
@@ -29,7 +29,6 @@ export default function WeightScreen({route}:{route:any}) {
       /* TODO: Abstract out */
       const Buffer = require("buffer").Buffer;
       let encodedAuth = new Buffer(id + ":" + password).toString("base64");
-
       var myHeaders = new Headers();
       myHeaders.append("Authorization", `Basic ${encodedAuth}`);
 
@@ -43,7 +42,7 @@ export default function WeightScreen({route}:{route:any}) {
       console.log("*********************************************");
 
       /* ------------------ */
-      const url = `https://hospital-at-home-app.azurewebsites.net/api/GetPatientMeasurements?code=${Config.GET_PATIENT_MEASUREMENTS_FUNCTION_KEY}&type=weight`;
+      const url = `${Config.GET_PATIENT_MEASUREMENTS_URL}?code=${Config.GET_PATIENT_MEASUREMENTS_FUNCTION_KEY}&type=weight`;
       fetch(url, requestOptions)
         .then(response => response.text())
         .then(result => JSON.parse(result).feed)
@@ -71,9 +70,10 @@ export default function WeightScreen({route}:{route:any}) {
         })
       )}
       {DataList(
-        data.map((datum) => {
+        data.map((datum, index) => {
           return(
             <ListItem
+              key={index}
               title = {`${datum.lbs} lbs`}
               secondaryText = {datum.dateString}
             />
