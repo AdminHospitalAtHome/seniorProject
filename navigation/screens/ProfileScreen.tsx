@@ -2,27 +2,85 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable prettier/prettier */
 import * as React from 'react';
+import { useState, useEffect, Component } from 'react';
 import {StyleSheet, View, Text, TextInput, Image, Button, Alert, TouchableOpacity, ScrollView} from 'react-native';
 
-export default function SettingsScreen({navigation}) {
+
+class UserData {
+  first_name:string;
+  last_name:string;
+  email:string;
+  phone:string;
+  birth_date:string;
+  ec_name:string;
+  ec_phone:string;
+
+  constructor(first_name:string, last_name:string, email:string, phone:string, birth_date:string
+              , ec_name:string, ec_phone:string) {
+    this.first_name = first_name;
+    this.last_name = last_name;
+    this.email = email;
+    this.phone = phone;
+    this.birth_date = birth_date;
+    this.ec_name = ec_name;
+    this.ec_phone = ec_phone;
+  }
+}
+
+export default function SettingsScreen({route}:{route:any}) {
+  const { id, password } = route.params;
+
+  const [data, setData] = useState<UserData[]>([new UserData("", "", "", "", "", "", "")]);
+
+  useEffect(() => {
+    async function fetchPatientData() {
+      const Buffer = require("buffer").Buffer;
+      let encodedAuth = new Buffer(id + ":" + password).toString("base64");
+
+      var myHeaders = new Headers();
+      myHeaders.append("Authorization", `Basic ${encodedAuth}`);
+
+      var requestOptions = {
+        method: 'POST',
+        headers: myHeaders,
+        redirect: 'follow'
+      };
+
+      console.log("*********************************************");
+      console.log("CALLING GetPatientProfileData AZURE FUNCTION");
+      console.log("*********************************************");
+
+      const url = `https://hospital-at-home-app.azurewebsites.net/api/GetUserData?code=${Config.GET_USER_DATA_FUNCTION_KEY}&type=data`;
+      fetch(url, requestOptions)
+        .then(response => response.text())
+        .then(result => JSON.parse(result).feed)
+        .then(arr => {
+          const fetched = [];
+          for (var obj of arr) {
+            fetched.push(new UserData(obj.first_name, obj.last_name, obj.email, obj.phone, obj.birth_date, obj.ec_phone, obj.ec_name));
+          }
+          setData(fetched);
+        })
+        .catch(error => console.log('error', error));
+    }
+    fetchPatientData();
+  }, []);
+
   return (
     <ScrollView style={styles.pageContainer}>
       <View style={styles.mainContainer}>
         <View style={styles.topContainer}>
-          <Image
-            source={require('./profile.png')} 
-            style={styles.profileImage} 
-            />
+          <Image source={require('./profile.png')} style={styles.profileImage}/>
           <View style={styles.nameBox}>
-            <TextInput style={styles.inputTextTop} placeholder='First Name' placeholderTextColor='#000'/>
-            <TextInput style={styles.inputTextTop} placeholder='Last Name' placeholderTextColor='#000'/>
+            <TextInput style={styles.inputTextTop} value={data.first_name} placeholder='First Name' placeholderTextColor='#000'/>
+            <TextInput style={styles.inputTextTop} value={data.last_name} placeholder='Last Name' placeholderTextColor='#000'/>
           </View>
         </View>
         <View style={styles.lowContainer}>
           <View style={styles.infoContainer}>
-            <TextInput style={styles.inputText} placeholder="Email" placeholderTextColor='#000'/>
-            <TextInput style={styles.inputText} keyboardType="numeric" placeholder="Phone" placeholderTextColor='#000'/>
-            <TextInput style={styles.inputText} placeholder="Birthday" placeholderTextColor='#000'/>
+            <TextInput style={styles.inputText} value={data.email} placeholder="Email" placeholderTextColor='#000'/>
+            <TextInput style={styles.inputText} value={data.phone} keyboardType="numeric" placeholder="Phone" placeholderTextColor='#000'/>
+            <TextInput style={styles.inputText} value={data.birth_date} placeholder="Birthday" placeholderTextColor='#000'/>
             <TextInput style={styles.inputText} placeholder="Gender" placeholderTextColor='#000'/>
           </View>
           <TouchableOpacity
@@ -32,14 +90,16 @@ export default function SettingsScreen({navigation}) {
               <Text style={styles.emeregencyText}>Call Front Desk</Text>
             </TouchableOpacity>
           <View style={styles.emergencyContainer}>
-            <TextInput style={styles.inputText} placeholder="Emergency Contact Name" placeholderTextColor='#000'/>
-            <TextInput style={styles.inputText} keyboardType="numeric" placeholder="Emergency Contact Phone" placeholderTextColor='#000'/>
+            <TextInput style={styles.inputText} value={data.ec_name} placeholder="Emergency Contact Name" placeholderTextColor='#000'/>
+            <TextInput style={styles.inputText} value={data.ec_phone} keyboardType="numeric" placeholder="Emergency Contact Phone" placeholderTextColor='#000'/>
           </View>
         </View>
       </View>
     </ScrollView>
   );
 }
+
+
 
 const styles = StyleSheet.create({
   pageContainer: {
