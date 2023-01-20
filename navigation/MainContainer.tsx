@@ -29,10 +29,10 @@ const oxygenSaturationName = 'Oxygen Saturation';
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
-function App() {
+function App({route}:{route:any}) {
+  const { id, password } = route.params;
   return (
     <Tab.Navigator
-      initialRouteName={initialSetupName}
       screenOptions={({route}) => ({
         activeTintColor: 'black',
         inactiveTintColor: 'grey',
@@ -57,22 +57,23 @@ function App() {
         },
       })}>
       <Tab.Screen name={homeName} component={HomeScreen}/>
-      <Tab.Screen name={messagesName} component={MessagesScreen} />
-      <Tab.Screen name={profileName} component={ProfileScreen} />
+      <Tab.Screen name={messagesName} component={MessagesScreen} initialParams={{id, password}}/>
+      <Tab.Screen name={profileName} component={ProfileScreen} initialParams={{id, password}}/>
     </Tab.Navigator>
   );
 }
 
-function MainContainer() {
+function MainContainer({route}:{route:any}) {
+  const { id, password } = route.params;
   return (
   <NavigationContainer independent={true}>
     <Stack.Navigator>
-     <Stack.Screen name="Main" component={App} options={{ headerShown: false }}/>
-     <Stack.Screen name={pulseName} component={PulseScreen}/>
-     <Stack.Screen name={weightName} component={WeightScreen}/>
-     <Stack.Screen name={bloodPressureName} component={BloodPressureScreen}/>
-     <Stack.Screen name={temperatureName} component={TemperatureScreen}/>
-     <Stack.Screen name={oxygenSaturationName} component={OxygenSaturationScreen}/>
+     <Stack.Screen name="Main" component={App} options={{ headerShown: false }} initialParams={{id, password}}/>
+     <Stack.Screen name={pulseName} component={PulseScreen} initialParams={{id, password}}/>
+     <Stack.Screen name={weightName} component={WeightScreen} initialParams={{id, password}}/>
+     <Stack.Screen name={bloodPressureName} component={BloodPressureScreen} initialParams={{id, password}}/>
+     <Stack.Screen name={temperatureName} component={TemperatureScreen} initialParams={{id, password}}/>
+     <Stack.Screen name={oxygenSaturationName} component={OxygenSaturationScreen} initialParams={{id, password}}/>
     </Stack.Navigator>
   </NavigationContainer>
   );

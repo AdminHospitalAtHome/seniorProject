@@ -16,38 +16,26 @@ export default function HomeScreen({navigation}:{navigation:any}) {
             </View>
 
             <View style={styles.box}>
-                <View style={styles.inner}  onStartShouldSetResponder={() => navigation.navigate('Blood Pressure', {
-                        id:"mazanyam@rose-hulman.edu", 
-                        password:"yeah"
-                      })}>
+                <View style={styles.inner}  onStartShouldSetResponder={() => navigation.navigate('Blood Pressure')}>
                     <Text>Blood Pressure</Text>
                 </View>
             </View>
 
             <View style={styles.box}>
-                <View style={styles.inner}  onStartShouldSetResponder={() => navigation.navigate('Weight', {
-                        id:"mazanyam@rose-hulman.edu", 
-                        password:"yeah"
-                      })}>
+                <View style={styles.inner}  onStartShouldSetResponder={() => navigation.navigate('Weight')}>
                     <Text
                    >Weight</Text>
                 </View>
             </View>
 
             <View style={styles.box}>
-                <View style={styles.inner}  onStartShouldSetResponder={() => navigation.navigate('Temperature', {
-                        id:"mazanyam@rose-hulman.edu", 
-                        password:"yeah"
-                      })}>
+                <View style={styles.inner}  onStartShouldSetResponder={() => navigation.navigate('Temperature')}>
                     <Text>Temperature</Text>
                 </View>
             </View>
 
             <View style={styles.box}>
-                <View style={styles.inner}  onStartShouldSetResponder={() => navigation.navigate('Oxygen Saturation', {
-                        id:"mazanyam@rose-hulman.edu", 
-                        password:"yeah"
-                      })}>
+                <View style={styles.inner}  onStartShouldSetResponder={() => navigation.navigate('Oxygen Saturation')}>
                       <Text>Oxygen Saturation</Text>
                 </View>
             </View>

@@ -12,22 +12,25 @@ import {
 import {Button} from '@react-native-material/core';
 import {TextInput} from 'react-native-paper';
 import TextInputMask from 'react-native-text-input-mask';
+import Config from 'react-native-config';
 
 export default function InitialSetupScreen({navigation}: {navigation: any}) {
-  const [FNText, setFNText] = useState('');
-  const [FNError, setFNError] = useState('');
-  const [LNText, setLNText] = useState('');
-  const [LNError, setLNError] = useState('');
-  const [Email, setEmail] = useState('');
-  const [EmailError, setEmailError] = useState('');
-  const [Phone, setPhone] = useState('');
-  const [PhoneError, setPhoneError] = useState('');
-  const [DOB, setDOB] = useState('');
-  const [DOBError, setDOBError] = useState('');
-  const [EMCName, setEMCName] = useState('');
-  const [EMCPhone, setEMCPhone] = useState('');
-  var phoneValid = false;
-  var DOBValid = false;
+  const [fName, setFName] = useState('');
+  const [fNameError, setFNameError] = useState(false);
+  const [lName, setLName] = useState('');
+  const [lNameError, setLNameError] = useState(false);
+  const [email, setEmail] = useState('');
+  const [emailError, setEmailError] = useState(false);
+  const [password, setPassword] = useState('');
+  const [passwordError, setPasswordError] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [confirmPasswordError, setConfirmPasswordError] = useState(false);
+  const [phone, setPhone] = useState('');
+  const [phoneError, setPhoneError] = useState('');
+  const [dob, setDOB] = useState('');
+  const [dobError, setDOBError] = useState('');
+  const [ecName, setECName] = useState('');
+  const [ecPhone, setECPhone] = useState('');
 
   return (
     <SafeAreaView style={styles.pageContainer}>
@@ -42,10 +45,10 @@ export default function InitialSetupScreen({navigation}: {navigation: any}) {
             label="First Name"
             selectionColor="#000000"
             activeOutlineColor="#D72C06"
-            value={FNText}
-            onChangeText={FNText => setFNText(FNText)}
+            value={fName}
+            onChangeText={fName => setFName(fName.trim())}
+            error={fNameError}
           />
-          {!!FNError && <Text style={styles.error}>&nbsp;&nbsp;{FNError}</Text>}
         </View>
         <View style={styles.scrollView}>
           <TextInput
@@ -54,10 +57,10 @@ export default function InitialSetupScreen({navigation}: {navigation: any}) {
             label="Last Name"
             selectionColor="#000000"
             activeOutlineColor="#D72C06"
-            value={LNText}
-            onChangeText={LNText => setLNText(LNText)}
+            value={lName}
+            onChangeText={lName => setLName(lName.trim())}
+            error={lNameError}
           />
-          {!!LNError && <Text style={styles.error}>&nbsp;&nbsp;{LNError}</Text>}
         </View>
         <View style={styles.scrollView}>
           <TextInput
@@ -67,12 +70,38 @@ export default function InitialSetupScreen({navigation}: {navigation: any}) {
             autoCapitalize="none"
             selectionColor="#000000"
             activeOutlineColor="#D72C06"
-            value={Email}
-            onChangeText={Email => setEmail(Email)}
+            value={email}
+            onChangeText={email => setEmail(email.trim())}
+            error={emailError}
           />
-          {!!EmailError && (
-            <Text style={styles.error}>&nbsp;&nbsp;{EmailError}</Text>
-          )}
+        </View>
+        <View style={styles.scrollView}>
+          <TextInput
+            secureTextEntry={true}
+            mode="outlined"
+            style={styles.textEntry}
+            label="Password"
+            autoCapitalize="none"
+            selectionColor="#000000"
+            activeOutlineColor="#D72C06"
+            value={password}
+            onChangeText={password => setPassword(password.trim())}
+            error={passwordError}
+          />
+        </View>
+        <View style={styles.scrollView}>
+          <TextInput
+            secureTextEntry={true}
+            mode="outlined"
+            style={styles.textEntry}
+            label="Confirm Password"
+            autoCapitalize="none"
+            selectionColor="#000000"
+            activeOutlineColor="#D72C06"
+            value={confirmPassword}
+            onChangeText={confirmPassword => setConfirmPassword(confirmPassword.trim())}
+            error={confirmPasswordError}
+          />
         </View>
         <View style={styles.midContainer}>
           <View style={styles.maskedInputContainer}>
@@ -81,23 +110,23 @@ export default function InitialSetupScreen({navigation}: {navigation: any}) {
             </Text>
             <TextInputMask
               style={styles.maskedEntry}
-              onChangeText={formatted => {
-                setPhone(formatted);
+              onChangeText={(formatted, extracted='') => {
+                setPhone(extracted);
               }}
               mask={'+1 ([000]) [000]-[0000]'}
               placeholder={'(000) 000-0000'}
               keyboardType="numeric"
               placeholderTextColor="grey"
             />
-            {!!PhoneError && (
-              <Text style={styles.error}>&nbsp;&nbsp;{PhoneError}</Text>
+            {!!phoneError && (
+              <Text style={styles.error}>&nbsp;&nbsp;{phoneError}</Text>
             )}
           </View>
           <View style={styles.maskedInputContainer}>
             <Text style={{fontSize: 16, color: 'black'}}>Date of Birth: </Text>
             <TextInputMask
               style={styles.maskedEntry}
-              onChangeText={formatted => {
+              onChangeText={formatted=> {
                 setDOB(formatted);
               }}
               mask={'[00]{/}[00]{/}[0000]'}
@@ -105,8 +134,8 @@ export default function InitialSetupScreen({navigation}: {navigation: any}) {
               keyboardType="numeric"
               placeholderTextColor="grey"
             />
-            {!!DOBError && (
-              <Text style={styles.error}>&nbsp;&nbsp;{DOBError}</Text>
+            {!!dobError && (
+              <Text style={styles.error}>&nbsp;&nbsp;{dobError}</Text>
             )}
           </View>
         </View>
@@ -121,8 +150,8 @@ export default function InitialSetupScreen({navigation}: {navigation: any}) {
             label="Emergency Contact Name"
             selectionColor="#000000"
             activeOutlineColor="#D72C06"
-            value={EMCName}
-            onChangeText={EMCName => setEMCName(EMCName)}
+            value={ecName}
+            onChangeText={ecName => setECName(ecName.trim())}
           />
           <View style={styles.maskedInputContainer}>
             <Text style={{fontSize: 16, color: 'black'}}>E.C. Phone: </Text>
@@ -132,8 +161,10 @@ export default function InitialSetupScreen({navigation}: {navigation: any}) {
               placeholder={'(000) 000-0000'}
               keyboardType="numeric"
               placeholderTextColor="grey"
-              value={EMCPhone}
-              onChangeText={EMCPhone => setEMCPhone(EMCPhone)}
+              value={ecPhone}
+              onChangeText={(formatted, extracted='') => {
+                setECPhone(extracted);
+              }}
             />
           </View>
         </View>
@@ -142,49 +173,68 @@ export default function InitialSetupScreen({navigation}: {navigation: any}) {
             style={styles.submissionButton}
             title="Submit"
             color="#D72C06"
-            onPress={() => {
-              if (!FNText.trim()) {
-                setFNError('*');
+            onPress={async () => {
+              let notReady:boolean = false;
+              if (!fName) {
+                setFNameError(true);
+                notReady = true;
               } else {
-                setFNError('');
+                setFNameError(false);
               }
-              if (!LNText.trim()) {
-                setLNError('*');
+              if (!lName) {
+                setLNameError(true);
+                notReady = true;
               } else {
-                setLNError('');
+                setLNameError(false);
               }
-              if (!Email.trim()) {
-                setEmailError('*');
+              if (!email) {
+                setEmailError(true);
+                notReady = true;
               } else {
-                setEmailError('');
+                setEmailError(false);
               }
-              if (!Phone.trim()) {
+              if (!password) {
+                setPasswordError(true);
+                notReady = true;
+              } else {
+                setPasswordError(false);
+              }
+              if (confirmPassword != password) {
+                setConfirmPasswordError(true);
+                notReady = true;
+              } else {
+                setConfirmPasswordError(false);
+              }
+              if (!phone) {
+                notReady = true;
                 setPhoneError('*');
-              } else if (Phone.length != 17) {
+              } else if (phone.length != 10) {
+                notReady = true;
                 setPhoneError('X');
               } else {
-                phoneValid = true;
                 setPhoneError('');
               }
-              if (!DOB.trim()) {
+              if (!dob) {
+                notReady = true;
                 setDOBError('*');
-              } else if (DOB.length != 10) {
+              } else if (dob.length != 10) {
+                notReady = true;
                 setDOBError('X');
               } else {
-                DOBValid = true;
                 setDOBError('');
               }
-              if (
-                FNText.trim() &&
-                LNText.trim() &&
-                Email.trim() &&
-                phoneValid &&
-                DOBValid
-              ) {
-                console.log(
-                  `Information List:\n First Name: ${FNText}\n Last Name: ${LNText}\n Email: ${Email}\n Phone: ${Phone}\n DOB: ${DOB}\n EMCName: ${EMCName}\n EMCPhone: ${EMCPhone}`,
-                );
-                navigation.navigate('MainContainer');
+              if (notReady) {
+                return;
+              }
+              const worked:boolean = await createAccount(fName, lName, email, password, phone, dob, ecName, ecPhone);
+              if (worked) {
+                navigation.navigate('MainContainer', {
+                  id:email, 
+                  password:password
+                });
+              } else {
+                console.log("Something went wrong with account creation.")
+                //TODO: Alert user to error
               }
             }}
           />
@@ -192,6 +242,35 @@ export default function InitialSetupScreen({navigation}: {navigation: any}) {
       </ScrollView>
     </SafeAreaView>
   );
+}
+
+async function createAccount(
+  first:string,
+  last:string,
+  email:string,
+  password:string,
+  phone:string,
+  dob:string,
+  ecName:string,
+  ecPhone:string
+):Promise<boolean> {
+  var requestOptions = {
+    method: 'POST',
+    redirect: 'follow'
+  };
+  console.log("*********************************************");
+  console.log("CALLING CreateUserAccount AZURE FUNCTION");
+  console.log("*********************************************");
+
+  /* ------------------ */
+  const url = `${Config.CREATE_USER_ACCOUNT_URL}?code=${Config.CREATE_USER_ACCOUNT_FUNCTION_KEY}` +
+                `&first=${first}&last=${last}&email=${email}&password=${password}&phone=${phone}` + 
+                `&dob=${dob}&ecName=${ecName}&ecPhone=${ecPhone}`;
+  console.log(url);
+  const created:boolean = await fetch(url, requestOptions)
+    .then(response => (response.status == 200 ? true : false))
+    .catch(error => false);
+  return created;
 }
 
 const styles = StyleSheet.create({

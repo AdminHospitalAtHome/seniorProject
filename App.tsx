@@ -13,14 +13,14 @@ function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-              <Stack.Screen
-                name ="LoginPage"
-                component={LoginPage}
-                options={{headerShown: false}}/>
         <Stack.Screen
-                name ="InitialSetupScreen"
-                component={InitialSetupScreen} 
-                options={{headerShown: false}}/>
+          name ="LoginPage"
+          component={LoginPage}
+          options={{headerShown: false}}/>
+        <Stack.Screen
+          name ="InitialSetupScreen"
+          component={InitialSetupScreen} 
+          options={{headerShown: false}}/>
         <Stack.Screen
           name="MainContainer"
           component={MainContainer}

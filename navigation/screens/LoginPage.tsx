@@ -1,34 +1,12 @@
 import * as React from 'react';
-import {StyleSheet, View, Text, TextInput, Image, Button, Alert, TouchableOpacity, ScrollView, State} from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {StyleSheet, View, Text, TouchableOpacity, ScrollView, Dimensions} from 'react-native';
+import {TextInput} from 'react-native-paper';
 import {useState} from 'react';
-import InitialSetupScreen from './InitialSetupScreen';
-export default function SettingsScreen({navigation}:{navigation:any}) {
+import Config from 'react-native-config';
 
-
-// const SettingsScreen = () => {
+export default function LoginScreen({navigation}:{navigation:any}) {
   const [emailInputValue, setEmailInputValue] = useState('');
   const [passwordInputValue, setPasswordInputValue] = useState('');
-  const [emailMessage, setEmailMessage] = useState('');
-  const [passwordMessage, setPasswordMessage] = useState('');
-  function saveGlobalValues(e, p) {
-    let format = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
-    if (format.test(e) === false) {
-        setEmailMessage('Invaild Email')
-        setPasswordMessage('')
-    } else if (p === '') {
-        setEmailMessage('')
-        setPasswordMessage('Empty Password')
-    } else {
-        setEmailMessage('')
-        setPasswordMessage('')
-        global.email[0] = e
-        global.password[0] = p
-        console.log('Email{' + global.email[0] + '}' + ' Password{' + global.password[0] + '}')
-    }
-  }
-
-  
   return (
     <ScrollView style={styles.pageContainer}>
       <View style={styles.pageTitleContainer}>
@@ -37,23 +15,40 @@ export default function SettingsScreen({navigation}:{navigation:any}) {
       <View style={styles.mainContainer}>
         <View style={styles.lowContainer}>
           <View style={styles.infoContainer}>
-             <TextInput placeholder={'Email'} onChangeText={(data) => setEmailInputValue(data)} style={styles.inputText} />
-             <Text style={styles.formatMessage}> {emailMessage} </Text>
-             <TextInput secureTextEntry={true} placeholder={'Password'} onChangeText={(data) => setPasswordInputValue(data)} style={styles.inputText} />
-             <Text style={styles.formatMessage}> {passwordMessage} </Text>
+             <TextInput
+                mode="outlined"
+                label={'Email'} 
+                onChangeText={(data) => setEmailInputValue(data.trim())} 
+                style={styles.textEntry}
+              />
+             <TextInput 
+                mode="outlined"
+                label={'Password'}
+                secureTextEntry={true} 
+                onChangeText={(data) => setPasswordInputValue(data.trim())} 
+                style={styles.textEntry} 
+              />
           </View>
           <TouchableOpacity
             style={styles.emeregencyButton}
-//            onPress={() => console.log('Email{' + emailInputValue + '}' + ' Password{' + passwordInputValue + '}')}
-            onPress={() => saveGlobalValues(emailInputValue, passwordInputValue)}
-            underlayColor="#fff">
+            onPress={async () => {
+              verifyLoginInfo(emailInputValue, passwordInputValue)
+                .then((auth) => {
+                  if (auth.length > 0) { // TODO: Update for patient/physician distinction
+                    navigation.navigate('MainContainer', {
+                      id:emailInputValue, 
+                      password:passwordInputValue
+                    });
+                  }
+                });
+            }}>
             <Text style={styles.emeregencyText}>Login</Text>
           </TouchableOpacity>
-
           <TouchableOpacity
             style={styles.emeregencyButton}
-            onPress={() => navigation.navigate('InitialSetupScreen')}
-            underlayColor="#fff">
+            onPress={() => {
+              navigation.navigate('InitialSetupScreen')
+            }}>
             <Text style={styles.emeregencyText}>Sign Up Instead</Text>
           </TouchableOpacity>
         </View>
@@ -61,7 +56,30 @@ export default function SettingsScreen({navigation}:{navigation:any}) {
     </ScrollView>
   );
 }
-// }
+
+async function verifyLoginInfo(id:string, password:string):Promise<string> {
+  const Buffer = require("buffer").Buffer;
+  let encodedAuth = new Buffer(id + ":" + password).toString("base64");
+  var myHeaders = new Headers();
+  myHeaders.append("Authorization", `Basic ${encodedAuth}`);
+
+  var requestOptions = {
+    method: 'POST',
+    headers: myHeaders,
+    redirect: 'follow'
+  };
+  console.log("*********************************************");
+  console.log("CALLING VerifyLoginInfo AZURE FUNCTION");
+  console.log("*********************************************");
+
+  /* ------------------ */
+  const url = `${Config.VERIFY_LOGIN_INFO_URL}?code=${Config.VERIFY_LOGIN_INFO_FUNCTION_KEY}`;
+  const auth:string = await fetch(url, requestOptions)
+    .then(response => (response.status == 403 ? "" : response.text()))
+    .catch(error => "");
+  return auth;
+}
+
 const styles = StyleSheet.create({
   pageContainer: {
     backgroundColor: '#FFFFFF',
@@ -74,7 +92,6 @@ const styles = StyleSheet.create({
   topContainer: {
     height: '50%',
     flex: 1,
-    // backgroundColor: '#D9D9D9',
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
@@ -102,6 +119,7 @@ const styles = StyleSheet.create({
     height: '50%',
     marginBottom: 10,
     paddingBottom: 10,
+    alignItems: 'center',
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
@@ -113,7 +131,6 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
   },
   inputTextTop: {
-    borderwidth: 5,
     borderColor: 'black',
     padding: 5,
     margin: 10,
@@ -122,15 +139,11 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1.3,
   },
   inputText: {
-    borderwidth: 5,
     borderColor: 'black',
     padding: 5,
     margin: 10,
     borderBottomColor: '#673AB7',
     borderBottomWidth: 1.3,
-  },
-  button: {
-    text: "hello"
   },
   emeregencyButton:{
     marginRight: 60,
@@ -185,7 +198,11 @@ const styles = StyleSheet.create({
   },
   formatMessage: {
     color: 'red'
-  }
+  },
+  textEntry: {
+    flex: 1,
+    height: Dimensions.get('window').height * 0.09,
+    width: Dimensions.get('window').width * 0.8,
+    marginVertical: '3%',
+  },
 });
-
-//  export default SettingsScreen(navigation)
