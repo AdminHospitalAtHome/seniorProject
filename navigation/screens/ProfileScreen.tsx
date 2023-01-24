@@ -4,7 +4,75 @@
 import * as React from 'react';
 import {StyleSheet, View, Text, TextInput, Image, Button, Alert, TouchableOpacity, ScrollView} from 'react-native';
 
+<<<<<<< Updated upstream
 export default function SettingsScreen({navigation}) {
+=======
+//import GoogleFit, { Scopes } from 'react-native-google-fit';
+//import { DataList, PageHeader, SingleValueChart } from '../../components/MeasurementPageComponents';
+import Config from 'react-native-config';
+//import { ListItem } from '@react-native-material/core';
+
+class UserData {
+  first_name:string;
+  last_name:string;
+  email:string;
+  phone:string;
+  birth_date:string;
+  ec_name:string;
+  ec_phone:string;
+
+  constructor(first_name:string, last_name:string, email:string, phone:string, birth_date:string
+              , ec_name:string, ec_phone:string) {
+    this.first_name = first_name;
+    this.last_name = last_name;
+    this.email = email;
+    this.phone = phone;
+    this.birth_date = birth_date;
+    this.ec_name = ec_name;
+    this.ec_phone = ec_phone;
+  }
+}
+
+export default function SettingsScreen({route}:{route:any}) {
+  const { id, password } = route.params;
+
+  const [data, setData] = useState<UserData[]>([]);
+
+  useEffect(() => {
+    async function fetchPatientData() {
+      const Buffer = require("buffer").Buffer;
+      let encodedAuth = new Buffer(id + ":" + password).toString("base64");
+
+      var myHeaders = new Headers();
+      myHeaders.append("Authorization", `Basic ${encodedAuth}`);
+
+      var requestOptions = {
+        method: 'POST',
+        headers: myHeaders,
+        redirect: 'follow'
+      };
+
+      console.log("*********************************************");
+      console.log("CALLING GetPatientProfileData AZURE FUNCTION");
+      console.log("*********************************************");
+
+      const url = `https://hospital-at-home-app.azurewebsites.net/api/GetUserData?code=${Config.GET_USER_DATA_FUNCTION_KEY}`;
+      fetch(url, requestOptions)
+        .then(response => response.text())
+        .then(result => JSON.parse(result))
+        .then(arr => {
+          const fetched = [];
+          for (var obj of arr) {
+            fetched.push(new UserData(obj.first_name, obj.last_name, obj.email, obj.phone, obj.birth_date, obj.ec_phone, obj.ec_name));
+          }
+          setData(fetched);
+        })
+        .catch(error => console.log('error', error));
+    }
+    fetchPatientData();
+  }, []);
+
+>>>>>>> Stashed changes
   return (
     <ScrollView style={styles.pageContainer}>
       <View style={styles.mainContainer}>
