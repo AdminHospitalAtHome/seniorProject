@@ -4,8 +4,6 @@
 import * as React from 'react';
 import {StyleSheet, View, Text, TextInput, Image, Button, Alert, TouchableOpacity, ScrollView} from 'react-native';
 
-export default function SettingsScreen({navigation}) {
-=======
 //import GoogleFit, { Scopes } from 'react-native-google-fit';
 //import { DataList, PageHeader, SingleValueChart } from '../../components/MeasurementPageComponents';
 import Config from 'react-native-config';
