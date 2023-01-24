@@ -4,7 +4,6 @@
 import * as React from 'react';
 import {StyleSheet, View, Text, TextInput, Image, Button, Alert, TouchableOpacity, ScrollView} from 'react-native';
 
-<<<<<<< Updated upstream
 export default function SettingsScreen({navigation}) {
 =======
 //import GoogleFit, { Scopes } from 'react-native-google-fit';
@@ -72,7 +71,6 @@ export default function SettingsScreen({route}:{route:any}) {
     fetchPatientData();
   }, []);
 
->>>>>>> Stashed changes
   return (
     <ScrollView style={styles.pageContainer}>
       <View style={styles.mainContainer}>
