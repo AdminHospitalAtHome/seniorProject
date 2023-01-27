@@ -30,9 +30,16 @@ class UserData {
 export default function SettingsScreen({route}:{route:any}) {
   const { id, password } = route.params;
 
-  const [data, setData] = useState<UserData[]>([new UserData("", "", "", "", "", "", "")]);
+  const [data, setData] = useState<UserData[]>([]);
+  const [profileData, setProfileData] = useState([]);
 
   useEffect(() => {
+    function split(output:string) {
+      const values = output.split(',');
+      return values;
+      // console.log(values[0].split(':')[1])
+    }
+
     async function fetchPatientData() {
       const Buffer = require("buffer").Buffer;
       let encodedAuth = new Buffer(id + ":" + password).toString("base64");
@@ -49,39 +56,67 @@ export default function SettingsScreen({route}:{route:any}) {
       console.log("*********************************************");
       console.log("CALLING GetPatientProfileData AZURE FUNCTION");
       console.log("*********************************************");
-
-      const url = `https://hospital-at-home-app.azurewebsites.net/api/GetUserData?code=${Config.GET_USER_DATA_FUNCTION_KEY}&type=data`;
+      const url = `https://hospital-at-home-app.azurewebsites.net/api/GetUserData?code=${Config.GET_USER_DATA_FUNCTION_KEY}`;
       fetch(url, requestOptions)
         .then(response => response.text())
-        .then(result => JSON.parse(result).feed)
+        
+        .then(result => {JSON.parse(result);   
+          profileData.push(result.split(','));
+                         // console.log(typeof(result));
+                          //console.log("HERE IT IS:" + result.get("first_name"))    
+                          //setData(new UserData(result.first_name, result.last_name, result.id, result.phone, result.birth_date, result.ec_phone, result.ec_name)); //fddfd
+        })
+/*
         .then(arr => {
           const fetched = [];
           for (var obj of arr) {
-            fetched.push(new UserData(obj.first_name, obj.last_name, obj.email, obj.phone, obj.birth_date, obj.ec_phone, obj.ec_name));
+            console.log("HERE IT IS:" +fetched)
+            fetched.push(new UserData(arr.first_name, obj.last_name, obj.email, obj.phone, obj.birth_date, obj.ec_phone, obj.ec_name));
           }
           setData(fetched);
         })
+*/
         .catch(error => console.log('error', error));
+        //console.log(data) // oidnoifd
     }
-    fetchPatientData();
-  }, []);
 
+    fetchPatientData();
+
+    console.log(typeof(profileData.toString()))
+    console.log(profileData.toString().split(',')[0].split(':')[1].replace(/"/g, ''))
+  }, []);
+  // const string1 = profileData[0].split(':')[1].replace(/"/g, '')
+  // console.log(string1)
   return (
     <ScrollView style={styles.pageContainer}>
       <View style={styles.mainContainer}>
         <View style={styles.topContainer}>
-          <Image source={require('./profile.png')} style={styles.profileImage}/>
+          <Image
+            source={require('./profile.png')} 
+            style={styles.profileImage}  
+            />
           <View style={styles.nameBox}>
-            <TextInput style={styles.inputTextTop} value={data.first_name} placeholder='First Name' placeholderTextColor='#000'/>
-            <TextInput style={styles.inputTextTop} value={data.last_name} placeholder='Last Name' placeholderTextColor='#000'/>
+            <TextInput value={profileData.toString().split(',')[1].split(':')[1].replace(/"/g, '')
+              // profileData[1].split(':')[1].replace(/"/g, '') 
+            } style={styles.inputTextTop} placeholder='First Name' placeholderTextColor='#000'/>
+            <TextInput value={profileData.toString().split(',')[2].split(':')[1].replace(/"/g, '')
+              // profileData[2].split(':')[1].replace(/"/g, '')
+            } style={styles.inputTextTop} placeholder='Last Name' placeholderTextColor='#000'/>
           </View>
         </View>
         <View style={styles.lowContainer}>
           <View style={styles.infoContainer}>
-            <TextInput style={styles.inputText} value={data.email} placeholder="Email" placeholderTextColor='#000'/>
-            <TextInput style={styles.inputText} value={data.phone} keyboardType="numeric" placeholder="Phone" placeholderTextColor='#000'/>
-            <TextInput style={styles.inputText} value={data.birth_date} placeholder="Birthday" placeholderTextColor='#000'/>
-            <TextInput style={styles.inputText} placeholder="Gender" placeholderTextColor='#000'/>
+            <TextInput value={profileData.toString().split(',')[0].split(':')[1].replace(/"/g, '').substring(0, 3) 
+            // + profileData.toString().split(',')[0].split(':')[1].replace(/"/g, '').substring(3, 9)
+              // profileData[0].split(':')[1].replace(/"/g, '')
+            } style={styles.inputText} placeholder="Email" placeholderTextColor='#000'/>
+            <TextInput value={profileData.toString().split(',')[3].split(':')[1].replace(/"/g, '')
+              // profileData[3].split(':')[1].replace(/"/g, '')
+              } style={styles.inputText} keyboardType="numeric" placeholder="Phone" placeholderTextColor='#000'/>
+            <TextInput value={profileData.toString().split(',')[6].split(':')[1].replace(/"/g, '')
+              // profileData[6].split(':')[1].replace(/"/g, '')
+              } style={styles.inputText} placeholder="Birthday" placeholderTextColor='#000'/>
+            <TextInput value="N/A" style={styles.inputText} placeholder="Gender" placeholderTextColor='#000'/>
           </View>
           <TouchableOpacity
               style={styles.emeregencyButton}
@@ -90,8 +125,12 @@ export default function SettingsScreen({route}:{route:any}) {
               <Text style={styles.emeregencyText}>Call Front Desk</Text>
             </TouchableOpacity>
           <View style={styles.emergencyContainer}>
-            <TextInput style={styles.inputText} value={data.ec_name} placeholder="Emergency Contact Name" placeholderTextColor='#000'/>
-            <TextInput style={styles.inputText} value={data.ec_phone} keyboardType="numeric" placeholder="Emergency Contact Phone" placeholderTextColor='#000'/>
+            <TextInput value={profileData.toString().split(',')[8].split(':')[1].replace(/"/g, '')
+              // profileData[8].split(':')[1].replace(/"/g, '')
+            } style={styles.inputText} placeholder="Emergency Contact Name" placeholderTextColor='#000'/>
+            <TextInput value={profileData.toString().split(',')[7].split(':')[1].replace(/"/g, '')
+              // profileData[7].split(':')[1].replace(/"/g, '')
+            } style={styles.inputText} keyboardType="numeric" placeholder="Emergency Contact Phone" placeholderTextColor='#000'/>
           </View>
         </View>
       </View>
