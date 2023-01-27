@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Component } from 'react';
 import GoogleFit, { Scopes } from 'react-native-google-fit';
-import { DataList, PageHeader, SingleValueChart, DoubleValueChart } from '../../components/MeasurementPageComponents';
+import { DataList, PageHeader, SingleValueChart, DoubleValueChart,fetchPatientData } from '../../components/MeasurementPageComponents';
 import Config from 'react-native-config'
 import { ListItem } from '@react-native-material/core';
 
@@ -25,38 +25,7 @@ class TemperatureData {
     };
   
     useEffect(() => {
-      async function fetchPatientData() {
-        /* TODO: Abstract out */
-        const Buffer = require("buffer").Buffer;
-        let encodedAuth = new Buffer(id + ":" + password).toString("base64");
-  
-        var myHeaders = new Headers();
-        myHeaders.append("Authorization", `Basic ${encodedAuth}`);
-  
-        var requestOptions = {
-          method: 'POST',
-          headers: myHeaders,
-          redirect: 'follow'
-        };
-        console.log("*********************************************");
-        console.log("CALLING GetPatientMeasurements AZURE FUNCTION");
-        console.log("*********************************************");
-  
-        /* ------------------ */
-        const url = `https://hospital-at-home-app.azurewebsites.net/api/GetPatientMeasurements?code=${Config.GET_PATIENT_MEASUREMENTS_FUNCTION_KEY}&type=temperature`;
-        fetch(url, requestOptions)
-          .then(response => response.text())
-          .then(result => JSON.parse(result).feed)
-          .then(arr => {
-            const fetched = [];
-            for (var obj of arr) {
-              fetched.push(new TemperatureData(obj.datetime, obj.degree));
-            }
-            setData(fetched);
-          })
-          .catch(error => console.log('error', error));
-      }
-      fetchPatientData();
+      fetchPatientData(id,password,TemperatureData,setData, "temperature", ["degree"]);
     }, []);
   
     return (
@@ -71,9 +40,10 @@ class TemperatureData {
           })
         )}
         {DataList(
-          data.map((datum) => {
+          data.map((datum, index) => {
             return(
               <ListItem
+                key = {index}
                 title = {`${datum.degree} ${'\u00b0'}F  `}
                 secondaryText = {datum.dateString}
               />
