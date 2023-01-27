@@ -3,7 +3,7 @@
 /* eslint-disable prettier/prettier */
 import * as React from 'react';
 import {StyleSheet, View, Text, TextInput, Image, Button, Alert, TouchableOpacity, ScrollView} from 'react-native';
-
+import {useState, useEffect, Component } from 'react';
 //import GoogleFit, { Scopes } from 'react-native-google-fit';
 //import { DataList, PageHeader, SingleValueChart } from '../../components/MeasurementPageComponents';
 import Config from 'react-native-config';
@@ -56,15 +56,19 @@ export default function SettingsScreen({route}:{route:any}) {
       const url = `https://hospital-at-home-app.azurewebsites.net/api/GetUserData?code=${Config.GET_USER_DATA_FUNCTION_KEY}`;
       fetch(url, requestOptions)
         .then(response => response.text())
-        .then(result => JSON.parse(result))
+        .then(result => {JSON.parse(result).feed;         
+                          console.log(result); //fddfd
+        })
         .then(arr => {
           const fetched = [];
           for (var obj of arr) {
             fetched.push(new UserData(obj.first_name, obj.last_name, obj.email, obj.phone, obj.birth_date, obj.ec_phone, obj.ec_name));
           }
           setData(fetched);
+          console.log(fetched); // dsdsdsds
         })
         .catch(error => console.log('error', error));
+        console.log(data) // oidnoifd
     }
     fetchPatientData();
   }, []);
@@ -78,16 +82,16 @@ export default function SettingsScreen({route}:{route:any}) {
             style={styles.profileImage} 
             />
           <View style={styles.nameBox}>
-            <TextInput style={styles.inputTextTop} placeholder='First Name' placeholderTextColor='#000'/>
-            <TextInput style={styles.inputTextTop} placeholder='Last Name' placeholderTextColor='#000'/>
+            <TextInput value={data.first_name} style={styles.inputTextTop} placeholder='First Name' placeholderTextColor='#000'/>
+            <TextInput value={data.last_name} style={styles.inputTextTop} placeholder='Last Name' placeholderTextColor='#000'/>
           </View>
         </View>
         <View style={styles.lowContainer}>
           <View style={styles.infoContainer}>
-            <TextInput style={styles.inputText} placeholder="Email" placeholderTextColor='#000'/>
-            <TextInput style={styles.inputText} keyboardType="numeric" placeholder="Phone" placeholderTextColor='#000'/>
-            <TextInput style={styles.inputText} placeholder="Birthday" placeholderTextColor='#000'/>
-            <TextInput style={styles.inputText} placeholder="Gender" placeholderTextColor='#000'/>
+            <TextInput value={data.email} style={styles.inputText} placeholder="Email" placeholderTextColor='#000'/>
+            <TextInput value={data.phone} style={styles.inputText} keyboardType="numeric" placeholder="Phone" placeholderTextColor='#000'/>
+            <TextInput value={data.birth_date} style={styles.inputText} placeholder="Birthday" placeholderTextColor='#000'/>
+            <TextInput value="Not Specified" style={styles.inputText} placeholder="Gender" placeholderTextColor='#000'/>
           </View>
           <TouchableOpacity
               style={styles.emeregencyButton}
@@ -96,8 +100,8 @@ export default function SettingsScreen({route}:{route:any}) {
               <Text style={styles.emeregencyText}>Call Front Desk</Text>
             </TouchableOpacity>
           <View style={styles.emergencyContainer}>
-            <TextInput style={styles.inputText} placeholder="Emergency Contact Name" placeholderTextColor='#000'/>
-            <TextInput style={styles.inputText} keyboardType="numeric" placeholder="Emergency Contact Phone" placeholderTextColor='#000'/>
+            <TextInput value={data.ec_name} style={styles.inputText} placeholder="Emergency Contact Name" placeholderTextColor='#000'/>
+            <TextInput value={data.ec_phone} style={styles.inputText} keyboardType="numeric" placeholder="Emergency Contact Phone" placeholderTextColor='#000'/>
           </View>
         </View>
       </View>
