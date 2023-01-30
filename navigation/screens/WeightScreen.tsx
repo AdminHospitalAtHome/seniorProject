@@ -1,23 +1,12 @@
 import {
   Platform,
-  Alert,
-  Pressable,
-  Modal,
-  Dimensions,
-  StyleSheet,
-  Text,
-  ScrollView,
-  View,
 } from 'react-native';
 import React, { useState, useEffect, Component } from 'react';
-//import GoogleFit, { Scopes } from 'react-native-google-fit';
 import { DataList, PageHeader, SingleValueChart, fetchPatientData } from '../../components/MeasurementPageComponents';
-import Config from 'react-native-config';
 import { ListItem } from '@react-native-material/core';
 import GoogleFit, {Scopes} from 'react-native-google-fit';
 import moment from 'moment';
 import AppleHealthKit, {HealthKitPermissions} from 'react-native-health';
-
 
 class WeightData {
   dateString:string;
@@ -29,11 +18,15 @@ class WeightData {
 }
 
 export default function WeightScreen({route}:{route:any}) {
+  interface Data {
+    type: string;
+    patient: any;
+    datetime: string;
+    lbs: number;
+  }
   const { id, password } = route.params;
   const [data, setData] = useState<WeightData[]>([]);
-  const [weight, setWeight] = useState('');
-  const [refresh, setRefresh] = useState(1);
-  var weightStr = '';
+  const [weight, setWeight] = useState<Data[]>([]);
   function getWeight() {
     if (Platform.OS === 'android') {
       var today = new Date();
@@ -45,17 +38,19 @@ export default function WeightScreen({route}:{route:any}) {
         bucketInterval: 1, // optional - default 1.
         ascending: true, // optional; default false
       };
-      //const res = await GoogleFit.getHeartRateSamples(opt);
       GoogleFit.getWeightSamples(opt).then(res => {
-        weightStr = JSON.stringify(res);
-        //pulseStr = res[0].startDate;
-        //const date0 = moment(res[1].startDate);
-        //const date1 = moment(pulseStr);
-        setWeight(weightStr);
-        console.log("result:"+weight);
-        // if(date1.isBefore(date0)){
-        //   console.log("answer: true");
-        // }
+        const output = res.map(item => {
+          const date = moment(item.endDate);
+          return {
+            type:"weight",
+            patient:id,
+            datetime:date.format('MMM DD, YYYY hh:mm:ss'),
+            lbs: item.value
+          }
+        });
+        setWeight(output);
+        //console.log("output:"+JSON.stringify(res));
+        console.log("weight:"+JSON.stringify(weight));
       });
     } else if (Platform.OS === 'ios') {
       let options = {
@@ -98,6 +93,7 @@ export default function WeightScreen({route}:{route:any}) {
               if (authResult.success) {
                 console.log('AUTH_SUCCESS');
                 // if successfully authorized, fetch data
+                getWeight();
               } else {
                 console.log('AUTH_DENIED ' + authResult.message);
               }
@@ -126,41 +122,12 @@ export default function WeightScreen({route}:{route:any}) {
       });
     }
   }
-  init();
+  
 
-
+  //init();
   useEffect(() => {
-    // async function fetchPatientData() {
-    //   /* TODO: Abstract out */
-    //   const Buffer = require("buffer").Buffer;
-    //   let encodedAuth = new Buffer(id + ":" + password).toString("base64");
-    //   var myHeaders = new Headers();
-    //   myHeaders.append("Authorization", `Basic ${encodedAuth}`);
-
-    //   var requestOptions = {
-    //     method: 'POST',
-    //     headers: myHeaders,
-    //     redirect: 'follow'
-    //   };
-    //   console.log("*********************************************");
-    //   console.log("CALLING GetPatientMeasurements AZURE FUNCTION");
-    //   console.log("*********************************************");
-
-    //   /* ------------------ */
-    //   const url = `${Config.GET_PATIENT_MEASUREMENTS_URL}?code=${Config.GET_PATIENT_MEASUREMENTS_FUNCTION_KEY}&type=weight`;
-    //   fetch(url, requestOptions)
-    //     .then(response => response.text())
-    //     .then(result => JSON.parse(result).feed)
-    //     .then(arr => {
-    //       const fetched = [];
-    //       for (var obj of arr) {
-    //         fetched.push(new WeightData(obj.datetime, obj.lbs));
-    //       }
-    //       setData(fetched);
-    //     })
-    //     .catch(error => console.log('error', error));
-    // }
     fetchPatientData(id,password,WeightData,setData, "weight",  ["lbs"]);
+    init();
   }, []);
 
   return (
