@@ -1,13 +1,9 @@
-/* eslint-disable no-trailing-spaces */
-/* eslint-disable react-native/no-inline-styles */
-/* eslint-disable prettier/prettier */
 import * as React from 'react';
 import {StyleSheet, View, Text, TextInput, Image, Button, Alert, TouchableOpacity, ScrollView} from 'react-native';
 import {useState, useEffect, Component } from 'react';
-//import GoogleFit, { Scopes } from 'react-native-google-fit';
-//import { DataList, PageHeader, SingleValueChart } from '../../components/MeasurementPageComponents';
 import Config from 'react-native-config';
-//import { ListItem } from '@react-native-material/core';
+import { ECDH } from 'crypto';
+import TextInputMask from 'react-native-text-input-mask';
 
 class UserData {
   first_name:string;
@@ -18,8 +14,8 @@ class UserData {
   ec_name:string;
   ec_phone:string;
 
-  constructor(first_name:string, last_name:string, email:string, phone:string, birth_date:string
-              , ec_name:string, ec_phone:string) {
+  constructor(first_name, last_name, email, phone, birth_date
+              , ec_name, ec_phone) {
     this.first_name = first_name;
     this.last_name = last_name;
     this.email = email;
@@ -33,9 +29,19 @@ class UserData {
 export default function SettingsScreen({route}:{route:any}) {
   const { id, password } = route.params;
 
-  const [data, setData] = useState<UserData[]>([]);
+  const [data, setData] = useState(new UserData("", "", "", "", "", "", ""));
+
+  const [firstNameState, setFirstNameState] = useState("");
+  const [lastNameState, setLastNameState] = useState("");
+  const [emailState, setEmailState] = useState("");
+  const [birthDateState, setBirthDataState] = useState("");
+  const [phoneNumberState, setPhoneNumberState] = useState("");
+  const [sexState, setSexState] = useState("M");
+  const [emergencyNameState, setEmergencyNameState] = useState("");
+  const [emergencyPhoneNumber, setEmergencyPhoneNumber] = useState("");
 
   useEffect(() => {
+
     async function fetchPatientData() {
       const Buffer = require("buffer").Buffer;
       let encodedAuth = new Buffer(id + ":" + password).toString("base64");
@@ -47,7 +53,7 @@ export default function SettingsScreen({route}:{route:any}) {
         method: 'POST',
         headers: myHeaders,
         redirect: 'follow'
-      };
+      }; 
 
       console.log("*********************************************");
       console.log("CALLING GetPatientProfileData AZURE FUNCTION");
@@ -55,23 +61,60 @@ export default function SettingsScreen({route}:{route:any}) {
 
       const url = `https://hospital-at-home-app.azurewebsites.net/api/GetUserData?code=${Config.GET_USER_DATA_FUNCTION_KEY}`;
       fetch(url, requestOptions)
-        .then(response => response.text())
-        .then(result => {JSON.parse(result).feed;         
-                          console.log(result); //fddfd
-        })
-        .then(arr => {
-          const fetched = [];
-          for (var obj of arr) {
-            fetched.push(new UserData(obj.first_name, obj.last_name, obj.email, obj.phone, obj.birth_date, obj.ec_phone, obj.ec_name));
-          }
-          setData(fetched);
-          console.log(fetched); // dsdsdsds
-        })
-        .catch(error => console.log('error', error));
-        console.log(data) // oidnoifd
+      .then(response => response.text())
+      .then(result => result = JSON.parse(result))
+      .then(arr => {
+        setData(new UserData(arr.first_name, arr.last_name, arr.id, arr.phone, arr.birth_date, arr.ec_name, arr.ec_phone));
+      })
+      .catch(error => console.log('error', error));
     }
     fetchPatientData();
   }, []);
+
+  function SubmitUpdates () {
+    async function fetchPatientData() {
+      console.log("*********************************************");
+      console.log("CALLING UpdateUserAccountInfo AZURE FUNCTION");
+      console.log("*********************************************");
+
+      const Buffer = require("buffer").Buffer;
+      let encodedAuth = new Buffer(id + ":" + password).toString("base64");
+
+      var myHeaders = new Headers();
+      myHeaders.append("Authorization", `Basic ${encodedAuth}`);
+
+      var requestOptions = {
+        method: 'POST',
+        headers: myHeaders,
+        redirect: 'follow'
+      }; 
+
+      var url = `https://hospital-at-home-app.azurewebsites.net/api/UpdateUserAccountInfo?code=${Config.UPDATE_USER_ACCOUNT_INFO_FUNCTION_KEY}` // +
+      // `&first=${firstNameState}&last=${lastNameState}&email=${id}&password=${password}&phone=${phoneNumberState}` + 
+      // `&dob=${birthDateState}&ecName=${emergencyNameState}&ecPhone=${emergencyPhoneNumber}`;
+
+      if (firstNameState != "") {
+        url += `&first=${firstNameState}`;
+      } if (lastNameState != "") {
+        url += `&last=${lastNameState}`;
+      }  if (phoneNumberState != "") {
+        url += `&phone=${phoneNumberState.replace(" ", "").replace("(", "").replace(")", "").replace("-", "")}`;
+      } if (birthDateState != "") {
+        url += `&dob=${birthDateState}`;
+      } if (emergencyNameState != "") {
+        url += `&ecName=${emergencyNameState}`;
+      } if (emergencyPhoneNumber != "") {
+        url += `&ecPhone=${emergencyPhoneNumber.replace(" ", "").replace("(", "").replace(")", "").replace("-", "")}`;
+      }
+
+      console.log(url);
+      const created:boolean = await fetch(url, requestOptions)
+        .then(response => (response.status == 200 ? true : false))
+        .catch(error => false);
+      return created;
+    }
+    fetchPatientData()
+  }
 
   return (
     <ScrollView style={styles.pageContainer}>
@@ -82,27 +125,33 @@ export default function SettingsScreen({route}:{route:any}) {
             style={styles.profileImage} 
             />
           <View style={styles.nameBox}>
-            <TextInput value={data.first_name} style={styles.inputTextTop} placeholder='First Name' placeholderTextColor='#000'/>
-            <TextInput value={data.last_name} style={styles.inputTextTop} placeholder='Last Name' placeholderTextColor='#000'/>
+            <TextInput value={firstNameState} onChangeText={text => setFirstNameState(text)} style={styles.inputTextTop} placeholder={data.first_name} placeholderTextColor='#000'/>
+            <TextInput value={lastNameState} onChangeText={text => setLastNameState(text)} style={styles.inputTextTop} placeholder={data.last_name} placeholderTextColor='#000'/>
           </View>
         </View>
         <View style={styles.lowContainer}>
           <View style={styles.infoContainer}>
-            <TextInput value={data.email} style={styles.inputText} placeholder="Email" placeholderTextColor='#000'/>
-            <TextInput value={data.phone} style={styles.inputText} keyboardType="numeric" placeholder="Phone" placeholderTextColor='#000'/>
-            <TextInput value={data.birth_date} style={styles.inputText} placeholder="Birthday" placeholderTextColor='#000'/>
-            <TextInput value="Not Specified" style={styles.inputText} placeholder="Gender" placeholderTextColor='#000'/>
+            <TextInput value={data.email} onChangeText={text => setEmailState(text)} style={styles.inputText} placeholder={data.email} placeholderTextColor='#000'/>
+            <TextInputMask value={phoneNumberState} onChangeText={text => setPhoneNumberState(text)} style={styles.inputText} mask={'([000]) [000]-[0000]'} keyboardType="numeric" placeholder={"(" + data.phone.substring(0, 3) + ") " + data.phone.substring(3, 6) + "-" + data.phone.substring(6, 10)} placeholderTextColor='#000'/>
+            <TextInputMask value={birthDateState} onChangeText={text => setBirthDataState(text)} style={styles.inputText} mask={'[00]{/}[00]{/}[0000]'} keyboardType="numeric" placeholder={data.birth_date} placeholderTextColor='#000'/>
+            <TextInput value={sexState} style={styles.inputText} placeholder={"M"} placeholderTextColor='#000'/>
           </View>
           <TouchableOpacity
-              style={styles.emeregencyButton}
-              onPress={() => Alert.alert('Calling Front Desk')}
-              underlayColor="#fff">
-              <Text style={styles.emeregencyText}>Call Front Desk</Text>
-            </TouchableOpacity>
+            style={styles.emeregencyButton}
+            onPress={() => Alert.alert('Calling Front Desk')}
+            underlayColor="#fff">
+            <Text style={styles.emeregencyText}>Call Front Desk</Text>
+          </TouchableOpacity>
           <View style={styles.emergencyContainer}>
-            <TextInput value={data.ec_name} style={styles.inputText} placeholder="Emergency Contact Name" placeholderTextColor='#000'/>
-            <TextInput value={data.ec_phone} style={styles.inputText} keyboardType="numeric" placeholder="Emergency Contact Phone" placeholderTextColor='#000'/>
+            <TextInput value={emergencyNameState} onChangeText={text => setEmergencyNameState(text)} style={styles.inputText} placeholder={data.ec_name} placeholderTextColor='#000'/>
+            <TextInputMask value={emergencyPhoneNumber} onChangeText={text => setEmergencyPhoneNumber(text)} style={styles.inputText} mask={'([000]) [000]-[0000]'} keyboardType="numeric" placeholder={"(" + data.ec_phone.substring(0, 3) + ") " + data.ec_phone.substring(3, 6) + "-" + data.ec_phone.substring(6, 10)} placeholderTextColor='#000'/>
           </View>
+          <TouchableOpacity
+            style={styles.saveButton}
+            onPress={() => SubmitUpdates()}
+            underlayColor="#fff">
+            <Text style={styles.emeregencyText}>Save Changes</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </ScrollView>
@@ -196,6 +245,18 @@ const styles = StyleSheet.create({
     textAlign:'center',
     paddingLeft : 20,
     paddingRight : 20,
+  },
+  saveButton:{
+    marginRight: 95,
+    marginLeft:95,
+    marginTop: 10,
+    marginBottom: 20,
+    paddingTop:10,
+    paddingBottom:10,
+    backgroundColor:'#673AB7',
+    borderRadius:0,
+    borderWidth: 0,
+    borderColor: '#673AB7'
   },
   titleText: { 
     color:'#fff',

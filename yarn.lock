@@ -5219,9 +5219,9 @@
   "version" "1.0.1"
 
 "json5@^1.0.1":
-  "integrity" "sha512-aKS4WQjPenRxiQsC93MNfjx+nbF4PAdYzmd/1JIj8HYzqfbu86beTuNgXDzPknWk0n0uARlyewZo4s++ES36Ow=="
-  "resolved" "https://registry.npmjs.org/json5/-/json5-1.0.1.tgz"
-  "version" "1.0.1"
+  "integrity" "sha512-g1MWMLBiz8FKi1e4w0UyVL3w+iJceWAFBAaBnnGKOpNa5f8TLktkbre1+s6oICydWAm+HRUGTmI+//xv2hvXYA=="
+  "resolved" "https://registry.npmjs.org/json5/-/json5-1.0.2.tgz"
+  "version" "1.0.2"
   dependencies:
     "minimist" "^1.2.0"
 
@@ -6553,6 +6553,11 @@
   "version" "1.13.2"
   dependencies:
     "@expo/config-plugins" "^4.1.5"
+
+"react-native-input-mask@^1.0.0":
+  "integrity" "sha512-YSGva0xndz6kqUTfDHLWsJYSolyFfnx8SL9PiSprQ0awvPlUmePSPm/2p3LljqZ5Bow2claCApWh5pVkKjMafA=="
+  "resolved" "https://registry.npmjs.org/react-native-input-mask/-/react-native-input-mask-1.0.0.tgz"
+  "version" "1.0.0"
 
 "react-native-paper@^5.1.0":
   "integrity" "sha512-cNW/k1i/bd08eSmCpWyMt5aZMrAAl/c56bG2VnPrJtVyQtBgdCvMXnpXhDOWEBJPR6ZEiAJl6VWutYvi9XcDcg=="
