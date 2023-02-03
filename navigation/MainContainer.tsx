@@ -8,6 +8,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import HomeScreen from './screens/HomeScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import MessagesScreen from './screens/MessagesScreen';
+import ChatScreen from './screens/ChatScreen'
 import InitialSetupScreen from './screens/InitialSetupScreen';
 import PulseScreen from './screens/PulseScreen';
 import WeightScreen from './screens/WeightScreen';
@@ -19,6 +20,7 @@ import OxygenSaturationScreen from './screens/OxygenSaturationScreen'
 const homeName = 'Home';
 const profileName = 'Profile';
 const messagesName = 'Messages';
+const chatName = 'Chat';
 const initialSetupName = 'Initial Profile Setup';
 const pulseName = 'Pulse';
 const weightName = 'Weight';
@@ -74,6 +76,12 @@ function MainContainer({route}:{route:any}) {
      <Stack.Screen name={bloodPressureName} component={BloodPressureScreen} initialParams={{id, password}}/>
      <Stack.Screen name={temperatureName} component={TemperatureScreen} initialParams={{id, password}}/>
      <Stack.Screen name={oxygenSaturationName} component={OxygenSaturationScreen} initialParams={{id, password}}/>
+     <Stack.Screen 
+         name = {chatName}
+         component = {ChatScreen}
+         options = {({route}:{route: any}) => ({
+            title: route.params.userName
+         })}/>
     </Stack.Navigator>
   </NavigationContainer>
   );
