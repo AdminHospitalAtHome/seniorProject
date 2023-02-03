@@ -193,7 +193,7 @@ export async function fetchPatientData(id:any, password: any, MeasureData: any, 
   const url = `${Config.GET_PATIENT_MEASUREMENTS_URL}?code=${Config.GET_PATIENT_MEASUREMENTS_FUNCTION_KEY}&type=${type}`;
   fetch(url, requestOptions)
     .then(response => response.text())
-    .then(result => JSON.parse(result).feed)
+    .then(result => JSON.parse(result))
     .then(arr => {
       const fetched = [];
       for (var obj of arr) {
