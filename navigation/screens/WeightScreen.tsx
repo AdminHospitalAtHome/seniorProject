@@ -39,18 +39,21 @@ export default function WeightScreen({route}:{route:any}) {
         ascending: true, // optional; default false
       };
       GoogleFit.getWeightSamples(opt).then(res => {
-        const output = res.map(item => {
+        
+        const output =res.map(item => {
           const date = moment(item.endDate);
           return {
             type:"weight",
             patient:id,
-            datetime:date.format('MMM DD, YYYY hh:mm:ss'),
+            //datetime:date.format('MMM DD, YYYY hh:mm:ss'),
+            datetime:item.endDate.toString(),
             lbs: item.value
           }
         });
+        //console.log("output: "+JSON.stringify(output));
         setWeight(output);
         //console.log("output:"+JSON.stringify(res));
-        console.log("weight:"+JSON.stringify(weight));
+        //console.log("weight:"+JSON.stringify(weight));
       });
     } else if (Platform.OS === 'ios') {
       let options = {
@@ -122,13 +125,22 @@ export default function WeightScreen({route}:{route:any}) {
       });
     }
   }
-  
 
   //init();
   useEffect(() => {
-    fetchPatientData(id,password,WeightData,setData, "weight",  ["lbs"]);
-    init();
+    fetchPatientData(id, password, WeightData, setData, "weight", ["lbs"]);
+    init(); 
   }, []);
+
+  //init();
+  useEffect(() => {
+    console.log("weight: " + JSON.stringify(weight));
+    //console.log("database: " + JSON.stringify(data));
+    const diffData = weight.filter(item1 => {
+      return !data.some(item2 => item2['dateString'] === item1['datetime']);
+    });
+    console.log("different: " + JSON.stringify(diffData));
+  }, [weight]);
 
   return (
     <React.Fragment key={"weight"}>

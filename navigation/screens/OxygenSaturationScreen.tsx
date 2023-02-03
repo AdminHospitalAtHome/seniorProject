@@ -44,7 +44,7 @@ class OxygenData {
             return {
               type:"oxygen saturation",
               patient:id,
-              datetime:date.format('MMM DD, YYYY hh:mm:ss'),
+              datetime:item.endDate,
               percent:item.value
             }
           });
@@ -122,8 +122,9 @@ class OxygenData {
     }
   
     useEffect(() => {
-      fetchPatientData(id,password,OxygenData,setData,"oxygen saturation",["percent"]);
       init();
+      fetchPatientData(id,password,OxygenData,setData,"oxygen saturation",["percent"]);
+      
     }, []);
   
     return (

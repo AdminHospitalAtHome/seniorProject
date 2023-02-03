@@ -47,7 +47,7 @@ export default function BloodPressureScreen({route}:{route:any}) {
           return {
             type:"blood pressure",
             patient:id,
-            datetime:date.format('MMM DD, YYYY hh:mm:ss'),
+            datetime:item.endDate,
             systolic:item.systolic,
             diastolic:item.diastolic
           }
@@ -127,6 +127,7 @@ export default function BloodPressureScreen({route}:{route:any}) {
   }
 
   useEffect(() => {
+    init();
     fetchPatientData(id, password, BloodpressureData, setData, "blood pressure", ["systolic", "diastolic"]);
     init();
   }, []);

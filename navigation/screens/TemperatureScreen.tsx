@@ -43,7 +43,7 @@ class TemperatureData {
             return {
               type:"temperature",
               patient:id,
-              datetime:date.format('MMM DD, YYYY hh:mm:ss'),
+              datetime:item.endDate,
               degree:item.value
             }
           });
@@ -121,6 +121,7 @@ class TemperatureData {
     }
   
     useEffect(() => {
+      init();
       fetchPatientData(id,password,TemperatureData,setData, "temperature", ["degree"]);
       init();
     }, []);
