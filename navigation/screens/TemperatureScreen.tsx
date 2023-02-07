@@ -4,7 +4,7 @@ import { DataList, PageHeader, SingleValueChart, DoubleValueChart,fetchPatientDa
 import { ListItem } from '@react-native-material/core';
 import GoogleFit, {Scopes} from 'react-native-google-fit';
 import moment from 'moment';
-import AppleHealthKit, {HealthKitPermissions} from 'react-native-health';
+import AppleHealthKit, {HealthKitPermissions, HealthValue} from 'react-native-health';
 
 class TemperatureData {
     dateString:string;
@@ -23,7 +23,6 @@ class TemperatureData {
       degree: number,
     }
     const { id, password } = route.params;
-  
     const [data, setData] = useState<TemperatureData[]>([new TemperatureData("", 0)]);
     const [temperature, setTemperature] = useState<Data[]>([]);
     
@@ -33,27 +32,23 @@ class TemperatureData {
         const opt = {
           startDate: "2017-01-01T00:00:17.971Z", // required ISO8601Timestamp
           endDate: today.toISOString(),
-          bucketUnit: "DAY", // optional - default "DAY". Valid values: "NANOSECOND" | "MICROSECOND" | "MILLISECOND" | "SECOND" | "MINUTE" | "HOUR" | "DAY"
           bucketInterval: 1, // optional - default 1.
           ascending: true, // optional; default false
         };
         GoogleFit.getBodyTemperatureSamples(opt).then(res => {
           const output = res.map(item => {
-            const date = moment(item.endDate);
+            //const date = moment(item.endDate);
             return {
               type:"temperature",
               patient:id,
-              datetime:item.endDate,
-              degree:item.value
+              datetime:item.endDate.toString(),
+              degree:Math.round(item.value * 100) / 100
             }
           });
           setTemperature(output);
-          //console.log("output:"+JSON.stringify(res));
-          console.log("blood pressure:"+JSON.stringify(temperature));
         });
       } else if (Platform.OS === 'ios') {
         let options = {
-          unit: 'bpm', // optional; default 'bpm'
           startDate: new Date(2021, 0, 0).toISOString(), // required
           endDate: new Date().toISOString(), // optional; default now
           ascending: false, // optional; default false
@@ -123,8 +118,42 @@ class TemperatureData {
     useEffect(() => {
       init();
       fetchPatientData(id,password,TemperatureData,setData, "temperature", ["degree"]);
-      init();
     }, []);
+
+    useEffect(() => {
+      console.log("temperature: " + JSON.stringify(temperature));
+      console.log("database: " + JSON.stringify(data));
+      
+      const binarySearch = (arr: TemperatureData[], target: string): number => {
+        let left = 0;
+        let right = arr.length - 1;
+  
+        while (left <= right) {
+          const middle = Math.floor((left + right) / 2);
+          if (arr[middle].dateString === target) {
+            return middle;
+          } else if (arr[middle].dateString < target) {
+            left = middle + 1;
+          } else {
+            right = middle - 1;
+          }
+        }
+  
+        return -1;
+      };
+  
+      const diffData: Data[] = [];
+  
+      temperature.forEach((d) => {
+        const index = binarySearch(data, d.datetime);
+        if (index === -1) {
+          diffData.push(d);
+        }
+      });
+  
+      console.log("different: " + JSON.stringify(diffData));
+      //uploadPatientData(id, password, "temperature", diffData);
+    }, [data]);
   
     return (
       <React.Fragment key={"temperature"}>
@@ -143,7 +172,7 @@ class TemperatureData {
               <ListItem
                 key = {index}
                 title = {`${datum.degree} ${'\u00b0'}F  `}
-                secondaryText = {datum.dateString}
+                secondaryText = {moment(datum.dateString).format("MMMM Do YYYY, h:mm:ss a")}
               />
             );
           })
@@ -151,3 +180,7 @@ class TemperatureData {
       </React.Fragment>
     );
   }
+
+function dispatch(arg0: string) {
+  throw new Error('Function not implemented.');
+}

@@ -171,6 +171,30 @@ export function PageHeader() {
   );
 }
 
+export async function uploadPatientData(id:string, password: string, type: string, newDataJSON: object) {
+  const Buffer = require("buffer").Buffer;
+  let encodedAuth = new Buffer(id + ":" + password).toString("base64");
+
+  var myHeaders = new Headers();
+  myHeaders.append("Authorization", `Basic ${encodedAuth}`);
+
+  var requestOptions = {
+    method: 'POST',
+    headers: myHeaders,
+    redirect: 'follow',
+    body: JSON.stringify(newDataJSON)
+  };
+  console.log("*********************************************");
+  console.log("CALLING UploadPatientMeasurements AZURE FUNCTION");
+  console.log("*********************************************");
+
+  /* ------------------ */
+  const url = `${Config.UPLOAD_PATIENT_MEASUREMENTS_URL}?code=${Config.UPLOAD_PATIENT_MEASUREMENTS_FUNCTION_KEY}&type=${type}`;
+  fetch(url, requestOptions)
+    .then(response => console.log(response.text()))
+    .catch(error => console.log('error', error));
+}
+
 export async function fetchPatientData(id:any, password: any, MeasureData: any, setData: any, type: any, unit: any[]) {
   // const { id, password, TemperatureData, setData } = route.params;
   /* TODO: Abstract out */

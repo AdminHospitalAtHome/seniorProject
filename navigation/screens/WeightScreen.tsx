@@ -25,6 +25,7 @@ export default function WeightScreen({ route }: { route: any }) {
   const { id, password } = route.params;
   const [data, setData] = useState<WeightData[]>([]);
   const [weight, setWeight] = useState<Data[]>([]);
+
   async function getWeight() {
     if (Platform.OS === 'android') {
       var today = new Date();
@@ -72,7 +73,6 @@ export default function WeightScreen({ route }: { route: any }) {
       const options = {
         scopes: [
           Scopes.FITNESS_ACTIVITY_READ,
-          Scopes.FITNESS_HEART_RATE_READ,
           Scopes.FITNESS_BODY_READ,
         ],
       };
@@ -119,13 +119,14 @@ export default function WeightScreen({ route }: { route: any }) {
   }
 
   useEffect(() => {
-    fetchPatientData(id, password, WeightData, setData, "weight", ["lbs"]);
     init();
+    fetchPatientData(id, password, WeightData, setData, "weight", ["lbs"]);
   }, []);
 
   useEffect(() => {
     console.log("weight: " + JSON.stringify(weight));
     console.log("database: " + JSON.stringify(data));
+
     const binarySearch = (arr: WeightData[], target: string): number => {
       let left = 0;
       let right = arr.length - 1;
@@ -174,7 +175,7 @@ export default function WeightScreen({ route }: { route: any }) {
             <ListItem
               key={index}
               title={`${datum.lbs} lbs`}
-              secondaryText={datum.dateString}
+              secondaryText={moment(datum.dateString).format("MMMM Do YYYY, h:mm:ss a")}
             />
           );
         })
