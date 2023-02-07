@@ -1,68 +1,60 @@
-import {
-  Platform,
-} from 'react-native';
-import React, { useState, useEffect, Component } from 'react';
+import { Platform } from 'react-native';
+import React, { useState, useEffect } from 'react';
 import { DataList, PageHeader, SingleValueChart, fetchPatientData } from '../../components/MeasurementPageComponents';
 import { ListItem } from '@react-native-material/core';
-import GoogleFit, {Scopes} from 'react-native-google-fit';
+import GoogleFit, { Scopes } from 'react-native-google-fit';
 import moment from 'moment';
-import AppleHealthKit, {HealthKitPermissions} from 'react-native-health';
+import AppleHealthKit, { HealthKitPermissions, HealthValue } from 'react-native-health';
 
 class WeightData {
-  dateString:string;
-  lbs:number;
-  constructor(dateString:string, lbs:number) {
+  dateString: string;
+  lbs: number;
+  constructor(dateString: string, lbs: number) {
     this.dateString = dateString;
     this.lbs = lbs;
   }
 }
 
-export default function WeightScreen({route}:{route:any}) {
+export default function WeightScreen({ route }: { route: any }) {
   interface Data {
     type: string;
-    patient: any;
+    patient: string;
     datetime: string;
     lbs: number;
   }
   const { id, password } = route.params;
   const [data, setData] = useState<WeightData[]>([]);
   const [weight, setWeight] = useState<Data[]>([]);
-  function getWeight() {
+  async function getWeight() {
     if (Platform.OS === 'android') {
       var today = new Date();
       const opt = {
         startDate: "2017-01-01T00:00:17.971Z", // required ISO8601Timestamp
         endDate: today.toISOString(),
         unit: 'pound', // required; default 'kg'
-        bucketUnit: "DAY", // optional - default "DAY". Valid values: "NANOSECOND" | "MICROSECOND" | "MILLISECOND" | "SECOND" | "MINUTE" | "HOUR" | "DAY"
         bucketInterval: 1, // optional - default 1.
         ascending: true, // optional; default false
       };
       GoogleFit.getWeightSamples(opt).then(res => {
-        
-        const output =res.map(item => {
-          const date = moment(item.endDate);
+        const output = res.map(item => {
+          //const date = moment(item.endDate);
           return {
-            type:"weight",
-            patient:id,
+            type: "weight",
+            patient: id,
             //datetime:date.format('MMM DD, YYYY hh:mm:ss'),
-            datetime:item.endDate.toString(),
-            lbs: item.value
+            datetime: item.endDate.toString(),
+            lbs: Math.round(item.value * 100) / 100
           }
         });
-        //console.log("output: "+JSON.stringify(output));
         setWeight(output);
-        //console.log("output:"+JSON.stringify(res));
-        //console.log("weight:"+JSON.stringify(weight));
       });
     } else if (Platform.OS === 'ios') {
       let options = {
-        unit: 'bpm', // optional; default 'bpm'
         startDate: new Date(2021, 0, 0).toISOString(), // required
         endDate: new Date().toISOString(), // optional; default now
         ascending: false, // optional; default false
       };
-  
+
       AppleHealthKit.getHeartRateSamples(
         options,
         (err: Object, results: Array<HealthValue>) => {
@@ -75,7 +67,7 @@ export default function WeightScreen({route}:{route:any}) {
     }
   }
 
-  function init() {
+  async function init() {
     if (Platform.OS === 'android') {
       const options = {
         scopes: [
@@ -86,7 +78,7 @@ export default function WeightScreen({route}:{route:any}) {
       };
       GoogleFit.checkIsAuthorized().then(() => {
         var authorized = GoogleFit.isAuthorized;
-        console.log("Status: "+authorized);
+        console.log("Status: " + authorized);
         if (authorized) {
           getWeight();
         } else {
@@ -113,10 +105,10 @@ export default function WeightScreen({route}:{route:any}) {
           write: [AppleHealthKit.Constants.Permissions.HeartRate],
         },
       } as HealthKitPermissions;
-  
+
       AppleHealthKit.initHealthKit(permissions, (error: string) => {
         /* Called after we receive a response from the system */
-  
+
         if (error) {
           console.log('[ERROR] Cannot grant permissions!');
         }
@@ -126,28 +118,51 @@ export default function WeightScreen({route}:{route:any}) {
     }
   }
 
-  //init();
   useEffect(() => {
     fetchPatientData(id, password, WeightData, setData, "weight", ["lbs"]);
-    init(); 
+    init();
   }, []);
 
-  //init();
   useEffect(() => {
     console.log("weight: " + JSON.stringify(weight));
-    //console.log("database: " + JSON.stringify(data));
-    const diffData = weight.filter(item1 => {
-      return !data.some(item2 => item2['dateString'] === item1['datetime']);
+    console.log("database: " + JSON.stringify(data));
+    const binarySearch = (arr: WeightData[], target: string): number => {
+      let left = 0;
+      let right = arr.length - 1;
+
+      while (left <= right) {
+        const middle = Math.floor((left + right) / 2);
+        if (arr[middle].dateString === target) {
+          return middle;
+        } else if (arr[middle].dateString < target) {
+          left = middle + 1;
+        } else {
+          right = middle - 1;
+        }
+      }
+
+      return -1;
+    };
+
+    const diffData: Data[] = [];
+
+    weight.forEach((d) => {
+      const index = binarySearch(data, d.datetime);
+      if (index === -1) {
+        diffData.push(d);
+      }
     });
+
     console.log("different: " + JSON.stringify(diffData));
-  }, [weight]);
+    //uploadPatientData(id, password, "weight", diffData);
+  }, [data]);
 
   return (
     <React.Fragment key={"weight"}>
       {PageHeader()}
       {SingleValueChart(
         data.map((datum) => {
-          return({
+          return ({
             value: datum.lbs,
             date: datum.dateString
           });
@@ -155,11 +170,11 @@ export default function WeightScreen({route}:{route:any}) {
       )}
       {DataList(
         data.map((datum, index) => {
-          return(
+          return (
             <ListItem
               key={index}
-              title = {`${datum.lbs} lbs`}
-              secondaryText = {datum.dateString}
+              title={`${datum.lbs} lbs`}
+              secondaryText={datum.dateString}
             />
           );
         })
@@ -167,3 +182,7 @@ export default function WeightScreen({route}:{route:any}) {
     </React.Fragment>
   );
 }
+function dispatch(arg0: string) {
+  throw new Error('Function not implemented.');
+}
+
