@@ -191,7 +191,7 @@ export async function uploadPatientData(id:string, password: string, type: strin
   /* ------------------ */
   const url = `${Config.UPLOAD_PATIENT_MEASUREMENTS_URL}?code=${Config.UPLOAD_PATIENT_MEASUREMENTS_FUNCTION_KEY}&type=${type}`;
   fetch(url, requestOptions)
-    .then(response => console.log(response.text()))
+    .then(response => response.text())
     .catch(error => console.log('error', error));
 }
 

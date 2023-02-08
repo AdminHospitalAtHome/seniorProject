@@ -1,6 +1,6 @@
 import { Platform } from 'react-native';
 import React, { useState, useEffect } from 'react';
-import { DataList, PageHeader, SingleValueChart, fetchPatientData } from '../../components/MeasurementPageComponents';
+import { DataList, PageHeader, SingleValueChart, fetchPatientData, uploadPatientData } from '../../components/MeasurementPageComponents';
 import { ListItem } from '@react-native-material/core';
 import GoogleFit, { Scopes } from 'react-native-google-fit';
 import moment from 'moment';
@@ -38,11 +38,9 @@ export default function WeightScreen({ route }: { route: any }) {
       };
       GoogleFit.getWeightSamples(opt).then(res => {
         const output = res.map(item => {
-          //const date = moment(item.endDate);
           return {
             type: "weight",
             patient: id,
-            //datetime:date.format('MMM DD, YYYY hh:mm:ss'),
             datetime: item.endDate.toString(),
             lbs: Math.round(item.value * 100) / 100
           }
@@ -51,18 +49,26 @@ export default function WeightScreen({ route }: { route: any }) {
       });
     } else if (Platform.OS === 'ios') {
       let options = {
-        startDate: new Date(2021, 0, 0).toISOString(), // required
+        startDate: new Date(2017, 0, 0).toISOString(), // required
         endDate: new Date().toISOString(), // optional; default now
-        ascending: false, // optional; default false
+        ascending: true, // optional; default false
       };
 
-      AppleHealthKit.getHeartRateSamples(
+      AppleHealthKit.getWeightSamples(
         options,
         (err: Object, results: Array<HealthValue>) => {
           if (err) {
             return;
           }
-          console.log(results);
+          const output = results.map(item => {
+            return {
+              type: "weight",
+              patient: id,
+              datetime: item.endDate.toString(),
+              lbs: Math.round(item.value * 100) / 100
+            }
+          });
+          setWeight(output);
         },
       );
     }
@@ -101,8 +107,8 @@ export default function WeightScreen({ route }: { route: any }) {
     } else if (Platform.OS === 'ios') {
       const permissions = {
         permissions: {
-          read: [AppleHealthKit.Constants.Permissions.HeartRate],
-          write: [AppleHealthKit.Constants.Permissions.HeartRate],
+          read: [AppleHealthKit.Constants.Permissions.Weight],
+          write: [AppleHealthKit.Constants.Permissions.Weight],
         },
       } as HealthKitPermissions;
 
@@ -155,7 +161,12 @@ export default function WeightScreen({ route }: { route: any }) {
     });
 
     console.log("different: " + JSON.stringify(diffData));
-    //uploadPatientData(id, password, "weight", diffData);
+    console.log("diff size: " + (weight.length-data.length));
+    console.log("res size: " + diffData.length);
+    if (diffData.length > 0) {
+      console.log("upload")
+      //uploadPatientData(id, password, "weight", diffData);
+    };
   }, [data]);
 
   return (
