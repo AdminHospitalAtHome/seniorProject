@@ -164,8 +164,7 @@ export default function WeightScreen({ route }: { route: any }) {
     console.log("diff size: " + (weight.length-data.length));
     console.log("res size: " + diffData.length);
     if (diffData.length > 0) {
-      console.log("upload")
-      //uploadPatientData(id, password, "weight", diffData);
+      uploadPatientData(id, password, "weight", diffData);
     };
   }, [data]);
 

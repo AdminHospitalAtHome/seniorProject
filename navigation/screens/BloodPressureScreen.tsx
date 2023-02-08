@@ -1,10 +1,10 @@
 import { Platform } from 'react-native';
 import React, { useState, useEffect } from 'react';
-import { DataList, PageHeader, DoubleValueChart, fetchPatientData } from '../../components/MeasurementPageComponents';
+import { DataList, PageHeader, DoubleValueChart, fetchPatientData, uploadPatientData } from '../../components/MeasurementPageComponents';
 import { ListItem } from '@react-native-material/core';
 import GoogleFit, { Scopes } from 'react-native-google-fit';
 import moment from 'moment';
-import AppleHealthKit, { HealthKitPermissions, HealthValue } from 'react-native-health';
+import AppleHealthKit, { BloodPressureSampleValue, HealthKitPermissions, HealthValue } from 'react-native-health';
 
 class BloodpressureData {
   dateString: string;
@@ -40,7 +40,6 @@ export default function BloodPressureScreen({ route }: { route: any }) {
       };
       GoogleFit.getBloodPressureSamples(opt).then(res => {
         const output = res.map(item => {
-          //const date = moment(item.endDate);
           return {
             type: "blood pressure",
             patient: id,
@@ -53,18 +52,27 @@ export default function BloodPressureScreen({ route }: { route: any }) {
       });
     } else if (Platform.OS === 'ios') {
       let options = {
-        startDate: new Date(2021, 0, 0).toISOString(), // required
+        startDate: new Date(2017, 0, 0).toISOString(), // required
         endDate: new Date().toISOString(), // optional; default now
-        ascending: false, // optional; default false
+        ascending: true, // optional; default false
       };
 
-      AppleHealthKit.getHeartRateSamples(
+      AppleHealthKit.getBloodPressureSamples(
         options,
-        (err: Object, results: Array<HealthValue>) => {
+        (err: Object, results: Array<BloodPressureSampleValue>) => {
           if (err) {
             return;
           }
-          console.log(results);
+          const output = results.map(item => {
+            return {
+              type: "blood pressure",
+              patient: id,
+              datetime: item.endDate.toString(),
+              systolic: Math.round(item.bloodPressureSystolicValue * 100) / 100,
+              diastolic: Math.round(item.bloodPressureDiastolicValue * 100) / 100
+            }
+          });
+          setBloodPressure(output);
         },
       );
     }
@@ -103,8 +111,8 @@ export default function BloodPressureScreen({ route }: { route: any }) {
     } else if (Platform.OS === 'ios') {
       const permissions = {
         permissions: {
-          read: [AppleHealthKit.Constants.Permissions.HeartRate],
-          write: [AppleHealthKit.Constants.Permissions.HeartRate],
+          read: [AppleHealthKit.Constants.Permissions.BloodPressureSystolic, AppleHealthKit.Constants.Permissions.BloodPressureDiastolic],
+          write: [AppleHealthKit.Constants.Permissions.BloodPressureSystolic, AppleHealthKit.Constants.Permissions.BloodPressureDiastolic],
         },
       } as HealthKitPermissions;
 
@@ -157,7 +165,11 @@ export default function BloodPressureScreen({ route }: { route: any }) {
     });
 
     console.log("different: " + JSON.stringify(diffData));
-    //uploadPatientData(id, password, "blood pressure", diffData);
+    console.log("diff size: " + (bloodPressure.length-data.length));
+    console.log("res size: " + diffData.length);
+    if (diffData.length > 0) {
+      uploadPatientData(id, password, "blood pressure", diffData);
+    };
   }, [data]);
 
   return (
@@ -178,7 +190,7 @@ export default function BloodPressureScreen({ route }: { route: any }) {
             <ListItem
               key={index}
               title={`${datum.systolic} mmHg       ${datum.diastolic} mmHg`}
-              secondaryText={datum.dateString}
+              secondaryText={moment(datum.dateString).format("MMMM Do YYYY, h:mm:ss a")}
             />
           );
         })
