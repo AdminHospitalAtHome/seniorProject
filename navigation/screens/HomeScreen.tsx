@@ -8,10 +8,8 @@ export default function HomeScreen({navigation}:{navigation:any}) {
   return (
     <ScrollView style={styles.pageContainer}>
             <View style={styles.box}>
-                <View style={styles.inner}>
-                    <Text
-                    onPress={() => navigation.navigate('Pulse')}>
-                    Pulse</Text>
+                <View style={styles.inner}  onStartShouldSetResponder={() => navigation.navigate('Pulse')}>
+                    <Text>Pulse</Text>
                 </View>
             </View>
 

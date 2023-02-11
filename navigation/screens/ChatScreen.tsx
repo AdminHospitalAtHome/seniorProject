@@ -2,6 +2,7 @@ import * as React from 'react';
 import {StyleSheet, View, Text, TouchableOpacity} from 'react-native';
 import { useState, useCallback, useEffect } from 'react'
 import { GiftedChat } from 'react-native-gifted-chat'
+import Config from 'react-native-config';
 // need to do "npm install react-native-gifted-chat --save"
 
 class ChatData {
@@ -17,55 +18,81 @@ class ChatData {
     }
   }
 
-export default function ChatScreen({navigation}:{navigation:any}) {
-    const [messages, setMessages] = useState<any[]>([]);
+export default function ChatScreen({route}:{route:any}) {
+  const {userName, userId, id, password, chatMessages}  = route.params
+  const [messages, setMessages] = useState<any[]>([]);
+  let receivedMessages = chatMessages.filter(((message: any) => {
+    return message.sender_name == userName
+  }))
+  console.log("all messages: " )
+  console.log(chatMessages)
+  console.log("received messages:")
+  console.log(receivedMessages) 
+  useEffect(() => {
+    setMessages(chatMessages.map((message: { sender_name:string, receiver_name: string, sender:string, receiver: string, content: string,datetime:string}) => ({
+      _id: message.datetime,
+      text: message.content,
+      createdAt: new Date(message.datetime),
+      user: {
+        _id: message.sender,
+        name: message.sender_name
+      },
+    })))
+  }, [])
+  
+  function SubmitUpdates (message: any) {
+    async function fetchMessageData() {
+      console.log("*********************************************");
+      console.log("CALLING UploadMessage AZURE FUNCTION");
+      console.log("*********************************************");
 
-    useEffect(() => {
-        setMessages([
-          {
-            _id: 1,
-            text: 'Hi Aidan!',
-            createdAt: new Date(),
-            user: {
-              _id: 2,
-              name: 'React Native',
-             
-            },
-          },
-        ])
-      }, [])
-    
-      const onSend = useCallback((messages:any = []) => {
-        setMessages(previousMessages => GiftedChat.append(previousMessages, messages))
-      }, [])
-    
-      return (
-        <GiftedChat
-          messages={messages}
-          onSend={messages => onSend(messages)}
-          user={{
-            _id: 1,
-          }}
-        />
-    )
- 
-    
-    // return (
-    //   <View style={styles.pageContainer}>
-    //     <Text
-    //       onPress={() => navigation.navigate('Home')}
-    //       style={{fontSize: 10}}>
-    //       Click to Go Home
-    //     </Text>
-    //   </View>
-    // );
+      const Buffer = require("buffer").Buffer;
+      let encodedAuth = new Buffer(id + ":" + password).toString("base64");
+
+      var myHeaders = new Headers();
+      myHeaders.append("Authorization", `Basic ${encodedAuth}`);
+
+      var requestOptions = {
+        method: 'POST',
+        headers: myHeaders,
+        redirect: 'follow',
+        body: JSON.stringify(message)
+      }; 
+
+      var url = `https://hospital-at-home-app.azurewebsites.net/api/UploadMessage?code=q-xY09fg-fiUiiHB124cI_YmSQukuhW1IdYMLS_4IzuZAzFuMPjPMA==` 
+      url += `&receiver=${userId}`;
+      console.log(url);
+      const created:boolean = await fetch(url, requestOptions)
+        .then(response => (response.status == 200 ? true : false))
+        .catch(error => false);
+      return created;
+    }
+    fetchMessageData()
   }
   
-  const styles = StyleSheet.create({
-    pageContainer: {
-      backgroundColor: '#FFFFFF',
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center'
-    },
-  });
+  const onSend = useCallback((messages:any = []) => {
+    SubmitUpdates(messages[0].text)
+    console.log(messages[0].text);
+    setMessages(previousMessages => GiftedChat.append(previousMessages, messages))
+  }, [])
+
+  return (
+    <GiftedChat
+      messages={messages}
+      onSend={message => onSend(message)}
+      user={{
+        _id: id,
+      }}
+    />
+  )
+
+}
+
+const styles = StyleSheet.create({
+  pageContainer: {
+    backgroundColor: 'white',
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+});
