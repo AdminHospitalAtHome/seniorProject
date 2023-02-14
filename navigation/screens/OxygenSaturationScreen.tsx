@@ -164,7 +164,7 @@ export default function OxygenSaturationScreen({ route }: { route: any }) {
     if (diffData.length > 0) {
       uploadPatientData(id, password, "oxygen saturation", diffData);
     };
-  }, [oxygenSaturation]);
+  }, [data]);
 
   return (
     <React.Fragment key={"oxygen saturation"}>

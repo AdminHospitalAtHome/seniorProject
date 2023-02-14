@@ -198,6 +198,7 @@ export async function uploadPatientData(id:string, password: string, type: strin
   fetch(url, requestOptions)
     .then(response => response.text())
     .catch(error => console.log('error', error));
+  
 }
 
 export async function fetchPatientData(id:any, password: any, MeasureData: any, setData: any, type: any, unit: any[]) {
@@ -234,6 +235,7 @@ export async function fetchPatientData(id:any, password: any, MeasureData: any, 
       setData(fetched);
     })
     .catch(error => console.log('error', error));
+    
 }
 
 const styles = StyleSheet.create({

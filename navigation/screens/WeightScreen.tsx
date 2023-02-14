@@ -123,29 +123,31 @@ export default function WeightScreen({ route }: { route: any }) {
     }
   }
 
+  const binarySearch = (arr: WeightData[], target: string): number => {
+    let left = 0;
+    let right = arr.length - 1;
+    while (left <= right) {
+      const middle = Math.floor((left + right) / 2);
+      if (arr[middle].dateString === target) {
+        return middle;
+      } else if (arr[middle].dateString > target) {
+        left = middle + 1;
+      } else {
+        right = middle - 1;
+      }
+    }
+    return -1;
+  };
+
   useEffect(() => {
-    fetchPatientData(id, password, WeightData, setData, "weight", ["lbs"]).then(() => init());
+    init().then(() => fetchPatientData(id, password, WeightData, setData, "weight", ["lbs"]));
   }, []);
 
   useEffect(() => {
     console.log("weight: " + JSON.stringify(weight));
     console.log("database: " + JSON.stringify(data));
 
-    const binarySearch = (arr: WeightData[], target: string): number => {
-      let left = 0;
-      let right = arr.length - 1;
-      while (left <= right) {
-        const middle = Math.floor((left + right) / 2);
-        if (arr[middle].dateString === target) {
-          return middle;
-        } else if (arr[middle].dateString > target) {
-          left = middle + 1;
-        } else {
-          right = middle - 1;
-        }
-      }
-      return -1;
-    };
+    
     const diffData: Data[] = [];
     weight.forEach((d) => {
       const index = binarySearch(data, d.datetime);
@@ -158,7 +160,7 @@ export default function WeightScreen({ route }: { route: any }) {
     if (diffData.length > 0) {
       uploadPatientData(id, password, "weight", diffData);
     };
-  }, [weight]);
+  }, [data]);
 
   return (
     <React.Fragment key={"weight"}>

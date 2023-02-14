@@ -163,7 +163,7 @@ export default function TemperatureScreen({ route }: { route: any }) {
     if (diffData.length > 0) {
       uploadPatientData(id, password, "temperature", diffData);
     };
-  }, [temperature]);
+  }, [data]);
 
   return (
     <React.Fragment key={"temperature"}>
