@@ -36,10 +36,10 @@ export default function BloodPressureScreen({ route }: { route: any }) {
         startDate: "2017-01-01T00:00:17.971Z", // required ISO8601Timestamp
         endDate: today.toISOString(),
         bucketInterval: 1, // optional - default 1.
-        ascending: true, // optional; default false
+        ascending: false, // optional; default false
       };
       GoogleFit.getBloodPressureSamples(opt).then(res => {
-        const output = res.map(item => {
+        const output = res.reverse().map(item => {
           return {
             type: "blood pressure",
             patient: id,
@@ -54,7 +54,7 @@ export default function BloodPressureScreen({ route }: { route: any }) {
       let options = {
         startDate: new Date(2017, 0, 0).toISOString(), // required
         endDate: new Date().toISOString(), // optional; default now
-        ascending: true, // optional; default false
+        ascending: false, // optional; default false
       };
 
       AppleHealthKit.getBloodPressureSamples(
@@ -83,22 +83,21 @@ export default function BloodPressureScreen({ route }: { route: any }) {
       const options = {
         scopes: [
           Scopes.FITNESS_BLOOD_PRESSURE_READ,
-          Scopes.FITNESS_BLOOD_GLUCOSE_READ,
         ]
       };
-      GoogleFit.checkIsAuthorized().then(() => {
+      GoogleFit.checkIsAuthorized().then(async () => {
         var authorized = GoogleFit.isAuthorized;
         console.log("Status: " + authorized);
         if (authorized) {
-          getBloodPressure();
+          await getBloodPressure();
         } else {
           // Authentication if already not authorized for a particular device
           GoogleFit.authorize(options)
-            .then(authResult => {
+            .then(async authResult => {
               if (authResult.success) {
                 console.log('AUTH_SUCCESS');
                 // if successfully authorized, fetch data
-                getBloodPressure();
+                await getBloodPressure();
               } else {
                 console.log('AUTH_DENIED ' + authResult.message);
               }
@@ -116,21 +115,20 @@ export default function BloodPressureScreen({ route }: { route: any }) {
         },
       } as HealthKitPermissions;
 
-      AppleHealthKit.initHealthKit(permissions, (error: string) => {
+      AppleHealthKit.initHealthKit(permissions, async (error: string) => {
         /* Called after we receive a response from the system */
 
         if (error) {
           console.log('[ERROR] Cannot grant permissions!');
         }
         /* Can now read or write to HealthKit */
-        getBloodPressure();
+        await getBloodPressure();
       });
     }
   }
 
   useEffect(() => {
-    init();
-    fetchPatientData(id, password, BloodpressureData, setData, "blood pressure", ["systolic", "diastolic"]);
+    fetchPatientData(id, password, BloodpressureData, setData, "blood pressure", ["systolic", "diastolic"]).then(() => init());
   }, []);
 
   useEffect(() => {
@@ -145,7 +143,7 @@ export default function BloodPressureScreen({ route }: { route: any }) {
         const middle = Math.floor((left + right) / 2);
         if (arr[middle].dateString === target) {
           return middle;
-        } else if (arr[middle].dateString < target) {
+        } else if (arr[middle].dateString > target) {
           left = middle + 1;
         } else {
           right = middle - 1;
@@ -170,7 +168,7 @@ export default function BloodPressureScreen({ route }: { route: any }) {
     if (diffData.length > 0) {
       uploadPatientData(id, password, "blood pressure", diffData);
     };
-  }, [data]);
+  }, [bloodPressure]);
 
   return (
     <React.Fragment key={"blood pressure"}>

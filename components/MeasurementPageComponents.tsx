@@ -126,12 +126,17 @@ export function DoubleValueChart(entries: any[]) {
   );
 }
 
+
+interface PageHeaderProps {
+  onRefresh: () => void;
+}
+
 export function PageHeader() {
   const [modalVisible, setModalVisible] = useState(false);
   const [refresh, setRefresh] = useState(1);
   return(
     <View style={styles.checkboxContainer}>
-      <Button style={styles.plus} onPress={() => {setRefresh(refresh+1)}} title="Sync" />
+      <Button style={styles.plus} title="Sync" />
       <View style={styles.space} />
       <View style={styles.centeredView}>
         <Modal

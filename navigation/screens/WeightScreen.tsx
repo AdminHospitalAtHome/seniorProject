@@ -34,10 +34,10 @@ export default function WeightScreen({ route }: { route: any }) {
         endDate: today.toISOString(),
         unit: 'pound', // required; default 'kg'
         bucketInterval: 1, // optional - default 1.
-        ascending: true, // optional; default false
+        ascending: false, // optional; default false
       };
       GoogleFit.getWeightSamples(opt).then(res => {
-        const output = res.map(item => {
+        const output = res.reverse().map(item => {
           return {
             type: "weight",
             patient: id,
@@ -51,7 +51,7 @@ export default function WeightScreen({ route }: { route: any }) {
       let options = {
         startDate: new Date(2017, 0, 0).toISOString(), // required
         endDate: new Date().toISOString(), // optional; default now
-        ascending: true, // optional; default false
+        ascending: false, // optional; default false
       };
 
       AppleHealthKit.getWeightSamples(
@@ -78,23 +78,22 @@ export default function WeightScreen({ route }: { route: any }) {
     if (Platform.OS === 'android') {
       const options = {
         scopes: [
-          Scopes.FITNESS_ACTIVITY_READ,
           Scopes.FITNESS_BODY_READ,
         ],
       };
-      GoogleFit.checkIsAuthorized().then(() => {
+      GoogleFit.checkIsAuthorized().then(async () => {
         var authorized = GoogleFit.isAuthorized;
         console.log("Status: " + authorized);
         if (authorized) {
-          getWeight();
+          await getWeight();
         } else {
           // Authentication if already not authorized for a particular device
           GoogleFit.authorize(options)
-            .then(authResult => {
+            .then(async authResult => {
               if (authResult.success) {
                 console.log('AUTH_SUCCESS');
                 // if successfully authorized, fetch data
-                getWeight();
+                 await getWeight();
               } else {
                 console.log('AUTH_DENIED ' + authResult.message);
               }
@@ -112,21 +111,20 @@ export default function WeightScreen({ route }: { route: any }) {
         },
       } as HealthKitPermissions;
 
-      AppleHealthKit.initHealthKit(permissions, (error: string) => {
+      AppleHealthKit.initHealthKit(permissions, async (error: string) => {
         /* Called after we receive a response from the system */
 
         if (error) {
           console.log('[ERROR] Cannot grant permissions!');
         }
         /* Can now read or write to HealthKit */
-        getWeight();
+        await getWeight();
       });
     }
   }
 
   useEffect(() => {
-    init();
-    fetchPatientData(id, password, WeightData, setData, "weight", ["lbs"]);
+    fetchPatientData(id, password, WeightData, setData, "weight", ["lbs"]).then(() => init());
   }, []);
 
   useEffect(() => {
@@ -136,37 +134,31 @@ export default function WeightScreen({ route }: { route: any }) {
     const binarySearch = (arr: WeightData[], target: string): number => {
       let left = 0;
       let right = arr.length - 1;
-
       while (left <= right) {
         const middle = Math.floor((left + right) / 2);
         if (arr[middle].dateString === target) {
           return middle;
-        } else if (arr[middle].dateString < target) {
+        } else if (arr[middle].dateString > target) {
           left = middle + 1;
         } else {
           right = middle - 1;
         }
       }
-
       return -1;
     };
-
     const diffData: Data[] = [];
-
     weight.forEach((d) => {
       const index = binarySearch(data, d.datetime);
       if (index === -1) {
         diffData.push(d);
       }
     });
-
     console.log("different: " + JSON.stringify(diffData));
-    console.log("diff size: " + (weight.length-data.length));
     console.log("res size: " + diffData.length);
     if (diffData.length > 0) {
       uploadPatientData(id, password, "weight", diffData);
     };
-  }, [data]);
+  }, [weight]);
 
   return (
     <React.Fragment key={"weight"}>
