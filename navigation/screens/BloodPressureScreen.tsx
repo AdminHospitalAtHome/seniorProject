@@ -168,7 +168,7 @@ export default function BloodPressureScreen({ route }: { route: any }) {
     if (diffData.length > 0) {
       uploadPatientData(id, password, "blood pressure", diffData);
     };
-  }, [bloodPressure]);
+  }, [data]);
 
   return (
     <React.Fragment key={"blood pressure"}>

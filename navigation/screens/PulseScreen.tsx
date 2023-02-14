@@ -158,7 +158,7 @@ export default function PulseScreen({route}:{route:any}) {
     if (diffData.length > 0) {
       uploadPatientData(id, password, "pulse", diffData);
     };
-  }, [pulse]);
+  }, [data]);
 
 return (
     <React.Fragment key={"pulse"}>
