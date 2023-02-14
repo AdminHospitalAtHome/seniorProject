@@ -2,6 +2,7 @@ import { Stack, Surface, Button, TextInput } from "@react-native-material/core";
 import React, { useState } from "react";
 import { Dimensions, ScrollView, View, Modal, Text, Pressable, StyleSheet, Alert } from "react-native";
 import { LineChart } from 'react-native-chart-kit';
+import Config from 'react-native-config';
 
 export function DataList(listItems: any[]) {
   return(
@@ -125,12 +126,17 @@ export function DoubleValueChart(entries: any[]) {
   );
 }
 
+
+interface PageHeaderProps {
+  onRefresh: () => void;
+}
+
 export function PageHeader() {
   const [modalVisible, setModalVisible] = useState(false);
-
+  const [refresh, setRefresh] = useState(1);
   return(
     <View style={styles.checkboxContainer}>
-      <Button style={styles.plus} /*onPress={refresh}*/ title="Sync" />
+      <Button style={styles.plus} title="Sync" />
       <View style={styles.space} />
       <View style={styles.centeredView}>
         <Modal
@@ -168,6 +174,66 @@ export function PageHeader() {
       </View>
     </View>
   );
+}
+
+export async function uploadPatientData(id:string, password: string, type: string, newDataJSON: object) {
+  const Buffer = require("buffer").Buffer;
+  let encodedAuth = new Buffer(id + ":" + password).toString("base64");
+
+  var myHeaders = new Headers();
+  myHeaders.append("Authorization", `Basic ${encodedAuth}`);
+
+  var requestOptions = {
+    method: 'POST',
+    headers: myHeaders,
+    redirect: 'follow',
+    body: JSON.stringify(newDataJSON)
+  };
+  console.log("*********************************************");
+  console.log("CALLING UploadPatientMeasurements AZURE FUNCTION");
+  console.log("*********************************************");
+
+  /* ------------------ */
+  const url = `${Config.UPLOAD_PATIENT_MEASUREMENTS_URL}?code=${Config.UPLOAD_PATIENT_MEASUREMENTS_FUNCTION_KEY}&type=${type}`;
+  fetch(url, requestOptions)
+    .then(response => response.text())
+    .catch(error => console.log('error', error));
+}
+
+export async function fetchPatientData(id:any, password: any, MeasureData: any, setData: any, type: any, unit: any[]) {
+  // const { id, password, TemperatureData, setData } = route.params;
+  /* TODO: Abstract out */
+  const Buffer = require("buffer").Buffer;
+  let encodedAuth = new Buffer(id + ":" + password).toString("base64");
+
+  var myHeaders = new Headers();
+  myHeaders.append("Authorization", `Basic ${encodedAuth}`);
+
+  var requestOptions = {
+    method: 'POST',
+    headers: myHeaders,
+    redirect: 'follow'
+  };
+  console.log("*********************************************");
+  console.log("CALLING GetPatientMeasurements AZURE FUNCTION");
+  console.log("*********************************************");
+
+  /* ------------------ */
+  const url = `${Config.GET_PATIENT_MEASUREMENTS_URL}?code=${Config.GET_PATIENT_MEASUREMENTS_FUNCTION_KEY}&type=${type}`;
+  fetch(url, requestOptions)
+    .then(response => response.text())
+    .then(result => JSON.parse(result))
+    .then(arr => {
+      const fetched = [];
+      for (var obj of arr) {
+        if(type == "blood pressure"){
+          fetched.push(new MeasureData(obj.datetime, obj[unit[0]], obj[unit[1]]));
+        }else 
+        fetched.push(new MeasureData(obj.datetime, obj[unit[0]]));
+      }
+      setData(fetched);
+    })
+    .catch(error => console.log('error', error));
 }
 
 const styles = StyleSheet.create({

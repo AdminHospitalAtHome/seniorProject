@@ -1,384 +1,192 @@
-import {
-  Platform,
-  Alert,
-  Pressable,
-  Modal,
-  Dimensions,
-  StyleSheet,
-  Text,
-  ScrollView,
-  View,
-} from 'react-native';
-import * as React from 'react';
-import {useState} from 'react';
-import {
-  TextInput,
-  ListItem,
-  Surface,
-  Stack,
-  Button,
-} from '@react-native-material/core';
-import {LineChart} from 'react-native-chart-kit';
-//import CheckBox from '@react-native-community/checkbox';
-//import moment from 'moment';
-import GoogleFit, {Scopes} from 'react-native-google-fit';
-import AppleHealthKit, {HealthKitPermissions} from 'react-native-health';
-//global.dataSet = [];
-const datas = [
-  {Date: '2022-10-13T19:31:00.000Z', value: 88},
-  {Date: '2022-10-24T19:35:00.000Z', value: 89},
-  {Date: '2022-10-25T20:11:00.000Z', value: 87},
-  {Date: '2022-10-27T19:20:00.000Z', value: 90},
-  {Date: '2022-10-28T02:48:00.000Z', value: 89},
-  {Date: '2022-10-29T19:31:00.000Z', value: 88},
-  {Date: '2022-10-30T19:35:00.000Z', value: 89},
-  {Date: '2022-10-31T20:11:00.000Z', value: 87},
-  {Date: '2022-11-1T19:20:00.000Z', value: 90},
-  {Date: '2022-11-2T02:48:00.000Z', value: 89},
-  {Date: '2022-11-3T03:48:00.000Z', value: 91},
-];
+import { Platform } from 'react-native';
+import React, { useState, useEffect} from 'react';
+import { DataList, PageHeader, SingleValueChart, fetchPatientData, uploadPatientData } from '../../components/MeasurementPageComponents';
+import { ListItem } from '@react-native-material/core';
+import GoogleFit, { Scopes } from 'react-native-google-fit';
+import moment from 'moment';
+import AppleHealthKit, { HealthKitPermissions, HealthValue } from 'react-native-health';
 
-//var test = '2022-11-3T03:48:00.000Z';
-//console.log("date: " + Moment(test).format('d MMM'));
-
-async function getPulse() {
-  //const [result, setResult] = useState([]);
-  if (Platform.OS === 'android') {
-    var today = new Date();
-    var lastMonthDate = new Date(
-      today.getFullYear(),
-      today.getMonth() - 1,
-      today.getDate(),
-    );
-    const opt = {
-      startDate: lastMonthDate.toISOString(), // required ISO8601Timestamp
-      endDate: today.toISOString(),
-      //               unit: 'kg', // required; default 'kg'
-      bucketUnit: 'HOUR', // optional - default "DAY". Valid values: "NANOSECOND" | "MICROSECOND" | "MILLISECOND" | "SECOND" | "MINUTE" | "HOUR" | "DAY"
-      bucketInterval: 1, // optional - default 1.
-      // ascending: true, // optional; default false
-    };
-    //const res = await GoogleFit.getHeartRateSamples(opt);
-    GoogleFit.getHeartRateSamples(opt).then(res => {
-      console.log(res.reverse());
-      //global.dataSet = res;
-    });
-  } else if (Platform.OS === 'ios') {
-    let options = {
-      unit: 'bpm', // optional; default 'bpm'
-      startDate: new Date(2021, 0, 0).toISOString(), // required
-      endDate: new Date().toISOString(), // optional; default now
-      ascending: false, // optional; default false
-      //limit: 10, // optional; default no limit
-    };
-
-    AppleHealthKit.getHeartRateSamples(
-      options,
-      (err: Object, results: Array<HealthValue>) => {
-        if (err) {
-          return;
-        }
-        console.log(results);
-      },
-    );
+class PulseData {
+  dateString:string;
+  bpm:number;
+  constructor(dateString:string, bpm:number) {
+    this.dateString = dateString;
+    this.bpm = bpm;
   }
 }
 
-function init() {
-  if (Platform.OS === 'android') {
-    const options = {
-      scopes: [
-        Scopes.FITNESS_ACTIVITY_READ,
-        Scopes.FITNESS_ACTIVITY_WRITE,
-        Scopes.FITNESS_HEART_RATE_READ,
-        Scopes.FITNESS_HEART_RATE_WRITE,
-        Scopes.FITNESS_BODY_READ,
-        Scopes.FITNESS_BODY_WRITE,
-      ],
-    };
-    GoogleFit.checkIsAuthorized().then(() => {
-      var authorized = GoogleFit.isAuthorized;
-      console.log(authorized);
-      if (authorized) {
-        getPulse();
-        //console.log("Outside Data: " + global.dataSet);
-        //console.log("Out Data1: " + global.dataSet1);
-      } else {
-        // Authentication if already not authorized for a particular device
-        GoogleFit.authorize(options)
-          .then(authResult => {
-            if (authResult.success) {
-              console.log('AUTH_SUCCESS');
+export default function PulseScreen({route}:{route:any}) {
+  interface Data {
+    type: string;
+    patient: string;
+    datetime: string;
+    bpm: number;
+  }
+  const { id, password } = route.params;
+  const [data, setData] = useState<PulseData[]>([new PulseData("", 0)]);
+  const [pulse, setPulse] = useState<Data[]>([]);
 
-              // if successfully authorized, fetch data
-            } else {
-              console.log('AUTH_DENIED ' + authResult.message);
+  async function getPulse() {
+    if (Platform.OS === 'android') {
+      var today = new Date();
+      const opt = {
+        startDate: "2017-01-01T00:00:17.971Z", // required ISO8601Timestamp
+        endDate: today.toISOString(),
+        unit: 'bpm', // required;
+        bucketInterval: 1, // optional - default 1.
+        ascending: false, // optional; default false
+      };
+      GoogleFit.getHeartRateSamples(opt).then(res => {
+        const output = res.reverse().map(item => {
+          return {
+            type: "pulse",
+            patient: id,
+            datetime: item.endDate.toString(),
+            bpm: Math.round(item.value * 100) / 100
+          }
+        });
+        setPulse(output);
+      });
+    } else if (Platform.OS === 'ios') {
+      let options = {
+        startDate: new Date(2017, 0, 0).toISOString(), // required
+        endDate: new Date().toISOString(), // optional; default now
+        ascending: false, // optional; default false
+      };
+
+      AppleHealthKit.getHeartRateSamples(
+        options,
+        (err: Object, results: Array<HealthValue>) => {
+          if (err) {
+            return;
+          }
+          const output = results.map(item => {
+            return {
+              type: "pulse",
+              patient: id,
+              datetime: item.endDate.toString(),
+              bpm: Math.round(item.value * 100) / 100
             }
-          })
-          .catch(() => {
-            dispatch('AUTH_ERROR');
           });
-      }
-    });
-  } else if (Platform.OS === 'ios') {
-    const permissions = {
-      permissions: {
-        read: [AppleHealthKit.Constants.Permissions.HeartRate],
-        write: [AppleHealthKit.Constants.Permissions.HeartRate],
-      },
-    } as HealthKitPermissions;
-
-    AppleHealthKit.initHealthKit(permissions, (error: string) => {
-      /* Called after we receive a response from the system */
-
-      if (error) {
-        console.log('[ERROR] Cannot grant permissions!');
-      }
-      /* Can now read or write to HealthKit */
-      getPulse();
-    });
+          setPulse(output);
+        },
+      );
+    }
   }
-}
 
-export default function PulseScreen() {
-  const [modalVisible, setModalVisible] = useState(false);
-  const values = datas.map(data => data.value);
-  const dates = datas.map(data =>
-    Array.from(data.Date)[9] == 'T'
-      ? data.Date.substring(5, 9)
-      : data.Date.substring(5, 10),
-  );
-  // console.log(dates);
-  init();
-  return (
-    <ScrollView>
-      <View style={styles.checkboxContainer}>
-        {/* <CheckBox
-                     value={isMSelected}
-                     onValueChange={setMSelection}
-                     style={styles.checkbox}
-                    />
-                   <Text style={styles.label}>Monthly</Text>
-                   <CheckBox
-                      value={isWSelected}
-                      onValueChange={setWSelection}
-                      style={styles.checkbox}
-                      />
-                   <Text style={styles.label}>Weekly</Text>
-                   <CheckBox
-                      value={isDSelected}
-                      onValueChange={setDSelection}
-                      style={styles.checkbox}
-                      /> */}
-        {/* <Text style={styles.label}>Daily</Text> */}
+  async function init() {
+    if (Platform.OS === 'android') {
+      const options = {
+        scopes: [
+          Scopes.FITNESS_HEART_RATE_READ,
+        ],
+      };
+      GoogleFit.checkIsAuthorized().then(async () => {
+        var authorized = GoogleFit.isAuthorized;
+        console.log("Status: " + authorized);
+        if (authorized) {
+          await getPulse();
+        } else {
+          // Authentication if already not authorized for a particular device
+          GoogleFit.authorize(options)
+            .then(async authResult => {
+              if (authResult.success) {
+                console.log('AUTH_SUCCESS');
+                // if successfully authorized, fetch data
+                await getPulse();
+              } else {
+                console.log('AUTH_DENIED ' + authResult.message);
+              }
+            })
+            .catch(() => {
+              dispatch('AUTH_ERROR');
+            });
+        }
+      });
+    } else if (Platform.OS === 'ios') {
+      const permissions = {
+        permissions: {
+          read: [AppleHealthKit.Constants.Permissions.HeartRate],
+          write: [AppleHealthKit.Constants.Permissions.HeartRate],
+        },
+      } as HealthKitPermissions;
 
-        <Button style={styles.plus} onPress={() => init()} title="Sync" />
-        <View style={styles.space} />
-        <View style={styles.centeredView}>
-          <Modal
-            animationType="slide"
-            transparent={true}
-            visible={modalVisible}
-            onRequestClose={() => {
-              Alert.alert('Modal has been closed.');
-              setModalVisible(!modalVisible);
-            }}>
-            <View style={styles.centeredView}>
-              <View style={styles.modalView}>
-                <Text style={styles.modalText}>
-                  Enter New Measurement Below
-                </Text>
-                <TextInput
-                  style={styles.inputText}
-                  label="New Measurement"
-                  variant="standard"
-                />
-                <View style={styles.buttonView}>
-                  <Pressable
-                    style={[styles.button2, styles.buttonClose]}
-                    onPress={() => setModalVisible(!modalVisible)}>
-                    <Text style={styles.textStyle}>Done</Text>
-                  </Pressable>
-                  <Pressable
-                    style={[styles.button2, styles.buttonClose]}
-                    onPress={() => setModalVisible(!modalVisible)}>
-                    <Text style={styles.textStyle}>Cancel</Text>
-                  </Pressable>
-                </View>
-              </View>
-            </View>
-          </Modal>
-          <Pressable
-            style={[styles.button0, styles.buttonOpen]}
-            onPress={() => setModalVisible(true)}>
-            <Text style={styles.textStyle}>+</Text>
-          </Pressable>
-        </View>
-      </View>
-      <LineChart
-        data={{
-          labels: dates,
-          datasets: [
-            {
-              data: values,
-              //                      Math.random() * 100,
-              //                      Math.random() * 100,
-              //                      Math.random() * 100,
-              //                      Math.random() * 100,
-              //                      Math.random() * 100,
-              //                      Math.random() * 100,
-            },
-            {data: [150], withDots: false},
-          ],
-        }}
-        //yLabelsOffset={20}
-        //xLabelsOffset={100}
-        segments={6}
-        fromZero={true}
-        width={Dimensions.get('window').width - 16} // from react-native
-        height={220}
-        //xAxisInterval={230}
-        yAxisLabel={''}
-        verticalLabelRotation={-70}
-        xLabelsOffset={10}
-        chartConfig={{
-          backgroundColor: '#1cc910',
-          backgroundGradientFrom: '#eff3ff',
-          backgroundGradientTo: '#efefef',
-          decimalPlaces: 2, // optional, defaults to 2dp
-          color: (opacity = 255) => `rgba(0, 0, 0, ${opacity})`,
-          //color: () => 'transparent',
-          //textAnchor="middle"
-          //propsForHorizontalLabels=[textAnchor="middle"],
-          style: {
-            borderRadius: 16,
-          },
-        }}
-        bezier
-        style={{
-          marginVertical: 8,
-          borderRadius: 16,
-        }}
-      />
+      AppleHealthKit.initHealthKit(permissions, async (error: string) => {
+        /* Called after we receive a response from the system */
 
-      <Button title="Press Generate to View" />
-      <Stack fill center spacing={4}>
-        {datas.map(data => {
-          return (
-            <Surface
-              key={data.Date}
-              elevation={2}
-              category="medium"
-              style={{width: 370, height: 70}}>
-              <ListItem
-                title={data.value}
-                //secondaryText={moment(data.Date).format("dddd, MMM DD at HH:mm a")}
-                secondaryText={data.Date}
-              />
-            </Surface>
+        if (error) {
+          console.log('[ERROR] Cannot grant permissions!');
+        }
+        /* Can now read or write to HealthKit */
+        await getPulse();
+      });
+    }
+  }
+
+  useEffect(() => {
+    fetchPatientData(id, password, PulseData, setData, "pulse", ["bpm"]).then(() => init());
+  }, []);
+
+  useEffect(() => {
+    console.log("weight: " + JSON.stringify(pulse));
+    console.log("database: " + JSON.stringify(data));
+
+    const binarySearch = (arr: PulseData[], target: string): number => {
+      let left = 0;
+      let right = arr.length - 1;
+      while (left <= right) {
+        const middle = Math.floor((left + right) / 2);
+        if (arr[middle].dateString === target) {
+          return middle;
+        } else if (arr[middle].dateString > target) {
+          left = middle + 1;
+        } else {
+          right = middle - 1;
+        }
+      }
+      return -1;
+    };
+    const diffData: Data[] = [];
+    pulse.forEach((d) => {
+      const index = binarySearch(data, d.datetime);
+      if (index === -1) {
+        diffData.push(d);
+      }
+    });
+    console.log("different: " + JSON.stringify(diffData));
+    console.log("res size: " + diffData.length);
+    if (diffData.length > 0) {
+      uploadPatientData(id, password, "pulse", diffData);
+    };
+  }, [pulse]);
+
+return (
+    <React.Fragment key={"pulse"}>
+      {PageHeader()}
+      {SingleValueChart(
+        data.map((datum) => {
+          return({
+            value: datum.bpm,
+            date: datum.dateString
+          });
+        })
+        
+      )}
+      {DataList(
+        data.map((datum, index) => {
+          return(
+            <ListItem
+              key={index}
+              title = {`${datum.bpm} bpm`}
+              secondaryText = {moment(datum.dateString).format("MMMM Do YYYY, h:mm:ss a")}
+            />
           );
-        })}
-      </Stack>
-    </ScrollView>
+        })
+      )}
+    </React.Fragment>
   );
 }
+function dispatch(arg0: string) {
+  throw new Error('Function not implemented.');
+}
 
-const styles = StyleSheet.create({
-  plus: {
-    width: 75,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'grey',
-    fontSize: 5,
-  },
-  plus2: {
-    width: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'grey',
-    fontSize: 5,
-  },
-  checkboxContainer: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    marginBottom: 20,
-    justifyContent: 'space-between',
-  },
-  checkbox: {
-    alignSelf: 'center',
-  },
-  label: {
-    margin: 8,
-  },
-
-  space: {
-    width: 5, // or whatever size you need
-    height: 15,
-  },
-
-  centeredView: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalView: {
-    margin: 20,
-    backgroundColor: 'white',
-    borderRadius: 20,
-    borderWidth: 5,
-    padding: 35,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-  },
-  button0: {
-    borderRadius: 8,
-    width: 40,
-    padding: 10,
-    elevation: 2,
-  },
-  button1: {
-    borderRadius: 20,
-    padding: 10,
-    elevation: 2,
-  },
-  button2: {
-    borderRadius: 20,
-    padding: 10,
-    width: 130,
-    elevation: 2,
-  },
-  buttonOpen: {
-    backgroundColor: 'grey',
-  },
-  buttonClose: {
-    backgroundColor: 'grey',
-  },
-  textStyle: {
-    color: 'white',
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  modalText: {
-    color: 'black',
-    fontSize: 19,
-    marginBottom: 15,
-    textAlign: 'center',
-  },
-  buttonView: {
-    flexDirection: 'row',
-    marginLeft: 20,
-    justifyContent: 'space-evenly',
-  },
-  inputText: {
-    backgroundColor: '#D3D3D3',
-    margin: 10,
-    width: 300,
-    padding: 10,
-  },
-});
