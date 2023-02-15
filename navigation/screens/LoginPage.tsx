@@ -37,8 +37,10 @@ export default function LoginScreen({navigation}:{navigation:any}) {
                   if (auth.length > 0) { // TODO: Update for patient/physician distinction
                     navigation.navigate('MainContainer', {
                       id:emailInputValue, 
-                      password:passwordInputValue
+                      password:passwordInputValue,
+                      isPhysician:(auth === 'Physician')
                     });
+                    // console.log(auth);
                   }
                 });
             }}>

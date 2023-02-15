@@ -32,7 +32,7 @@ const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
 function App({route}:{route:any}) {
-  const { id, password } = route.params;
+  const { id, password, isPhysician} = route.params;
   return (
     <Tab.Navigator
       screenOptions={({route}) => ({
@@ -58,7 +58,7 @@ function App({route}:{route:any}) {
           return <Ionicons name={iconName} size={size} color={color} />;
         },
       })}>
-      <Tab.Screen name={homeName} component={HomeScreen}/>
+      <Tab.Screen name={homeName} component={HomeScreen} initialParams={{id, password, isPhysician}}/>
       <Tab.Screen name={messagesName} component={MessagesScreen} initialParams={{id, password}}/>
       <Tab.Screen name={profileName} component={ProfileScreen} initialParams={{id, password}}/>
     </Tab.Navigator>
@@ -66,11 +66,11 @@ function App({route}:{route:any}) {
 }
 
 function MainContainer({route}:{route:any}) {
-  const { id, password } = route.params;
+  const { id, password, isPhysician} = route.params;
   return (
   <NavigationContainer independent={true}>
     <Stack.Navigator>
-     <Stack.Screen name="Main" component={App} options={{ headerShown: false }} initialParams={{id, password}}/>
+     <Stack.Screen name="Main" component={App} options={{ headerShown: false }} initialParams={{id, password, isPhysician}}/>
      <Stack.Screen name={pulseName} component={PulseScreen} initialParams={{id, password}}/>
      <Stack.Screen name={weightName} component={WeightScreen} initialParams={{id, password}}/>
      <Stack.Screen name={bloodPressureName} component={BloodPressureScreen} initialParams={{id, password}}/>
