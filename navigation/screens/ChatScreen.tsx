@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {StyleSheet, View, Text, TouchableOpacity} from 'react-native';
 import { useState, useCallback, useEffect } from 'react'
-import { GiftedChat } from 'react-native-gifted-chat'
+import { GiftedChat, InputToolbar } from 'react-native-gifted-chat'
 import Config from 'react-native-config';
 // need to do "npm install react-native-gifted-chat --save"
 
@@ -18,7 +18,7 @@ class ChatData {
     }
   }
 
-export default function ChatScreen({route}:{route:any}) {
+export default function ChatScreen(this: any, {route}:{route:any}) {
   const {userName, userId, id, password, chatMessages}  = route.params
   const [messages, setMessages] = useState<any[]>([]);
   let receivedMessages = chatMessages.filter(((message: any) => {
@@ -77,13 +77,18 @@ export default function ChatScreen({route}:{route:any}) {
   }, [])
 
   return (
-    <GiftedChat
-      messages={messages}
-      onSend={message => onSend(message)}
-      user={{
-        _id: id,
-      }}
-    />
+    <View style={{ flex: 1 }}>
+      <GiftedChat
+        messages={messages}
+        onSend={message => onSend(message)}
+        user={{
+          _id: id,
+        }}
+        renderInputToolbar={(props:any) => (
+          <InputToolbar {...props} textInputProps={{ style: { color: 'black' , width: 320} }} />
+        )}
+      />
+    </View>
   )
 
 }
