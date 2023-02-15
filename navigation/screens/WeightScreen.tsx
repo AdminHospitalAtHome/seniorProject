@@ -1,10 +1,11 @@
-import { Platform } from 'react-native';
+import { Platform,RefreshControl, View } from 'react-native';
 import React, { useState, useEffect } from 'react';
-import { DataList, PageHeader, SingleValueChart, fetchPatientData, uploadPatientData } from '../../components/MeasurementPageComponents';
+import { DataList, PageHeader, SingleValueChart, fetchPatientData, uploadPatientData, } from '../../components/MeasurementPageComponents';
 import { ListItem } from '@react-native-material/core';
 import GoogleFit, { Scopes } from 'react-native-google-fit';
 import moment from 'moment';
-import AppleHealthKit, { HealthKitPermissions, HealthValue } from 'react-native-health';
+import AppleHealthKit, { HealthKitPermissions, HealthValue, } from 'react-native-health';
+import { ScrollView } from 'react-native-gesture-handler';
 
 class WeightData {
   dateString: string;
@@ -25,6 +26,7 @@ export default function WeightScreen({ route }: { route: any }) {
   const { id, password, patientId } = route.params;
   const [data, setData] = useState<WeightData[]>([]);
   const [weight, setWeight] = useState<Data[]>([]);
+  const [refresh, setRefresh] = useState(false);
 
   async function getWeight() {
     if (Platform.OS === 'android') {
@@ -141,7 +143,7 @@ export default function WeightScreen({ route }: { route: any }) {
 
   useEffect(() => {
     init().then(() => fetchPatientData(id, password, WeightData, setData, "weight", ["lbs"], patientId));
-  }, []);
+  }, [refresh]);
 
   useEffect(() => {
     console.log("weight: " + JSON.stringify(weight));
@@ -163,27 +165,27 @@ export default function WeightScreen({ route }: { route: any }) {
   }, [data]);
 
   return (
-    <React.Fragment key={"weight"}>
-      {PageHeader()}
-      {SingleValueChart(
-        data.map((datum) => {
-          return ({
-            value: datum.lbs,
-            date: datum.dateString
-          });
-        })
-      )}
-      {DataList(
-        data.map((datum, index) => {
-          return (
-            <ListItem
-              key={index}
-              title={`${datum.lbs} lbs`}
-              secondaryText={moment(datum.dateString).format("MMMM Do YYYY, h:mm:ss a")}
-            />
-          );
-        })
-      )}
+  <React.Fragment key={"weight"}>
+    {PageHeader(() => {setRefresh(!refresh)})}
+    {SingleValueChart(
+      data.map((datum) => {
+        return ({
+          value: datum.lbs,
+          date: datum.dateString
+        });
+      })
+    )}
+    {DataList(
+      data.map((datum, index) => {
+        return (
+          <ListItem
+            key={index}
+            title={`${datum.lbs} lbs`}
+            secondaryText={moment(datum.dateString).format("MMMM Do YYYY, h:mm:ss a")}
+          />
+        );
+      })
+    )}
     </React.Fragment>
   );
 }

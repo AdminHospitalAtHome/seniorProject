@@ -10,7 +10,6 @@ import { Flex, ListItem } from '@react-native-material/core';
 import { color } from '@rneui/base';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-
 class PatientData {
     first_name:string;
     last_name:string;
@@ -193,18 +192,18 @@ export default function HomeScreen({navigation, route}:{navigation:any, route:an
                 </ScrollView>
               );
         }
-
     }
-  
 }
 
 const styles = StyleSheet.create ({
     pageContainer: {
+    alignContent:'center',
     flexDirection: 'row',
     flexWrap: 'wrap',
     backgroundColor: '#fff',
   },
   box: {
+    
     height: '20%',
     padding: 19,
   },
