@@ -77,6 +77,9 @@ export default function WeightScreen({ route }: { route: any }) {
   }
 
   async function init() {
+    if (id != patientId) {
+      return;
+    }
     if (Platform.OS === 'android') {
       const options = {
         scopes: [
@@ -146,6 +149,9 @@ export default function WeightScreen({ route }: { route: any }) {
   }, [refresh]);
 
   useEffect(() => {
+    if (id != patientId) {
+      return;
+    }
     console.log("weight: " + JSON.stringify(weight));
     console.log("database: " + JSON.stringify(data));
 
