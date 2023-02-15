@@ -40,13 +40,10 @@ export function SingleValueChart(entries: any[]) {
           }, { data: [150], withDots: false, }, // TODO: Find a better way of doing this
         ],
       }}
-      //yLabelsOffset={20}
-      //xLabelsOffset={100}
       segments={6}
       fromZero={true}
       width={Dimensions.get('window').width - 16} // from react-native
       height={220}
-      //xAxisInterval={230}
       yAxisLabel={''}
       verticalLabelRotation={-70}
       xLabelsOffset={10}
