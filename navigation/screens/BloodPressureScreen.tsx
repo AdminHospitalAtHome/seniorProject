@@ -128,7 +128,7 @@ export default function BloodPressureScreen({ route }: { route: any }) {
   }
 
   useEffect(() => {
-    init().then(() => fetchPatientData(id, password, BloodpressureData, setData, "blood pressure", ["systolic", "diastolic"]));
+    fetchPatientData(id, password, BloodpressureData, setData, "blood pressure", ["systolic", "diastolic"]).then(() => init());
   }, []);
 
   useEffect(() => {
