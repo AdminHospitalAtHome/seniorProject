@@ -23,7 +23,7 @@ export default function WeightScreen({ route }: { route: any }) {
     datetime: string;
     lbs: number;
   }
-  const { id, password } = route.params;
+  const { id, password, patientId } = route.params;
   const [data, setData] = useState<WeightData[]>([]);
   const [weight, setWeight] = useState<Data[]>([]);
   const [refresh, setRefresh] = useState(false);
@@ -142,7 +142,7 @@ export default function WeightScreen({ route }: { route: any }) {
   };
 
   useEffect(() => {
-    fetchPatientData(id, password, WeightData, setData, "weight", ["lbs"]).then(()=>init());
+    init().then(() => fetchPatientData(id, password, WeightData, setData, "weight", ["lbs"], patientId));
   }, [refresh]);
 
   useEffect(() => {

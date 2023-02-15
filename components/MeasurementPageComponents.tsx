@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Dimensions, ScrollView, View, Modal, Text, Pressable, StyleSheet, Alert } from "react-native";
 import { LineChart } from 'react-native-chart-kit';
 import Config from 'react-native-config';
+import { CLIENT_RENEG_LIMIT } from "tls";
 
 export function DataList(listItems: any[]) {
   return (
@@ -167,7 +168,7 @@ export async function uploadPatientData(id: string, password: string, type: stri
 
 }
 
-export async function fetchPatientData(id: any, password: any, MeasureData: any, setData: any, type: any, unit: any[]) {
+export async function fetchPatientData(id:any, password: any, MeasureData: any, setData: any, type: any, unit: any[], patientId:string) {
   // const { id, password, TemperatureData, setData } = route.params;
   /* TODO: Abstract out */
   const Buffer = require("buffer").Buffer;
@@ -187,7 +188,7 @@ export async function fetchPatientData(id: any, password: any, MeasureData: any,
 
   /* ------------------ */
   const url = `${Config.GET_PATIENT_MEASUREMENTS_URL}?code=${Config.GET_PATIENT_MEASUREMENTS_FUNCTION_KEY}&type=${type}`
-    + `&patient=${id}`;
+    + `&patient=${patientId}`;
   fetch(url, requestOptions)
     .then(response => response.text())
     .then(result => JSON.parse(result))
