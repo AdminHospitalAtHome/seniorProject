@@ -67,15 +67,16 @@ function App({route}:{route:any}) {
 
 function MainContainer({route}:{route:any}) {
   const { id, password, isPhysician} = route.params;
+  const patientId = id;
   return (
   <NavigationContainer independent={true}>
     <Stack.Navigator>
      <Stack.Screen name="Main" component={App} options={{ headerShown: false }} initialParams={{id, password, isPhysician}}/>
-     <Stack.Screen name={pulseName} component={PulseScreen} initialParams={{id, password}}/>
-     <Stack.Screen name={weightName} component={WeightScreen} initialParams={{id, password}}/>
-     <Stack.Screen name={bloodPressureName} component={BloodPressureScreen} initialParams={{id, password}}/>
-     <Stack.Screen name={temperatureName} component={TemperatureScreen} initialParams={{id, password}}/>
-     <Stack.Screen name={oxygenSaturationName} component={OxygenSaturationScreen} initialParams={{id, password}}/>
+     <Stack.Screen name={pulseName} component={PulseScreen} initialParams={{id, password, patientId}}/>
+     <Stack.Screen name={weightName} component={WeightScreen} initialParams={{id, password, patientId}}/>
+     <Stack.Screen name={bloodPressureName} component={BloodPressureScreen} initialParams={{id, password, patientId}}/>
+     <Stack.Screen name={temperatureName} component={TemperatureScreen} initialParams={{id, password, patientId}}/>
+     <Stack.Screen name={oxygenSaturationName} component={OxygenSaturationScreen} initialParams={{id, password, patientId}}/>
      <Stack.Screen 
          name = {chatName}
          component = {ChatScreen}

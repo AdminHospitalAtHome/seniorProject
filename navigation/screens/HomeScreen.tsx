@@ -21,11 +21,12 @@ class PatientData {
     }
   }
 
-export default function HomeScreen({route}:{route:any}) {
-
+export default function HomeScreen({navigation, route}:{navigation:any, route:any}) {
+    // var patientScreen = false;
+    // patientScreen = route.params.isPhysician;
     if (route.params.isPhysician) {
         const { id, password } = route.params;
-        const [patients, setPatients] = useState([])
+        const [patients, setPatients] = useState<PatientData[]>([])
       
         useEffect(() => {
           async function fetchPatientData() {
@@ -76,18 +77,21 @@ export default function HomeScreen({route}:{route:any}) {
                 {patients.length === 0 
                 ? <Text> EMPTY </Text> 
                 : 
-                patients.map(patient => 
-                    <View style={styles.patientsBox}> 
-                        <View style={styles.patientsInner}>
-                            {/* <Text style={styles.nameText}> {patient.last_name}, {patient.first_name}</Text> */}
-                            <Text style={styles.nameText}> {patient.email} </Text>
-                            <View style={styles.checkBoxView}> 
-                            <Text style={styles.checkBoxText}> Monitoring </Text>
-                            <CheckBox style={styles.checkBox}></CheckBox>
+                patients.map(patient => {
+                    const patientId = patient.email;
+                    return(
+                        <View style={styles.patientsBox}> 
+                            <View style={styles.patientsInner} onStartShouldSetResponder={() => navigation.navigate('HomeScreen', {id, password, patientId})}>
+                                {/* <Text style={styles.nameText}> {patient.last_name}, {patient.first_name}</Text> */}
+                                <Text style={styles.nameText}> {patient.email} </Text>
+                                <View style={styles.checkBoxView}> 
+                                <Text style={styles.checkBoxText}> Monitoring </Text>
+                                <CheckBox style={styles.checkBox}></CheckBox>
+                                </View>
                             </View>
                         </View>
-                    </View>
-                    )} 
+                    );
+                })} 
             </ScrollView>
         )
     } else {
