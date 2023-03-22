@@ -30,7 +30,7 @@ export function SingleValueChart(entries: any[]) {
   return (
     <LineChart
       data={{
-        labels: entries.map((entry) =>
+        labels: entries.reverse().map((entry) =>
           moment(entry.date).format('MM-DD').toString()
         ),
         datasets: [

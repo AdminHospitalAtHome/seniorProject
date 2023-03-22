@@ -7,26 +7,32 @@ import InitialSetupScreen from './navigation/screens/InitialSetupScreen'
 import {StyleSheet, View, Text} from 'react-native';
 
 import {createStackNavigator} from '@react-navigation/stack'
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { OverlayProvider } from 'stream-chat-react-native';
 const Stack = createStackNavigator();
 
 function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen
-          name ="LoginPage"
-          component={LoginPage}
-          options={{headerShown: false}}/>
-        <Stack.Screen
-          name ="InitialSetupScreen"
-          component={InitialSetupScreen} 
-          options={{headerShown: false}}/>
-        <Stack.Screen
-          name="MainContainer"
-          component={MainContainer}
-          options={{headerShown: false}}/>
-      </Stack.Navigator>
-    </NavigationContainer>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <OverlayProvider>
+        <NavigationContainer>
+          <Stack.Navigator>
+            <Stack.Screen
+              name ="LoginPage"
+              component={LoginPage}
+              options={{headerShown: false}}/>
+            <Stack.Screen
+              name ="InitialSetupScreen"
+              component={InitialSetupScreen} 
+              options={{headerShown: false}}/>
+            <Stack.Screen
+              name="MainContainer"
+              component={MainContainer}
+              options={{headerShown: false}}/>
+          </Stack.Navigator>
+        </NavigationContainer>
+      </OverlayProvider>
+    </GestureHandlerRootView>
   );
 }
 

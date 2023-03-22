@@ -7,8 +7,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 // Screens
 import HomeScreen from './screens/HomeScreen';
 import ProfileScreen from './screens/ProfileScreen';
-import MessagesScreen from './screens/MessagesScreen';
-import ChatScreen from './screens/ChatScreen'
+import MessagesScreen from './screens/StreamChatScreen';
 import InitialSetupScreen from './screens/InitialSetupScreen';
 import PulseScreen from './screens/PulseScreen';
 import WeightScreen from './screens/WeightScreen';
@@ -77,12 +76,6 @@ function MainContainer({route}:{route:any}) {
      <Stack.Screen name={bloodPressureName} component={BloodPressureScreen} initialParams={{id, password, patientId}}/>
      <Stack.Screen name={temperatureName} component={TemperatureScreen} initialParams={{id, password, patientId}}/>
      <Stack.Screen name={oxygenSaturationName} component={OxygenSaturationScreen} initialParams={{id, password, patientId}}/>
-     <Stack.Screen 
-         name = {chatName}
-         component = {ChatScreen}
-         options = {({route}:{route: any}) => ({
-            title: route.params.userName
-         })}/>
     </Stack.Navigator>
   </NavigationContainer>
   );
