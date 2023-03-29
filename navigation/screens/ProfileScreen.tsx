@@ -3,39 +3,11 @@ import {StyleSheet, View, Text, TextInput, Image, Button, Alert, TouchableOpacit
 import {useState, useEffect } from 'react';
 import Config from 'react-native-config';
 import TextInputMask from 'react-native-text-input-mask';
-import User from '../../managers/User';
-
-class UserData {
-  first_name:string;
-  last_name:string;
-  email:string;
-  phone:string;
-  birth_date:string;
-  ec_name:string;
-  ec_phone:string;
-
-  constructor(
-    first_name:string, 
-    last_name:string, 
-    email:string, 
-    phone:string, 
-    birth_date:string,
-    ec_name:string,
-    ec_phone:string
-    ) {
-    this.first_name = first_name;
-    this.last_name = last_name;
-    this.email = email;
-    this.phone = phone;
-    this.birth_date = birth_date;
-    this.ec_name = ec_name;
-    this.ec_phone = ec_phone;
-  }
-}
+import UserManager from '../../managers/UserManager';
+import { ActivityIndicator } from 'react-native-paper';
+import Patient from '../../models/Patient';
 
 export default function SettingsScreen() {
-  const [data, setData] = useState(new UserData("", "", "", "", "", "", ""));
-
   const [firstNameState, setFirstNameState] = useState("");
   const [lastNameState, setLastNameState] = useState("");
   const [birthDateState, setBirthDateState] = useState("");
@@ -44,38 +16,12 @@ export default function SettingsScreen() {
   const [emergencyNameState, setEmergencyNameState] = useState("");
   const [emergencyPhoneNumber, setEmergencyPhoneNumber] = useState("");
 
-  useEffect(() => {
-
-    async function fetchPatientData() {
-      var myHeaders = new Headers();
-      myHeaders.append("Authorization", `Basic ${User.getInstance().getEncodedAuthorization()}`);
-
-      var requestOptions = {
-        method: 'POST',
-        headers: myHeaders,
-        redirect: 'follow'
-      }; 
-
-      console.log("*********************************************");
-      console.log("CALLING GetPatientProfileData AZURE FUNCTION");
-      console.log("*********************************************");
-
-      const url = `${Config.GET_USER_DATA_URL}?code=${Config.GET_USER_DATA_FUNCTION_KEY}`;
-      fetch(url, requestOptions)
-      .then(response => response.text())
-      .then(result => result = JSON.parse(result))
-      .then(obj => {
-        setData(new UserData(obj.first_name, obj.last_name, obj.id, obj.phone, obj.birth_date, obj.ec_name, obj.ec_phone));
-      })
-      .catch(error => console.log('error', error));
-    }
-    fetchPatientData();
-  }, []);
+  const [refresh, setRefresh] = useState(false);
 
   function submitUpdates () {
     async function fetchPatientData() {
       var myHeaders = new Headers();
-      myHeaders.append("Authorization", `Basic ${User.getInstance().getEncodedAuthorization()}`);
+      myHeaders.append("Authorization", `Basic ${UserManager.getInstance().getEncodedAuthorization()}`);
 
       var requestOptions = {
         method: 'POST',
@@ -118,27 +64,48 @@ export default function SettingsScreen() {
     fetchPatientData()
   }
 
+  useEffect(() => {
+    if(UserManager.getInstance().getPatient() != undefined) {
+      UserManager.getInstance().updatePatientData()
+      .then((success:boolean) => {
+        if (success) {
+          setRefresh(!refresh);
+          return;
+        }
+      });
+    }
+  }, []);
+
+  if (UserManager.getInstance().getPatient() == undefined ||
+      UserManager.getInstance().getPatient()?.getLastName() == "") {
+    return(
+      <View>
+        <ActivityIndicator size="large" color="#00ff00" />
+      </View>
+    );
+  }
+  const patient:Patient = UserManager.getInstance().getPatient()!;
   return (
     <ScrollView style={styles.pageContainer}>
       <View style={styles.mainContainer}>
         <View style={styles.topContainer}>
-          <Image
+          {/* <Image
             source={require('./profile.png')} 
             style={styles.profileImage} 
-            />
+            /> */}
           <View style={styles.nameBox}>
             <TextInput 
               value={firstNameState} 
               onChangeText={text => setFirstNameState(text)} 
               style={styles.inputTextTop} 
-              placeholder={data.first_name} 
+              placeholder={patient.getFirstName()} 
               placeholderTextColor='#000'
             />
             <TextInput 
               value={lastNameState} 
               onChangeText={text => setLastNameState(text)} 
               style={styles.inputTextTop} 
-              placeholder={data.last_name} 
+              placeholder={patient.getLastName()} 
               placeholderTextColor='#000'
             />
           </View>
@@ -146,28 +113,24 @@ export default function SettingsScreen() {
         <View style={styles.lowContainer}>
           <View style={styles.infoContainer}>
             <TextInputMask 
-              value={phoneNumberState} 
-              onChangeText={(formatted, extracted='') => {
-                setPhoneNumberState(extracted);
-              }}
+              value={patient.getPhoneNumber()} 
+              // onChangeText={(formatted, extracted='') => {
+              //   setPhoneNumberState(extracted);
+              // }}
               style={styles.inputText} 
               mask={'([000]) [000]-[0000]'} 
-              keyboardType="numeric" 
-              placeholder={"(" + data.phone.substring(0, 3) + ") " + data.phone.substring(3, 6) + "-" + data.phone.substring(6, 10)} 
-              placeholderTextColor='#000'
+              editable={false}
             />
             <TextInputMask 
-              value={birthDateState} 
-              onChangeText={text => setBirthDateState(text)} 
+              value={patient.getBirthDate()} 
+              //onChangeText={text => setBirthDateState(text)} 
               style={styles.inputText} 
               mask={'[00]{/}[00]{/}[0000]'} 
-              keyboardType="numeric" 
-              placeholder={data.birth_date} 
-              placeholderTextColor='#000'
+              editable={false}
             />
             <TextInput 
               value={sexState} 
-              onChangeText={text => setSexState(text)}
+              //onChangeText={text => setSexState(text)}
               style={styles.inputText} 
               placeholder={"M"} 
               placeholderTextColor='#000'
@@ -181,26 +144,25 @@ export default function SettingsScreen() {
           </TouchableOpacity> */}
           <View style={styles.emergencyContainer}>
             <TextInput 
-              value={emergencyNameState} 
-              onChangeText={text => setEmergencyNameState(text)} 
-              style={styles.inputText} placeholder={data.ec_name} 
-              placeholderTextColor='#000'
+              value={patient.getEmergencyContactName()} 
+              //onChangeText={text => setEmergencyNameState(text)} 
+              style={styles.inputText}
             />
             <TextInputMask 
-              value={emergencyPhoneNumber} 
-              onChangeText={(formatted, extracted='') => {
-                setEmergencyPhoneNumber(extracted);
-              }}
+              value={patient.getEmergencyContactPhoneNumber()} 
+              // onChangeText={(formatted, extracted='') => {
+              //   setEmergencyPhoneNumber(extracted);
+              // }}
               style={styles.inputText} 
               mask={'([000]) [000]-[0000]'} 
-              keyboardType="numeric" 
-              placeholder={"(" + data.ec_phone.substring(0, 3) + ") " + data.ec_phone.substring(3, 6) + "-" + data.ec_phone.substring(6, 10)} 
-              placeholderTextColor='#000'
+              // keyboardType="numeric" 
+              // placeholder={"(" + data.ec_phone.substring(0, 3) + ") " + data.ec_phone.substring(3, 6) + "-" + data.ec_phone.substring(6, 10)} 
+              // placeholderTextColor='#000'
             />
           </View>
           <TouchableOpacity
             style={styles.saveButton}
-            onPress={() => submitUpdates()}
+            //onPress={() => submitUpdates()}
           >
             <Text style={styles.emeregencyText}>Save Changes</Text>
           </TouchableOpacity>
@@ -276,6 +238,7 @@ const styles = StyleSheet.create({
     margin: 10,
     borderBottomColor: '#673AB7',
     borderBottomWidth: 1.3,
+    color: 'black'
   },
   emeregencyButton:{
     marginRight: 60,

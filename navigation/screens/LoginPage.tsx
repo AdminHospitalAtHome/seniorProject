@@ -3,7 +3,7 @@ import {StyleSheet, View, Text, TouchableOpacity, ScrollView, Dimensions} from '
 import {TextInput} from 'react-native-paper';
 import {useState} from 'react';
 import Config from 'react-native-config';
-import User from '../../managers/User';
+import UserManager from '../../managers/UserManager';
 
 export default function LoginScreen({navigation}:{navigation:any}) {
   const [emailInputValue, setEmailInputValue] = useState('');
@@ -36,7 +36,7 @@ export default function LoginScreen({navigation}:{navigation:any}) {
               verifyLoginInfo(emailInputValue, passwordInputValue)
                 .then((auth) => {
                   if (auth.length > 0) {
-                    User.getInstance().setCredentials({
+                    UserManager.getInstance().setCredentials({
                       id:emailInputValue, 
                       password:passwordInputValue,
                       streamToken:"",

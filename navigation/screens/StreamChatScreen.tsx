@@ -14,7 +14,7 @@ import {
 
 const client = StreamChat.getInstance('tdzzpbqrrpez');
 
-export default function StreamChatScreen({navigation,route}:{navigation:any,route:any}) {
+export default function StreamChatScreen() {
   const [channel, setChannel] = useState<ChannelType>();
   const [clientReady, setClientReady] = useState(false);
   const [thread, setThread] = useState<MessageType | null>();

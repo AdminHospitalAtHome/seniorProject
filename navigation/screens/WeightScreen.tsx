@@ -6,6 +6,7 @@ import GoogleFit, { Scopes } from 'react-native-google-fit';
 import moment from 'moment';
 import AppleHealthKit, { HealthKitPermissions, HealthValue, } from 'react-native-health';
 import { ScrollView } from 'react-native-gesture-handler';
+import UserManager from '../../managers/UserManager';
 
 class WeightData {
   dateString: string;
@@ -16,14 +17,12 @@ class WeightData {
   }
 }
 
-export default function WeightScreen({ route }: { route: any }) {
+export default function WeightScreen() {
   interface Data {
     type: string;
-    patient: string;
     datetime: string;
     lbs: number;
   }
-  const { id, password, patientId } = route.params;
   const [data, setData] = useState<WeightData[]>([]);
   const [weight, setWeight] = useState<Data[]>([]);
   const [refresh, setRefresh] = useState(false);
@@ -42,7 +41,6 @@ export default function WeightScreen({ route }: { route: any }) {
         const output = res.reverse().map(item => {
           return {
             type: "weight",
-            patient: id,
             datetime: item.endDate.toString(),
             lbs: Math.round(item.value * 100) / 100
           }
@@ -65,7 +63,6 @@ export default function WeightScreen({ route }: { route: any }) {
           const output = results.map(item => {
             return {
               type: "weight",
-              patient: id,
               datetime: item.endDate.toString(),
               lbs: Math.round(item.value * 100) / 100
             }
@@ -77,7 +74,7 @@ export default function WeightScreen({ route }: { route: any }) {
   }
 
   async function init() {
-    if (id != patientId) {
+    if (!UserManager.getInstance().isPatient()) {
       return;
     }
     if (Platform.OS === 'android') {
@@ -145,16 +142,13 @@ export default function WeightScreen({ route }: { route: any }) {
   };
 
   useEffect(() => {
-    init().then(() => fetchPatientData(id, password, WeightData, setData, "weight", ["lbs"], patientId));
+    init().then(() => fetchPatientData(WeightData, setData, "weight", ["lbs"]));
   }, [refresh]);
 
   useEffect(() => {
-    if (id != patientId) {
+    if (UserManager.getInstance().isPatient()) {
       return;
     }
-    console.log("weight: " + JSON.stringify(weight));
-    console.log("database: " + JSON.stringify(data));
-
     
     const diffData: Data[] = [];
     weight.forEach((d) => {
@@ -163,10 +157,8 @@ export default function WeightScreen({ route }: { route: any }) {
         diffData.push(d);
       }
     });
-    console.log("different: " + JSON.stringify(diffData));
-    console.log("res size: " + diffData.length);
     if (diffData.length > 0) {
-      uploadPatientData(id, password, "weight", diffData);
+      uploadPatientData("weight", diffData);
     };
   }, [data]);
 

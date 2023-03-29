@@ -62,9 +62,7 @@ function App({route}:{route:any}) {
   );
 }
 
-function MainContainer({route}:{route:any}) {
-  const { id, password, isPhysician} = route.params;
-  const patientId = id;
+function MainContainer() {
   return (
   <NavigationContainer independent={true}>
     <Stack.Navigator>

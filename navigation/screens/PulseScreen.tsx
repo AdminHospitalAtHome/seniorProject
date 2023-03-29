@@ -15,16 +15,15 @@ class PulseData {
   }
 }
 
-export default function PulseScreen({route}:{route:any}) {
+export default function PulseScreen() {
   interface Data {
     type: string;
-    patient: string;
     datetime: string;
     bpm: number;
   }
-  const { id, password } = route.params;
   const [data, setData] = useState<PulseData[]>([new PulseData("", 0)]);
   const [pulse, setPulse] = useState<Data[]>([]);
+  const [refresh, setRefresh] = useState(false);
 
   async function getPulse() {
     if (Platform.OS === 'android') {
@@ -40,7 +39,6 @@ export default function PulseScreen({route}:{route:any}) {
         const output = res.reverse().map(item => {
           return {
             type: "pulse",
-            patient: id,
             datetime: item.endDate.toString(),
             bpm: Math.round(item.value * 100) / 100
           }
@@ -63,7 +61,6 @@ export default function PulseScreen({route}:{route:any}) {
           const output = results.map(item => {
             return {
               type: "pulse",
-              patient: id,
               datetime: item.endDate.toString(),
               bpm: Math.round(item.value * 100) / 100
             }
@@ -124,13 +121,10 @@ export default function PulseScreen({route}:{route:any}) {
   }
 
   useEffect(() => {
-    fetchPatientData(id, password, PulseData, setData, "pulse", ["bpm"]).then(() => init());
+    fetchPatientData(PulseData, setData, "pulse", ["bpm"]).then(() => init());
   }, []);
 
   useEffect(() => {
-    console.log("weight: " + JSON.stringify(pulse));
-    console.log("database: " + JSON.stringify(data));
-
     const binarySearch = (arr: PulseData[], target: string): number => {
       let left = 0;
       let right = arr.length - 1;
@@ -153,16 +147,14 @@ export default function PulseScreen({route}:{route:any}) {
         diffData.push(d);
       }
     });
-    console.log("different: " + JSON.stringify(diffData));
-    console.log("res size: " + diffData.length);
     if (diffData.length > 0) {
-      uploadPatientData(id, password, "pulse", diffData);
+      uploadPatientData("pulse", diffData);
     };
   }, [data]);
 
 return (
     <React.Fragment key={"pulse"}>
-      {PageHeader()}
+      {PageHeader(() => {setRefresh(!refresh)})}
       {SingleValueChart(
         data.map((datum) => {
           return({
