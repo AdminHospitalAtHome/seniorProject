@@ -7,8 +7,9 @@ import { DataList, PageHeader, SingleValueChart } from '../../components/Measure
 import Config from 'react-native-config';
 import { Flex, ListItem } from '@react-native-material/core';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import UserManager from '../../managers/UserManager';
 
-class PatientData {
+class PatientPreview {
     first_name:string;
     last_name:string;
     email:string
@@ -20,25 +21,20 @@ class PatientData {
     }
   }
 
-export default function HomeScreen({navigation, route}:{navigation:any, route:any}) {
-  const { id, password, isPhysician } = route.params;
-  const [patients, setPatients] = useState<PatientData[]>([]);
-  const [selectedPatient, setSelectedPatient] = isPhysician 
-    ? useState<PatientData>(new PatientData("", "", "")) 
-    : useState<PatientData>(new PatientData("", "", id));
+export default function HomeScreen({navigation}:{navigation:any}) {
+  const [patients, setPatients] = useState<PatientPreview[]>([]);
+  const [refresh, setRefresh] = useState(false);
   
   useEffect(() => {
-    if (!isPhysician) {
+    if (UserManager.getInstance().getPatient() != undefined) {
       return;
     }
     async function fetchPatientData() {
-      const Buffer = require("buffer").Buffer;
-      let encodedAuth = new Buffer(id + ":" + password).toString("base64");
-      var myHeaders = new Headers();
-      myHeaders.append("Authorization", `Basic ${encodedAuth}`);
+      var headers = new Headers();
+      headers.append("Authorization", UserManager.getInstance().getEncodedAuthorization());
       var requestOptions = {
         method: 'POST',
-        headers: myHeaders,
+        headers: headers,
         redirect: 'follow'
       };
 
@@ -55,10 +51,9 @@ export default function HomeScreen({navigation, route}:{navigation:any, route:an
       .then(arr => {
         const fetched = []
         for (var patient of arr) {
-          fetched.push(new PatientData(patient.first_name, patient.last_name, patient.id))
+          fetched.push(new PatientPreview(patient.first_name, patient.last_name, patient.id));
         }
-        console.log(patients)
-        setPatients(fetched)
+        setPatients(fetched);
       })
       .catch(error => console.log('error', error));
     }
@@ -66,7 +61,7 @@ export default function HomeScreen({navigation, route}:{navigation:any, route:an
   }, []);
 
 
-  if (selectedPatient.email.length == 0) {
+  if (UserManager.getInstance().getPatient() == undefined) {
       return (
           <ScrollView style={styles.pageContainer}>
               {/* <SearchBar
@@ -78,17 +73,20 @@ export default function HomeScreen({navigation, route}:{navigation:any, route:an
                   containerStyle={{backgroundColor: 'white', borderWidth: 1, borderRadius: 5}}
                   inputContainerStyle={{backgroundColor: 'white'}}
               />  */}
-              {patients.map(patient => {
+              {patients.map((patient) => {
                   return(
                       <View style={styles.patientsBox}> 
                           {/* <View style={styles.patientsInner} onStartShouldSetResponder={() => navigation.navigate('HomeScreen', {id, password, patientId})}> */}
-                          <TouchableOpacity style={styles.patientsInner} onPress={() => setSelectedPatient(patient)}>
+                          <TouchableOpacity style={styles.patientsInner} onPress={() => {
+                            UserManager.getInstance().setPatient(patient.email);
+                            setRefresh(!refresh);
+                          }}>
                               {/* <Text style={styles.nameText}> {patient.last_name}, {patient.first_name}</Text> */}
-                              <Text style={styles.nameText}> {patient.email} </Text>
-                              <View style={styles.checkBoxView}> 
+                            <Text style={styles.nameText}> {patient.email} </Text>
+                            <View style={styles.checkBoxView}> 
                               <Text style={styles.checkBoxText}> Monitoring </Text>
                               <CheckBox style={styles.checkBox}></CheckBox>
-                              </View>
+                            </View>
                           </TouchableOpacity>
                       </View>
                   );
@@ -96,11 +94,13 @@ export default function HomeScreen({navigation, route}:{navigation:any, route:an
           </ScrollView>
       )
   } else {
-      const patientId = selectedPatient.email;
-      const backArrow = isPhysician && patientId.length > 0 
+      const backArrow = UserManager.getInstance().getId() != UserManager.getInstance().getPatient()!.getId()
       ? <View style={styles.backButton}>
           <Ionicons name='arrow-back-outline' size={30} color='fff' 
-            onPress={() => setSelectedPatient(new PatientData("", "", ""))}
+            onPress={() => {
+              UserManager.getInstance().clearPatient();
+              setRefresh(!refresh);
+            }}
           />
         </View>
       : <React.Fragment></React.Fragment>
@@ -109,31 +109,31 @@ export default function HomeScreen({navigation, route}:{navigation:any, route:an
           {backArrow}
           <ScrollView style={styles.pageContainer}>
               <View style={styles.box}>
-                  <View style={styles.inner}  onStartShouldSetResponder={() => navigation.navigate('Pulse', {id, password, patientId})}>
+                  <View style={styles.inner}  onStartShouldSetResponder={() => navigation.navigate('Pulse')}>
                       <Text style={{color:'black'}}>Pulse</Text>
                   </View>
               </View>
   
               <View style={styles.box}>
-                  <View style={styles.inner}  onStartShouldSetResponder={() => navigation.navigate('Blood Pressure',  {id, password, patientId})}>
+                  <View style={styles.inner}  onStartShouldSetResponder={() => navigation.navigate('Blood Pressure')}>
                       <Text style={{color:'black'}}>Blood Pressure</Text>
                   </View>
               </View>
   
               <View style={styles.box}>
-                  <View style={styles.inner}  onStartShouldSetResponder={() => navigation.navigate('Weight',  {id, password, patientId})}>
+                  <View style={styles.inner}  onStartShouldSetResponder={() => navigation.navigate('Weight')}>
                       <Text style={{color:'black'}}>Weight</Text>
                   </View>
               </View>
   
               <View style={styles.box}>
-                  <View style={styles.inner}  onStartShouldSetResponder={() => navigation.navigate('Temperature',  {id, password, patientId})}>
+                  <View style={styles.inner}  onStartShouldSetResponder={() => navigation.navigate('Temperature')}>
                       <Text style={{color:'black'}}>Temperature</Text>
                   </View>
               </View>
   
               <View style={styles.box}>
-                  <View style={styles.inner}  onStartShouldSetResponder={() => navigation.navigate('Oxygen Saturation',  {id, password, patientId})}>
+                  <View style={styles.inner}  onStartShouldSetResponder={() => navigation.navigate('Oxygen Saturation')}>
                       <Text style={{color:'black'}}>Oxygen Saturation</Text>
                   </View>
               </View>

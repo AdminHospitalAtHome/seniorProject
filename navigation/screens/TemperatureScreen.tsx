@@ -15,16 +15,15 @@ class TemperatureData {
   }
 }
 
-export default function TemperatureScreen({ route }: { route: any }) {
+export default function TemperatureScreen() {
   interface Data {
     type: string;
-    patient: any;
     datetime: string;
     degree: number,
   }
-  const { id, password } = route.params;
   const [data, setData] = useState<TemperatureData[]>([new TemperatureData("", 0)]);
   const [temperature, setTemperature] = useState<Data[]>([]);
+  const [refresh, setRefresh] = useState(false);
 
   async function getTemperature() {
     if (Platform.OS === 'android') {
@@ -39,7 +38,6 @@ export default function TemperatureScreen({ route }: { route: any }) {
         const output = res.reverse().map(item => {
           return {
             type: "temperature",
-            patient: id,
             datetime: item.endDate.toString(),
             degree: Math.round(item.value * 100) / 100
           }
@@ -62,7 +60,6 @@ export default function TemperatureScreen({ route }: { route: any }) {
           const output = results.map(item => {
             return {
               type: "temperature",
-              patient: id,
               datetime: item.endDate.toString(),
               degree: Math.round(item.value * 100) / 100
             }
@@ -123,13 +120,10 @@ export default function TemperatureScreen({ route }: { route: any }) {
   }
 
   useEffect(() => {
-    fetchPatientData(id, password, TemperatureData, setData, "temperature", ["degree"]).then(() => init());
+    fetchPatientData(TemperatureData, setData, "temperature", ["degree"]).then(() => init());
   }, []);
 
   useEffect(() => {
-    console.log("temperature: " + JSON.stringify(temperature));
-    console.log("database: " + JSON.stringify(data));
-
     const binarySearch = (arr: TemperatureData[], target: string): number => {
       let left = 0;
       let right = arr.length - 1;
@@ -157,17 +151,14 @@ export default function TemperatureScreen({ route }: { route: any }) {
       }
     });
 
-    console.log("different: " + JSON.stringify(diffData));
-    console.log("diff size: " + (temperature.length - data.length));
-    console.log("res size: " + diffData.length);
     if (diffData.length > 0) {
-      uploadPatientData(id, password, "temperature", diffData);
+      uploadPatientData("temperature", diffData);
     };
   }, [data]);
 
   return (
     <React.Fragment key={"temperature"}>
-      {PageHeader()}
+      {PageHeader(() => {setRefresh(!refresh)})}
       {SingleValueChart(
         data.map((datum) => {
           return ({

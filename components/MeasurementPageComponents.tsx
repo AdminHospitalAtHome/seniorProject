@@ -5,6 +5,7 @@ import { Dimensions, ScrollView, View, Modal, Text, Pressable, StyleSheet, Alert
 import { LineChart } from 'react-native-chart-kit';
 import Config from 'react-native-config';
 import { CLIENT_RENEG_LIMIT } from "tls";
+import UserManager from "../managers/UserManager";
 
 export function DataList(listItems: any[]) {
   return (
@@ -143,12 +144,9 @@ export function PageHeader(setRefresh: () => void) {
   );
 }
 
-export async function uploadPatientData(id: string, password: string, type: string, newDataJSON: object) {
-  const Buffer = require("buffer").Buffer;
-  let encodedAuth = new Buffer(id + ":" + password).toString("base64");
-
+export async function uploadPatientData(type: string, newDataJSON: object) {
   var myHeaders = new Headers();
-  myHeaders.append("Authorization", `Basic ${encodedAuth}`);
+  myHeaders.append("Authorization", UserManager.getInstance().getEncodedAuthorization());
 
   var requestOptions = {
     method: 'POST',
@@ -168,14 +166,10 @@ export async function uploadPatientData(id: string, password: string, type: stri
 
 }
 
-export async function fetchPatientData(id:any, password: any, MeasureData: any, setData: any, type: any, unit: any[], patientId:string) {
-  // const { id, password, TemperatureData, setData } = route.params;
-  /* TODO: Abstract out */
-  const Buffer = require("buffer").Buffer;
-  let encodedAuth = new Buffer(id + ":" + password).toString("base64");
+export async function fetchPatientData(MeasureData: any, setData: any, type: any, unit: any[]) {
 
   var myHeaders = new Headers();
-  myHeaders.append("Authorization", `Basic ${encodedAuth}`);
+  myHeaders.append("Authorization", UserManager.getInstance().getEncodedAuthorization());
 
   var requestOptions = {
     method: 'POST',
@@ -188,7 +182,7 @@ export async function fetchPatientData(id:any, password: any, MeasureData: any, 
 
   /* ------------------ */
   const url = `${Config.GET_PATIENT_MEASUREMENTS_URL}?code=${Config.GET_PATIENT_MEASUREMENTS_FUNCTION_KEY}&type=${type}`
-    + `&patient=${patientId}`;
+    + `&patient=${UserManager.getInstance().getPatient()?.getId()}`;
   fetch(url, requestOptions)
     .then(response => response.text())
     .then(result => JSON.parse(result))

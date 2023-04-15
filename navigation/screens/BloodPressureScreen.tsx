@@ -17,17 +17,16 @@ class BloodpressureData {
   }
 }
 
-export default function BloodPressureScreen({ route }: { route: any }) {
+export default function BloodPressureScreen() {
   interface Data {
     type: string;
-    patient: any;
     datetime: string;
     systolic: number,
     diastolic: number,
   }
-  const { id, password } = route.params;
   const [data, setData] = useState<BloodpressureData[]>([new BloodpressureData("", 0, 0)]);
   const [bloodPressure, setBloodPressure] = useState<Data[]>([]);
+  const [refresh, setRefresh] = useState(false);
 
   async function getBloodPressure() {
     if (Platform.OS === 'android') {
@@ -42,7 +41,6 @@ export default function BloodPressureScreen({ route }: { route: any }) {
         const output = res.reverse().map(item => {
           return {
             type: "blood pressure",
-            patient: id,
             datetime: item.endDate.toString(),
             systolic: Math.round(item.systolic * 100) / 100,
             diastolic: Math.round(item.diastolic * 100) / 100
@@ -66,7 +64,6 @@ export default function BloodPressureScreen({ route }: { route: any }) {
           const output = results.map(item => {
             return {
               type: "blood pressure",
-              patient: id,
               datetime: item.endDate.toString(),
               systolic: Math.round(item.bloodPressureSystolicValue * 100) / 100,
               diastolic: Math.round(item.bloodPressureDiastolicValue * 100) / 100
@@ -128,13 +125,10 @@ export default function BloodPressureScreen({ route }: { route: any }) {
   }
 
   useEffect(() => {
-    fetchPatientData(id, password, BloodpressureData, setData, "blood pressure", ["systolic", "diastolic"]).then(() => init());
+    fetchPatientData(BloodpressureData, setData, "blood pressure", ["systolic", "diastolic"]).then(() => init());
   }, []);
 
   useEffect(() => {
-    console.log("Blood Pressure: " + JSON.stringify(bloodPressure));
-    console.log("database: " + JSON.stringify(data));
-
     const binarySearch = (arr: BloodpressureData[], target: string): number => {
       let left = 0;
       let right = arr.length - 1;
@@ -162,17 +156,14 @@ export default function BloodPressureScreen({ route }: { route: any }) {
       }
     });
 
-    console.log("different: " + JSON.stringify(diffData));
-    console.log("diff size: " + (bloodPressure.length-data.length));
-    console.log("res size: " + diffData.length);
     if (diffData.length > 0) {
-      uploadPatientData(id, password, "blood pressure", diffData);
+      uploadPatientData("blood pressure", diffData);
     };
   }, [data]);
 
   return (
     <React.Fragment key={"blood pressure"}>
-      {PageHeader()}
+      {PageHeader(() => {setRefresh(!refresh)})}
       {DoubleValueChart(
         data.map((datum) => {
           return ({

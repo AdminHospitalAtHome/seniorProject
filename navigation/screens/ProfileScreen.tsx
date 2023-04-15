@@ -1,53 +1,27 @@
 import * as React from 'react';
 import {StyleSheet, View, Text, TextInput, Image, Button, Alert, TouchableOpacity, ScrollView} from 'react-native';
-import {useState, useEffect, Component } from 'react';
+import {useState, useEffect } from 'react';
 import Config from 'react-native-config';
-import { ECDH } from 'crypto';
 import TextInputMask from 'react-native-text-input-mask';
+import UserManager from '../../managers/UserManager';
+import { ActivityIndicator } from 'react-native-paper';
+import Patient from '../../models/Patient';
 
-class UserData {
-  first_name:string;
-  last_name:string;
-  email:string;
-  phone:string;
-  birth_date:string;
-  ec_name:string;
-  ec_phone:string;
-
-  constructor(first_name, last_name, email, phone, birth_date
-              , ec_name, ec_phone) {
-    this.first_name = first_name;
-    this.last_name = last_name;
-    this.email = email;
-    this.phone = phone;
-    this.birth_date = birth_date;
-    this.ec_name = ec_name;
-    this.ec_phone = ec_phone;
-  }
-}
-
-export default function SettingsScreen({route}:{route:any}) {
-  const { id, password } = route.params;
-
-  const [data, setData] = useState(new UserData("", "", "", "", "", "", ""));
-
+export default function SettingsScreen() {
   const [firstNameState, setFirstNameState] = useState("");
   const [lastNameState, setLastNameState] = useState("");
-  const [emailState, setEmailState] = useState("");
-  const [birthDateState, setBirthDataState] = useState("");
+  const [birthDateState, setBirthDateState] = useState("");
   const [phoneNumberState, setPhoneNumberState] = useState("");
-  const [sexState, setSexState] = useState("M");
+  const [sexState, setSexState] = useState("");
   const [emergencyNameState, setEmergencyNameState] = useState("");
   const [emergencyPhoneNumber, setEmergencyPhoneNumber] = useState("");
 
-  useEffect(() => {
+  const [refresh, setRefresh] = useState(false);
 
+  function submitUpdates () {
     async function fetchPatientData() {
-      const Buffer = require("buffer").Buffer;
-      let encodedAuth = new Buffer(id + ":" + password).toString("base64");
-
       var myHeaders = new Headers();
-      myHeaders.append("Authorization", `Basic ${encodedAuth}`);
+      myHeaders.append("Authorization", `Basic ${UserManager.getInstance().getEncodedAuthorization()}`);
 
       var requestOptions = {
         method: 'POST',
@@ -55,59 +29,33 @@ export default function SettingsScreen({route}:{route:any}) {
         redirect: 'follow'
       }; 
 
-      console.log("*********************************************");
-      console.log("CALLING GetPatientProfileData AZURE FUNCTION");
-      console.log("*********************************************");
-
-      const url = `https://hospital-at-home-app.azurewebsites.net/api/GetUserData?code=${Config.GET_USER_DATA_FUNCTION_KEY}`;
-      fetch(url, requestOptions)
-      .then(response => response.text())
-      .then(result => result = JSON.parse(result))
-      .then(arr => {
-        setData(new UserData(arr.first_name, arr.last_name, arr.id, arr.phone, arr.birth_date, arr.ec_name, arr.ec_phone));
-      })
-      .catch(error => console.log('error', error));
-    }
-    fetchPatientData();
-  }, []);
-
-  function SubmitUpdates () {
-    async function fetchPatientData() {
-      console.log("*********************************************");
-      console.log("CALLING UpdateUserAccountInfo AZURE FUNCTION");
-      console.log("*********************************************");
-
-      const Buffer = require("buffer").Buffer;
-      let encodedAuth = new Buffer(id + ":" + password).toString("base64");
-
-      var myHeaders = new Headers();
-      myHeaders.append("Authorization", `Basic ${encodedAuth}`);
-
-      var requestOptions = {
-        method: 'POST',
-        headers: myHeaders,
-        redirect: 'follow'
-      }; 
-
-      var url = `https://hospital-at-home-app.azurewebsites.net/api/UpdateUserAccountInfo?code=${Config.UPDATE_USER_ACCOUNT_INFO_FUNCTION_KEY}` // +
-      // `&first=${firstNameState}&last=${lastNameState}&email=${id}&password=${password}&phone=${phoneNumberState}` + 
-      // `&dob=${birthDateState}&ecName=${emergencyNameState}&ecPhone=${emergencyPhoneNumber}`;
+      var url = `${Config.UPDATE_USER_ACCOUNT_INFO_URL}?code=${Config.UPDATE_USER_ACCOUNT_INFO_FUNCTION_KEY}`;
 
       if (firstNameState != "") {
         url += `&first=${firstNameState}`;
-      } if (lastNameState != "") {
+      } 
+      if (lastNameState != "") {
         url += `&last=${lastNameState}`;
-      }  if (phoneNumberState != "") {
-        url += `&phone=${phoneNumberState.replace(" ", "").replace("(", "").replace(")", "").replace("-", "")}`;
-      } if (birthDateState != "") {
+      }  
+      if (phoneNumberState != "") {
+        url += `&phone=${phoneNumberState}`;
+      } 
+      if (birthDateState != "") {
         url += `&dob=${birthDateState}`;
-      } if (emergencyNameState != "") {
+      } 
+      if (emergencyNameState != "") {
         url += `&ecName=${emergencyNameState}`;
-      } if (emergencyPhoneNumber != "") {
-        url += `&ecPhone=${emergencyPhoneNumber.replace(" ", "").replace("(", "").replace(")", "").replace("-", "")}`;
+      } 
+      if (emergencyPhoneNumber != "") {
+        url += `&ecPhone=${emergencyPhoneNumber}`;
+      }
+      if (sexState != "") {
+        url += `&sex=${sexState}`;
       }
 
-      console.log(url);
+      console.log("*********************************************");
+      console.log("CALLING UpdateUserAccountInfo AZURE FUNCTION");
+      console.log("*********************************************");
       const created:boolean = await fetch(url, requestOptions)
         .then(response => (response.status == 200 ? true : false))
         .catch(error => false);
@@ -116,40 +64,106 @@ export default function SettingsScreen({route}:{route:any}) {
     fetchPatientData()
   }
 
+  useEffect(() => {
+    if(UserManager.getInstance().getPatient() != undefined) {
+      UserManager.getInstance().updatePatientData()
+      .then((success:boolean) => {
+        if (success) {
+          setRefresh(!refresh);
+          return;
+        }
+      });
+    }
+  }, []);
+
+  if (UserManager.getInstance().getPatient() == undefined ||
+      UserManager.getInstance().getPatient()?.getLastName() == "") {
+    return(
+      <View>
+        <ActivityIndicator size="large" color="#00ff00" />
+      </View>
+    );
+  }
+  const patient:Patient = UserManager.getInstance().getPatient()!;
   return (
     <ScrollView style={styles.pageContainer}>
       <View style={styles.mainContainer}>
         <View style={styles.topContainer}>
-          <Image
+          {/* <Image
             source={require('./profile.png')} 
             style={styles.profileImage} 
-            />
+            /> */}
           <View style={styles.nameBox}>
-            <TextInput value={firstNameState} onChangeText={text => setFirstNameState(text)} style={styles.inputTextTop} placeholder={data.first_name} placeholderTextColor='#000'/>
-            <TextInput value={lastNameState} onChangeText={text => setLastNameState(text)} style={styles.inputTextTop} placeholder={data.last_name} placeholderTextColor='#000'/>
+            <TextInput 
+              value={firstNameState} 
+              onChangeText={text => setFirstNameState(text)} 
+              style={styles.inputTextTop} 
+              placeholder={patient.getFirstName()} 
+              placeholderTextColor='#000'
+            />
+            <TextInput 
+              value={lastNameState} 
+              onChangeText={text => setLastNameState(text)} 
+              style={styles.inputTextTop} 
+              placeholder={patient.getLastName()} 
+              placeholderTextColor='#000'
+            />
           </View>
         </View>
         <View style={styles.lowContainer}>
           <View style={styles.infoContainer}>
-            <TextInput value={data.email} onChangeText={text => setEmailState(text)} style={styles.inputText} placeholder={data.email} placeholderTextColor='#000'/>
-            <TextInputMask value={phoneNumberState} onChangeText={text => setPhoneNumberState(text)} style={styles.inputText} mask={'([000]) [000]-[0000]'} keyboardType="numeric" placeholder={"(" + data.phone.substring(0, 3) + ") " + data.phone.substring(3, 6) + "-" + data.phone.substring(6, 10)} placeholderTextColor='#000'/>
-            <TextInputMask value={birthDateState} onChangeText={text => setBirthDataState(text)} style={styles.inputText} mask={'[00]{/}[00]{/}[0000]'} keyboardType="numeric" placeholder={data.birth_date} placeholderTextColor='#000'/>
-            <TextInput value={sexState} style={styles.inputText} placeholder={"M"} placeholderTextColor='#000'/>
+            <TextInputMask 
+              value={patient.getPhoneNumber()} 
+              // onChangeText={(formatted, extracted='') => {
+              //   setPhoneNumberState(extracted);
+              // }}
+              style={styles.inputText} 
+              mask={'([000]) [000]-[0000]'} 
+              editable={false}
+            />
+            <TextInputMask 
+              value={patient.getBirthDate()} 
+              //onChangeText={text => setBirthDateState(text)} 
+              style={styles.inputText} 
+              mask={'[00]{/}[00]{/}[0000]'} 
+              editable={false}
+            />
+            <TextInput 
+              value={sexState} 
+              //onChangeText={text => setSexState(text)}
+              style={styles.inputText} 
+              placeholder={"M"} 
+              placeholderTextColor='#000'
+            />
           </View>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={styles.emeregencyButton}
             onPress={() => Alert.alert('Calling Front Desk')}
             underlayColor="#fff">
             <Text style={styles.emeregencyText}>Call Front Desk</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <View style={styles.emergencyContainer}>
-            <TextInput value={emergencyNameState} onChangeText={text => setEmergencyNameState(text)} style={styles.inputText} placeholder={data.ec_name} placeholderTextColor='#000'/>
-            <TextInputMask value={emergencyPhoneNumber} onChangeText={text => setEmergencyPhoneNumber(text)} style={styles.inputText} mask={'([000]) [000]-[0000]'} keyboardType="numeric" placeholder={"(" + data.ec_phone.substring(0, 3) + ") " + data.ec_phone.substring(3, 6) + "-" + data.ec_phone.substring(6, 10)} placeholderTextColor='#000'/>
+            <TextInput 
+              value={patient.getEmergencyContactName()} 
+              //onChangeText={text => setEmergencyNameState(text)} 
+              style={styles.inputText}
+            />
+            <TextInputMask 
+              value={patient.getEmergencyContactPhoneNumber()} 
+              // onChangeText={(formatted, extracted='') => {
+              //   setEmergencyPhoneNumber(extracted);
+              // }}
+              style={styles.inputText} 
+              mask={'([000]) [000]-[0000]'} 
+              // keyboardType="numeric" 
+              // placeholder={"(" + data.ec_phone.substring(0, 3) + ") " + data.ec_phone.substring(3, 6) + "-" + data.ec_phone.substring(6, 10)} 
+              // placeholderTextColor='#000'
+            />
           </View>
           <TouchableOpacity
             style={styles.saveButton}
-            onPress={() => SubmitUpdates()}
-            underlayColor="#fff">
+            //onPress={() => submitUpdates()}
+          >
             <Text style={styles.emeregencyText}>Save Changes</Text>
           </TouchableOpacity>
         </View>
@@ -224,9 +238,7 @@ const styles = StyleSheet.create({
     margin: 10,
     borderBottomColor: '#673AB7',
     borderBottomWidth: 1.3,
-  },
-  button: {
-    text: "hello"
+    color: 'black'
   },
   emeregencyButton:{
     marginRight: 60,

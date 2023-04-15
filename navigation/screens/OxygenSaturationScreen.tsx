@@ -15,17 +15,16 @@ class OxygenData {
   }
 }
 
-export default function OxygenSaturationScreen({ route }: { route: any }) {
+export default function OxygenSaturationScreen() {
   interface Data {
     type: string;
-    patient: any;
     datetime: string;
     percent: number,
   }
-  const { id, password } = route.params;
 
   const [data, setData] = useState<OxygenData[]>([new OxygenData("", 0)]);
   const [oxygenSaturation, setOxygenSaturation] = useState<Data[]>([]);
+  const [refresh, setRefresh] = useState(false);
 
   async function getOxygenSaturation() {
     if (Platform.OS === 'android') {
@@ -40,7 +39,6 @@ export default function OxygenSaturationScreen({ route }: { route: any }) {
         const output = res.reverse().map(item => {
           return {
             type: "oxygen saturation",
-            patient: id,
             datetime: item.endDate.toString(),
             percent: Math.round(item.value * 100) / 100
           }
@@ -63,7 +61,6 @@ export default function OxygenSaturationScreen({ route }: { route: any }) {
           const output = results.map(item => {
             return {
               type: "oxygen saturation",
-              patient: id,
               datetime: item.endDate.toString(),
               percent: Math.round(item.value * 100) / 100
             }
@@ -124,13 +121,10 @@ export default function OxygenSaturationScreen({ route }: { route: any }) {
   }
 
   useEffect(() => {
-    fetchPatientData(id, password, OxygenData, setData, "oxygen saturation", ["percent"]).then(() => init());
+    fetchPatientData(OxygenData, setData, "oxygen saturation", ["percent"]).then(() => init());
   }, []);
 
   useEffect(() => {
-    console.log("Oxygen: " + JSON.stringify(oxygenSaturation));
-    console.log("database: " + JSON.stringify(data));
-
     const binarySearch = (arr: OxygenData[], target: string): number => {
       let left = 0;
       let right = arr.length - 1;
@@ -158,17 +152,14 @@ export default function OxygenSaturationScreen({ route }: { route: any }) {
       }
     });
 
-    console.log("different: " + JSON.stringify(diffData));
-    console.log("diff size: " + (oxygenSaturation.length-data.length));
-    console.log("res size: " + diffData.length);
     if (diffData.length > 0) {
-      uploadPatientData(id, password, "oxygen saturation", diffData);
+      uploadPatientData("oxygen saturation", diffData);
     };
   }, [data]);
 
   return (
     <React.Fragment key={"oxygen saturation"}>
-      {PageHeader()}
+      {PageHeader(() => {setRefresh(!refresh)})}
       {SingleValueChart(
         data.map((datum) => {
           return ({
