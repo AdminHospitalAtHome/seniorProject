@@ -131,10 +131,10 @@ interface PageHeaderProps {
   onRefresh: () => void;
 }
 
-export function PageHeader(setRefresh: () => void) {
-  const [modalVisible, setModalVisible] = useState(false);
+export function PageHeader(setRefresh: () => void, dataType: string) {
   return (
     <View style={styles.checkboxContainer}>
+      {checkType(dataType)}
       <Button
         style={styles.plus}
         onPress={setRefresh}
@@ -142,6 +142,120 @@ export function PageHeader(setRefresh: () => void) {
       />
     </View>
   );
+}
+
+function checkType(dataType: String) {
+  if (dataType === "blood pressure") {
+    return generateDoubleModal(dataType);
+  } else return generateSingleModal(dataType);
+}
+
+function uploadData(dataType: String, first: any, second: any) {
+  let value: any = []
+  if (dataType === "weight") {
+    value = [{ type: "weight", datetime: new Date().toISOString(), lbs: first }]
+  } else if (dataType === "pulse") {
+    value = [{ type: "pulse", datetime: new Date().toISOString(), bpm: first }]
+  } else if (dataType === "temperature") {
+    value = [{ type: "temperature", datetime: new Date().toISOString(), degree: first }]
+  } else if (dataType === "oxygen saturation") {
+    value = [{ type: "oxygen saturation", datetime: new Date().toISOString(), percent: first }]
+  } else if (dataType === "blood pressure") {
+    value = [{ type: "oxygen saturation", datetime: new Date().toISOString(), systolic: first, diastolic: second }]
+  }
+  console.log("the uploaded value is: ", JSON.stringify(value))
+}
+
+function generateSingleModal(dataType: String) {
+  const [modalVisible, setModalVisible] = useState(false);
+  const [addValue, setAddValue] = useState('');
+  return (
+    <View>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          Alert.alert("Modal has been closed.");
+          setModalVisible(!modalVisible);
+        }}>
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalText}>Enter New Measurement Below</Text>
+            <TextInput style={styles.inputText} onChangeText={(data) => setAddValue(data)} label="New Measurement" variant="standard" />
+            <View style={styles.buttonView}>
+              <Pressable
+                style={[styles.button2, styles.buttonClose]}
+                onPress={() => {
+                  uploadData(dataType, Number(addValue), null);
+                  setModalVisible(!modalVisible);
+                }}>
+                <Text style={styles.textStyle}>Done</Text>
+              </Pressable>
+              <Pressable
+                style={[styles.button2, styles.buttonClose]}
+                onPress={() => setModalVisible(!modalVisible)}>
+                <Text style={styles.textStyle}>Cancel</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+      <Pressable
+        style={[styles.button0, styles.buttonOpen]}
+        onPress={() => setModalVisible(true)}>
+        <Text style={styles.textStyle}>+</Text>
+      </Pressable>
+    </View>
+
+  )
+}
+
+function generateDoubleModal(dataType: String) {
+  const [modalVisible, setModalVisible] = useState(false);
+  const [first, setFirstValue] = useState('');
+  const [second, setSecondValue] = useState('');
+  return (
+    <View>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          Alert.alert("Modal has been closed.");
+          setModalVisible(!modalVisible);
+        }}>
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalText}>Enter New Measurement Below</Text>
+            <TextInput style={styles.inputText} onChangeText={(data) => setFirstValue(data)} label="New Systolic Value" variant="standard" />
+            <TextInput style={styles.inputText} onChangeText={(data) => setSecondValue(data)} label="New Diastolic Value" variant="standard" />
+            <View style={styles.buttonView}>
+              <Pressable
+                style={[styles.button2, styles.buttonClose]}
+                onPress={() => {
+                  uploadData(dataType, Number(first), Number(second));
+                  setModalVisible(!modalVisible);
+                }}>
+                <Text style={styles.textStyle}>Done</Text>
+              </Pressable>
+              <Pressable
+                style={[styles.button2, styles.buttonClose]}
+                onPress={() => setModalVisible(!modalVisible)}>
+                <Text style={styles.textStyle}>Cancel</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+      <Pressable
+        style={[styles.button0, styles.buttonOpen]}
+        onPress={() => setModalVisible(true)}>
+        <Text style={styles.textStyle}>+</Text>
+      </Pressable>
+    </View>
+
+  )
 }
 
 export async function uploadPatientData(type: string, newDataJSON: object) {

@@ -67,6 +67,7 @@ export default function WeightScreen() {
               lbs: Math.round(item.value * 100) / 100
             }
           });
+          //console.log("output: "+JSON.stringify(output));
           setWeight(output);
         },
       );
@@ -146,7 +147,7 @@ export default function WeightScreen() {
   }, [refresh]);
 
   useEffect(() => {
-    if (UserManager.getInstance().isPatient()) {
+    if (!UserManager.getInstance().isPatient()) {
       return;
     }
     
@@ -158,13 +159,14 @@ export default function WeightScreen() {
       }
     });
     if (diffData.length > 0) {
-      uploadPatientData("weight", diffData);
+      //uploadPatientData("weight", diffData);
+      console.log("upload");
     };
   }, [data]);
 
   return (
   <React.Fragment key={"weight"}>
-    {PageHeader(() => {setRefresh(!refresh)})}
+    {PageHeader((() => {setRefresh(!refresh)}), "weight")}
     {SingleValueChart(
       data.map((datum) => {
         return ({

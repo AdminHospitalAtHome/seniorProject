@@ -158,7 +158,7 @@ export default function TemperatureScreen() {
 
   return (
     <React.Fragment key={"temperature"}>
-      {PageHeader(() => {setRefresh(!refresh)})}
+      {PageHeader(() => {setRefresh(!refresh)}, "temperature")}
       {SingleValueChart(
         data.map((datum) => {
           return ({

@@ -159,7 +159,7 @@ export default function OxygenSaturationScreen() {
 
   return (
     <React.Fragment key={"oxygen saturation"}>
-      {PageHeader(() => {setRefresh(!refresh)})}
+      {PageHeader(() => {setRefresh(!refresh)}, "oxygen saturation")}
       {SingleValueChart(
         data.map((datum) => {
           return ({

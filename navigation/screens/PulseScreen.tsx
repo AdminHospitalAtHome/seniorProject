@@ -154,7 +154,7 @@ export default function PulseScreen() {
 
 return (
     <React.Fragment key={"pulse"}>
-      {PageHeader(() => {setRefresh(!refresh)})}
+      {PageHeader(() => {setRefresh(!refresh)}, "pulse")}
       {SingleValueChart(
         data.map((datum) => {
           return({

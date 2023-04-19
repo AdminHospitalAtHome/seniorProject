@@ -163,7 +163,7 @@ export default function BloodPressureScreen() {
 
   return (
     <React.Fragment key={"blood pressure"}>
-      {PageHeader(() => {setRefresh(!refresh)})}
+      {PageHeader(() => {setRefresh(!refresh)}, "blood pressure")}
       {DoubleValueChart(
         data.map((datum) => {
           return ({
