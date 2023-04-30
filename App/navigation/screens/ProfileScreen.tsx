@@ -18,94 +18,109 @@ export default function SettingsScreen() {
 
   const [refresh, setRefresh] = useState(false);
 
-  function submitUpdates () {
-    async function fetchPatientData() {
-      var myHeaders = new Headers();
-      myHeaders.append("Authorization", `Basic ${UserManager.getInstance().getEncodedAuthorization()}`);
+  // function submitUpdates () {
+  //   async function fetchPatientData() {
+  //     var myHeaders = new Headers();
+  //     myHeaders.append("Authorization", `Basic ${UserManager.getInstance().getEncodedAuthorization()}`);
 
-      var requestOptions = {
-        method: 'POST',
-        headers: myHeaders,
-        redirect: 'follow'
-      }; 
+  //     var requestOptions = {
+  //       method: 'POST',
+  //       headers: myHeaders,
+  //       redirect: 'follow'
+  //     }; 
 
-      var url = `${Config.UPDATE_USER_ACCOUNT_INFO_URL}?code=${Config.UPDATE_USER_ACCOUNT_INFO_FUNCTION_KEY}`;
+  //     var url = `${Config.UPDATE_USER_ACCOUNT_INFO_URL}?code=${Config.UPDATE_USER_ACCOUNT_INFO_FUNCTION_KEY}`;
 
-      if (firstNameState != "") {
-        url += `&first=${firstNameState}`;
-      } 
-      if (lastNameState != "") {
-        url += `&last=${lastNameState}`;
-      }  
-      if (phoneNumberState != "") {
-        url += `&phone=${phoneNumberState}`;
-      } 
-      if (birthDateState != "") {
-        url += `&dob=${birthDateState}`;
-      } 
-      if (emergencyNameState != "") {
-        url += `&ecName=${emergencyNameState}`;
-      } 
-      if (emergencyPhoneNumber != "") {
-        url += `&ecPhone=${emergencyPhoneNumber}`;
-      }
-      if (sexState != "") {
-        url += `&sex=${sexState}`;
-      }
+  //     if (firstNameState != "") {
+  //       url += `&first=${firstNameState}`;
+  //     } 
+  //     if (lastNameState != "") {
+  //       url += `&last=${lastNameState}`;
+  //     }  
+  //     if (phoneNumberState != "") {
+  //       url += `&phone=${phoneNumberState}`;
+  //     } 
+  //     if (birthDateState != "") {
+  //       url += `&dob=${birthDateState}`;
+  //     } 
+  //     if (emergencyNameState != "") {
+  //       url += `&ecName=${emergencyNameState}`;
+  //     } 
+  //     if (emergencyPhoneNumber != "") {
+  //       url += `&ecPhone=${emergencyPhoneNumber}`;
+  //     }
+  //     if (sexState != "") {
+  //       url += `&sex=${sexState}`;
+  //     }
 
-      console.log("*********************************************");
-      console.log("CALLING UpdateUserAccountInfo AZURE FUNCTION");
-      console.log("*********************************************");
-      const created:boolean = await fetch(url, requestOptions)
-        .then(response => (response.status == 200 ? true : false))
-        .catch(error => false);
-      return created;
+  //     console.log("*********************************************");
+  //     console.log("CALLING UpdateUserAccountInfo AZURE FUNCTION");
+  //     console.log("*********************************************");
+  //     const created:boolean = await fetch(url, requestOptions)
+  //       .then(response => (response.status == 200 ? true : false))
+  //       .catch(error => false);
+  //     return created;
+  //   }
+  //   fetchPatientData()
+  // }
+
+  function reloadDisplayData() {
+    if (UserManager.getInstance().getPatient() != undefined) {
+      UserManager.getInstance().updatePatientData()
+        .then((success: boolean) => {
+          if (success) {
+            setRefresh(!refresh);
+            return;
+          }
+        });
     }
-    fetchPatientData()
   }
 
   useEffect(() => {
-    if(UserManager.getInstance().getPatient() != undefined) {
-      UserManager.getInstance().updatePatientData()
-      .then((success:boolean) => {
-        if (success) {
-          setRefresh(!refresh);
-          return;
-        }
-      });
-    }
+    reloadDisplayData();
   }, []);
 
-  if (UserManager.getInstance().getPatient() == undefined ||
-      UserManager.getInstance().getPatient()?.getLastName() == "") {
-    return(
-      <View>
-        <ActivityIndicator size="large" color="#00ff00" />
-      </View>
-    );
+  let displayFirstName:string;
+  let displayLastName:string;
+  let displayPhoneNumber:string;
+  if (UserManager.getInstance().getPatient() == undefined) {
+    if (UserManager.getInstance().isPatient()) {
+      return(
+        <View>
+          <ActivityIndicator size="large" color="#00ff00" />
+        </View>
+      );
+    } else {
+      reloadDisplayData();
+      displayFirstName = UserManager.getInstance().getFirstName();
+      displayLastName = UserManager.getInstance().getLastName();
+      displayPhoneNumber = UserManager.getInstance().getPhoneNumber();
+    }
+  } else {
+      displayFirstName = UserManager.getInstance().getPatient()!.getFirstName();
+      displayLastName = UserManager.getInstance().getPatient()!.getLastName();
+      displayPhoneNumber = UserManager.getInstance().getPatient()!.getPhoneNumber();
   }
+  //UserManager.getInstance().getPatient()?.getLastName() == ""
   const patient:Patient = UserManager.getInstance().getPatient()!;
+  
   return (
     <ScrollView style={styles.pageContainer}>
       <View style={styles.mainContainer}>
         <View style={styles.topContainer}>
-          {/* <Image
-            source={require('./profile.png')} 
+          <Image
+            source={require('../../resources/profile_placeholder.jpg')} 
             style={styles.profileImage} 
-            /> */}
+          />
           <View style={styles.nameBox}>
-            <TextInput 
-              value={firstNameState} 
-              onChangeText={text => setFirstNameState(text)} 
+            <TextInput
               style={styles.inputTextTop} 
-              placeholder={patient.getFirstName()} 
+              placeholder={displayFirstName} 
               placeholderTextColor='#000'
             />
-            <TextInput 
-              value={lastNameState} 
-              onChangeText={text => setLastNameState(text)} 
+            <TextInput
               style={styles.inputTextTop} 
-              placeholder={patient.getLastName()} 
+              placeholder={displayLastName} 
               placeholderTextColor='#000'
             />
           </View>
@@ -113,59 +128,37 @@ export default function SettingsScreen() {
         <View style={styles.lowContainer}>
           <View style={styles.infoContainer}>
             <TextInputMask 
-              value={patient.getPhoneNumber()} 
-              // onChangeText={(formatted, extracted='') => {
-              //   setPhoneNumberState(extracted);
-              // }}
+              value={displayPhoneNumber} 
               style={styles.inputText} 
               mask={'([000]) [000]-[0000]'} 
               editable={false}
             />
-            <TextInputMask 
+            {(UserManager.getInstance().getPatient() != undefined) ?
+              <TextInputMask 
               value={patient.getBirthDate()} 
-              //onChangeText={text => setBirthDateState(text)} 
               style={styles.inputText} 
               mask={'[00]{/}[00]{/}[0000]'} 
               editable={false}
-            />
-            <TextInput 
-              value={sexState} 
-              //onChangeText={text => setSexState(text)}
+            /> : <></>}
+            {/* <TextInput 
+              value={sexState}
               style={styles.inputText} 
               placeholder={"M"} 
               placeholderTextColor='#000'
-            />
+            /> */}
           </View>
-          {/* <TouchableOpacity
-            style={styles.emeregencyButton}
-            onPress={() => Alert.alert('Calling Front Desk')}
-            underlayColor="#fff">
-            <Text style={styles.emeregencyText}>Call Front Desk</Text>
-          </TouchableOpacity> */}
-          <View style={styles.emergencyContainer}>
-            <TextInput 
-              value={patient.getEmergencyContactName()} 
-              //onChangeText={text => setEmergencyNameState(text)} 
-              style={styles.inputText}
-            />
-            <TextInputMask 
-              value={patient.getEmergencyContactPhoneNumber()} 
-              // onChangeText={(formatted, extracted='') => {
-              //   setEmergencyPhoneNumber(extracted);
-              // }}
-              style={styles.inputText} 
-              mask={'([000]) [000]-[0000]'} 
-              // keyboardType="numeric" 
-              // placeholder={"(" + data.ec_phone.substring(0, 3) + ") " + data.ec_phone.substring(3, 6) + "-" + data.ec_phone.substring(6, 10)} 
-              // placeholderTextColor='#000'
-            />
-          </View>
-          <TouchableOpacity
-            style={styles.saveButton}
-            //onPress={() => submitUpdates()}
-          >
-            <Text style={styles.emeregencyText}>Save Changes</Text>
-          </TouchableOpacity>
+         {(UserManager.getInstance().getPatient() != undefined) ?
+            <View style={styles.emergencyContainer}>
+              <Text style={styles.ecInfoHeader}>Emergency Contact Information</Text>
+              <TextInput
+                value={patient.getEmergencyContactName()}
+                style={styles.inputText} />
+              <TextInputMask
+                value={patient.getEmergencyContactPhoneNumber()}
+                style={styles.inputText}
+                mask={'([000]) [000]-[0000]'} />
+            </View>
+              : <></>}
         </View>
       </View>
     </ScrollView>
@@ -272,5 +265,11 @@ const styles = StyleSheet.create({
   },
   titleText: { 
     color:'#fff',
+  },
+  ecInfoHeader: {
+    color: 'black',
+    fontSize: 20,
+    textAlign: 'center',
+    marginVertical: 10
   }
 });

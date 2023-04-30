@@ -57,7 +57,7 @@ function App({route}:{route:any}) {
       })}>
       <Tab.Screen name={homeName} component={HomeScreen}/>
       <Tab.Screen name={messagesName} component={MessagesScreen}/>
-      <Tab.Screen name={profileName} component={ProfileScreen}/>
+      <Tab.Screen name={profileName} component={ProfileScreen} options={{unmountOnBlur: true}}/>
     </Tab.Navigator>
   );
 }

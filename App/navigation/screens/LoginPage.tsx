@@ -34,16 +34,21 @@ export default function LoginScreen({navigation}:{navigation:any}) {
             style={styles.emeregencyButton}
             onPress={async () => {
               verifyLoginInfo(emailInputValue, passwordInputValue)
-                .then((auth) => {
-                  if (auth.length > 0) {
-                    UserManager.getInstance().setCredentials({
-                      id:emailInputValue, 
-                      password:passwordInputValue,
-                      streamToken:"",
-                      isPatient:(auth === 'Patient')
-                    });
-                    navigation.navigate('MainContainer');
-                  }
+                .then((userCredentials:any) => {
+                  UserManager.getInstance().setCredentials({
+                    id:emailInputValue, 
+                    password:passwordInputValue,
+                    firstName:userCredentials.first_name,
+                    lastName:userCredentials.last_name,
+                    phoneNumber:userCredentials.phone,
+                    streamToken:"",
+                    isPatient:userCredentials.is_patient
+                  });
+                  navigation.navigate('MainContainer');
+                })
+                .catch(error => {
+                  console.log('error', error);
+                  return false;
                 });
             }}>
             <Text style={styles.emeregencyText}>Login</Text>
@@ -78,10 +83,11 @@ async function verifyLoginInfo(id:string, password:string):Promise<string> {
 
   /* ------------------ */
   const url = `${Config.VERIFY_LOGIN_INFO_URL}?code=${Config.VERIFY_LOGIN_INFO_FUNCTION_KEY}`;
-  const auth:string = await fetch(url, requestOptions)
+  const credentials:any = await fetch(url, requestOptions)
     .then(response => (response.status == 403 ? "" : response.text()))
+    .then(result => JSON.parse(result))
     .catch(error => "");
-  return auth;
+  return credentials;
 }
 
 const styles = StyleSheet.create({
