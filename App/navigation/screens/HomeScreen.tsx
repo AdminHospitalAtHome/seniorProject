@@ -5,7 +5,7 @@ import {SafeAreaView, StyleSheet, View, Text, TextInput, Image, Button, Alert, T
 import CheckBox from  '@react-native-community/checkbox'
 import { DataList, PageHeader, SingleValueChart } from '../../components/MeasurementPageComponents';
 import Config from 'react-native-config';
-import { Flex, ListItem } from '@react-native-material/core';
+import { Flex, ListItem, Stack, Surface } from '@react-native-material/core';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import UserManager from '../../managers/UserManager';
 
@@ -63,40 +63,44 @@ export default function HomeScreen({navigation}:{navigation:any}) {
 
   if (UserManager.getInstance().getPatient() == undefined) {
       return (
-          <ScrollView style={styles.pageContainer}>
-              {/* <SearchBar
-                  placeholder="Type Here..."
-                  style={styles.searchBar}
-                  // onChangeText={this.updateSearch}
-                  // value={search}
-                  inputStyle={{backgroundColor: 'white'}}
-                  containerStyle={{backgroundColor: 'white', borderWidth: 1, borderRadius: 5}}
-                  inputContainerStyle={{backgroundColor: 'white'}}
-              />  */}
-              {patients.map((patient) => {
-                  return(
-                      <View style={styles.patientsBox}> 
-                          {/* <View style={styles.patientsInner} onStartShouldSetResponder={() => navigation.navigate('HomeScreen', {id, password, patientId})}> */}
-                          <TouchableOpacity style={styles.patientsInner} onPress={() => {
-                            UserManager.getInstance().setPatient(patient.email);
-                            setRefresh(!refresh);
-                          }}>
-                              {/* <Text style={styles.nameText}> {patient.last_name}, {patient.first_name}</Text> */}
-                            <Text style={styles.nameText}> {patient.email} </Text>
-                            <View style={styles.checkBoxView}> 
-                              <Text style={styles.checkBoxText}> Monitoring </Text>
-                              <CheckBox style={styles.checkBox}></CheckBox>
-                            </View>
-                          </TouchableOpacity>
-                      </View>
-                  );
+        <ScrollView>
+            {/* <SearchBar
+                placeholder="Type Here..."
+                style={styles.searchBar}
+                // onChangeText={this.updateSearch}
+                // value={search}
+                inputStyle={{backgroundColor: 'white'}}
+                containerStyle={{backgroundColor: 'white', borderWidth: 1, borderRadius: 5}}
+                inputContainerStyle={{backgroundColor: 'white'}}
+            />  */}
+            <Stack fill center spacing={4}>
+              {patients.map((patient, index) => {
+                return(
+                  <Surface
+                    key={index}
+                    elevation={2}
+                    category="medium"
+                    style={styles.patientSurface}>
+                    {/* <View style={styles.patientsInner} onStartShouldSetResponder={() => navigation.navigate('HomeScreen', {id, password, patientId})}> */}
+                    <ListItem
+                      key={index}
+                      onPress={() => {
+                        UserManager.getInstance().setPatient(patient.email);
+                        setRefresh(!refresh);
+                      }}
+                      title={`${patient.first_name} ${patient.last_name}`}
+                      secondaryText={patient.email}
+                    />
+                  </Surface>
+                );
               })} 
-          </ScrollView>
+            </Stack>
+        </ScrollView>
       )
   } else {
-      const backArrow = UserManager.getInstance().getId() != UserManager.getInstance().getPatient()!.getId()
+      const backArrow = !UserManager.getInstance().isPatient()
       ? <View style={styles.backButton}>
-          <Ionicons name='arrow-back-outline' size={30} color='fff' 
+          <Ionicons name='arrow-back-outline' size={50} color='black' 
             onPress={() => {
               UserManager.getInstance().clearPatient();
               setRefresh(!refresh);
@@ -172,24 +176,17 @@ const styles = StyleSheet.create ({
     marginBottom: 19,
   },
   inner: {
-    height: '120%',
-    width: 350,
+    height: 120,
+    width: 370,
     backgroundColor: '#EEEEEE',
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 20,
   },
-  patientsBox: {
-    height: '11%',
-    padding: 19,
-  },
-  patientsInner: {
-    height: '170%',
-    width: 350,
-    backgroundColor: '#EEEEEE',
-    // alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 20,
+  patientSurface: {
+    marginVertical: 10,
+    height: '7%',
+    width: '90%'
   },
   nameText: {
     textAlign: 'left',
@@ -219,6 +216,6 @@ const styles = StyleSheet.create ({
   },
   backButton: {
     paddingLeft: 15,
-    paddingRight: 340
+    paddingRight: 340,
   }
 });

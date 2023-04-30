@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { Dimensions, ScrollView, View, Modal, Text, Pressable, StyleSheet, Alert } from "react-native";
 import { LineChart } from 'react-native-chart-kit';
 import Config from 'react-native-config';
-import { CLIENT_RENEG_LIMIT } from "tls";
 import UserManager from "../managers/UserManager";
 
 export function DataList(listItems: any[]) {
@@ -138,7 +137,7 @@ export function PageHeader(setRefresh: () => void, dataType: string) {
       <Button
         style={styles.plus}
         onPress={setRefresh}
-        title="Sync"
+        title={UserManager.getInstance().isPatient() ? "Sync" : "Refresh"}
       />
     </View>
   );
@@ -320,7 +319,7 @@ export async function fetchPatientData(MeasureData: any, setData: any, type: any
 
 const styles = StyleSheet.create({
   plus: {
-    width: 100,
+    width: 110,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'grey',
