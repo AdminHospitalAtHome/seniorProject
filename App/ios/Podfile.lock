@@ -503,7 +503,7 @@ DEPENDENCIES:
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - "react-native-cameraroll (from `../node_modules/@react-native-camera-roll/camera-roll`)"
-  - react-native-config (from `../node_modules/react-native-config`)
+  - react-native-config (from `../node_modules/react-native-config/react-native-config.podspec`)
   - react-native-document-picker (from `../node_modules/react-native-document-picker`)
   - react-native-image-resizer (from `../node_modules/react-native-image-resizer`)
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
@@ -600,7 +600,7 @@ EXTERNAL SOURCES:
   react-native-cameraroll:
     :path: "../node_modules/@react-native-camera-roll/camera-roll"
   react-native-config:
-    :path: "../node_modules/react-native-config"
+    :path: "../node_modules/react-native-config/react-native-config.podspec"
   react-native-document-picker:
     :path: "../node_modules/react-native-document-picker"
   react-native-image-resizer:
@@ -729,6 +729,6 @@ SPEC CHECKSUMS:
   Yoga: 1f02ef4ce4469aefc36167138441b27d988282b1
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: a19b3c5f8108cdb4f592d99df06d51c7e29ea681
+PODFILE CHECKSUM: d4c83eff83c6222d0c85f218e59cac8c527e00ba
 
 COCOAPODS: 1.11.3
