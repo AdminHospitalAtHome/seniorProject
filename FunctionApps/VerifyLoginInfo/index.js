@@ -1,5 +1,4 @@
 const { CosmosClient } = require("@azure/cosmos");
-//const StreamChat = require('stream-chat').StreamChat;
 
 module.exports = async function (context, req) {
   context.log('JavaScript HTTP trigger function processed a request.');
@@ -34,16 +33,6 @@ module.exports = async function (context, req) {
     return;
   }
 
-  // Valid User -> Handle Get Stream Chat Authentication
-  // const serverClient = StreamChat.getInstance(process.env["GETSTREAM_API_KEY"], process.env["GETSTREAM_SECRET"]);
-  // const streamResponse = await serverClient.upsertUser({
-  //   id: readDoc.id,
-  //   role: 'user',
-  //   name: `${readDoc.first_name} ${readDoc.last_name}`,
-  //   online: true
-  // });
-
-  //const token = serverClient.createToken(readDoc.id);
 
   context.res = {
     // status: 200, /* Defaults to 200 */
@@ -52,7 +41,6 @@ module.exports = async function (context, req) {
       last_name: readDoc.last_name,
       is_patient: readDoc.is_patient,
       phone: readDoc.phone
-      //stream_token: token
     }
   };
 }
