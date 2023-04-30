@@ -144,13 +144,13 @@ export function PageHeader(setRefresh: () => void, dataType: string) {
   );
 }
 
-function checkType(dataType: String) {
+function checkType(dataType: string) {
   if (dataType === "blood pressure") {
     return generateDoubleModal(dataType);
   } else return generateSingleModal(dataType);
 }
 
-function uploadData(dataType: String, first: any, second: any) {
+function uploadData(dataType: string, first: any, second: any) {
   let value: any = []
   if (dataType === "weight") {
     value = [{ type: "weight", datetime: new Date().toISOString(), lbs: first }]
@@ -163,10 +163,11 @@ function uploadData(dataType: String, first: any, second: any) {
   } else if (dataType === "blood pressure") {
     value = [{ type: "oxygen saturation", datetime: new Date().toISOString(), systolic: first, diastolic: second }]
   }
-  console.log("the uploaded value is: ", JSON.stringify(value))
+  console.log("the uploaded value is: ", JSON.stringify(value));
+  uploadPatientData(dataType,value);
 }
 
-function generateSingleModal(dataType: String) {
+function generateSingleModal(dataType: string) {
   const [modalVisible, setModalVisible] = useState(false);
   const [addValue, setAddValue] = useState('');
   return (
@@ -212,7 +213,7 @@ function generateSingleModal(dataType: String) {
   )
 }
 
-function generateDoubleModal(dataType: String) {
+function generateDoubleModal(dataType: string) {
   const [modalVisible, setModalVisible] = useState(false);
   const [first, setFirstValue] = useState('');
   const [second, setSecondValue] = useState('');
@@ -237,6 +238,7 @@ function generateDoubleModal(dataType: String) {
                 onPress={() => {
                   uploadData(dataType, Number(first), Number(second));
                   setModalVisible(!modalVisible);
+                  
                 }}>
                 <Text style={styles.textStyle}>Done</Text>
               </Pressable>
