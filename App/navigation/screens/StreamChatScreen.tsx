@@ -12,7 +12,7 @@ import {
   Thread,
 } from 'stream-chat-react-native';
 
-const client = StreamChat.getInstance('tdzzpbqrrpez');
+const client = StreamChat.getInstance('9xeusjscj7dz');
 
 export default function StreamChatScreen() {
   const [channel, setChannel] = useState<ChannelType>();
@@ -24,10 +24,10 @@ export default function StreamChatScreen() {
       try {
         await client.connectUser(
           {
-            id: 'rhit-mazanyam',
+            id: 'hah',
             name: 'Aidan Mazany',
           },
-          client.devToken('rhit-mazanyam'),
+          client.devToken('hah'),
         );
         setClientReady(true);
       } catch (e) {
