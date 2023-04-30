@@ -6,6 +6,9 @@ export default class UserManager {
 
   private id:string = "";
   private password:string = "";
+  private firstName:string = "";
+  private lastName:string = "";
+  private phoneNumber:string = "";
   private currentPatient:Patient | undefined;
   private streamToken:string = "";
 
@@ -17,11 +20,20 @@ export default class UserManager {
   }
 
   setCredentials(
-    {id, password, streamToken, isPatient}:
-    {id:string, password:string, streamToken:string, isPatient:boolean}
+    {id, password, firstName, lastName, phoneNumber, streamToken, isPatient}:
+    {id:string, 
+     password:string, 
+     firstName:string,
+     lastName:string,
+     phoneNumber:string,
+     streamToken:string, 
+     isPatient:boolean}
     ) {
     this.id = id;
     this.password = password;
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.phoneNumber = phoneNumber;
     this.streamToken = streamToken;
     if (isPatient) {
       this.setPatient(id);
@@ -63,5 +75,17 @@ export default class UserManager {
 
   getStreamToken() {
     return this.streamToken;
+  }
+
+  getFirstName() {
+    return this.firstName;
+  }
+
+  getLastName() {
+    return this.lastName;
+  }
+
+  getPhoneNumber() {
+    return this.phoneNumber;
   }
 }
