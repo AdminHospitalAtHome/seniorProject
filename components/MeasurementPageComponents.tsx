@@ -206,6 +206,7 @@ function generateSingleModal(dataType: String) {
         onPress={() => setModalVisible(true)}>
         <Text style={styles.textStyle}>+</Text>
       </Pressable>
+      <View style={styles.plusStyle} />
     </View>
 
   )
@@ -253,6 +254,7 @@ function generateDoubleModal(dataType: String) {
         onPress={() => setModalVisible(true)}>
         <Text style={styles.textStyle}>+</Text>
       </Pressable>
+      <View style={styles.plusStyle} />
     </View>
 
   )
@@ -394,6 +396,9 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "bold",
     textAlign: "center"
+  },
+  plusStyle: {
+    width: 50
   },
   modalText: {
     color: "black",
