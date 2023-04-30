@@ -35,20 +35,18 @@ export default function LoginScreen({navigation}:{navigation:any}) {
             onPress={async () => {
               verifyLoginInfo(emailInputValue, passwordInputValue)
                 .then((userCredentials:any) => {
-                  UserManager.getInstance().setCredentials({
-                    id:emailInputValue, 
-                    password:passwordInputValue,
-                    firstName:userCredentials.first_name,
-                    lastName:userCredentials.last_name,
-                    phoneNumber:userCredentials.phone,
-                    streamToken:"",
-                    isPatient:userCredentials.is_patient
-                  });
-                  navigation.navigate('MainContainer');
-                })
-                .catch(error => {
-                  console.log('error', error);
-                  return false;
+                  if (userCredentials) {
+                    UserManager.getInstance().setCredentials({
+                      id:emailInputValue, 
+                      password:passwordInputValue,
+                      firstName:userCredentials.first_name,
+                      lastName:userCredentials.last_name,
+                      phoneNumber:userCredentials.phone,
+                      streamToken:"",
+                      isPatient:userCredentials.is_patient
+                    });
+                    navigation.navigate('MainContainer');
+                  }
                 });
             }}>
             <Text style={styles.emeregencyText}>Login</Text>
@@ -84,9 +82,18 @@ async function verifyLoginInfo(id:string, password:string):Promise<string> {
   /* ------------------ */
   const url = `${Config.VERIFY_LOGIN_INFO_URL}?code=${Config.VERIFY_LOGIN_INFO_FUNCTION_KEY}`;
   const credentials:any = await fetch(url, requestOptions)
-    .then(response => (response.status == 403 ? "" : response.text()))
-    .then(result => JSON.parse(result))
-    .catch(error => "");
+    .then(async response => {
+      if (response.status == 403) {
+        console.log("Invalid Login Information");
+        return false;
+      } else {
+        return JSON.parse(await response.text());
+      }
+    })
+    .catch(error => {
+      console.log('error', error);
+      return false;
+    });
   return credentials;
 }
 
