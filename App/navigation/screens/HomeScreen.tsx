@@ -8,7 +8,7 @@ import Config from 'react-native-config';
 import { Flex, ListItem, Stack, Surface } from '@react-native-material/core';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import UserManager from '../../managers/UserManager';
-import { List } from 'react-native-paper';
+import Patient from '../../models/Patient';
 
 class PatientPreview {
     first_name:string;
@@ -25,6 +25,7 @@ class PatientPreview {
 export default function HomeScreen({navigation}:{navigation:any}) {
   const [patients, setPatients] = useState<PatientPreview[]>([]);
   const [refresh, setRefresh] = useState(false);
+  const [currentPatient, setCurrentPatient] = useState<string>();
   
   useEffect(() => {
     if (UserManager.getInstance().getPatient() != undefined) {
@@ -65,15 +66,6 @@ export default function HomeScreen({navigation}:{navigation:any}) {
   if (UserManager.getInstance().getPatient() == undefined) {
       return (
         <ScrollView>
-            {/* <SearchBar
-                placeholder="Type Here..."
-                style={styles.searchBar}
-                // onChangeText={this.updateSearch}
-                // value={search}
-                inputStyle={{backgroundColor: 'white'}}
-                containerStyle={{backgroundColor: 'white', borderWidth: 1, borderRadius: 5}}
-                inputContainerStyle={{backgroundColor: 'white'}}
-            />  */}
             <Stack fill center spacing={4}>
               {patients.map((patient, index) => {
                 return(
@@ -87,6 +79,7 @@ export default function HomeScreen({navigation}:{navigation:any}) {
                       key={index}
                       onPress={() => {
                         UserManager.getInstance().setPatient(patient.email);
+                        setCurrentPatient(patient.first_name+" "+patient.last_name);
                         setRefresh(!refresh);
                       }}
                       title={`${patient.first_name} ${patient.last_name}`}
@@ -100,38 +93,61 @@ export default function HomeScreen({navigation}:{navigation:any}) {
       )
   } else {
       const backArrow = !UserManager.getInstance().isPatient()
-      ? <View style={styles.backButton}>
+      ? <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <Ionicons name='arrow-back-outline' size={50} color='black' 
             onPress={() => {
               UserManager.getInstance().clearPatient();
               setRefresh(!refresh);
             }}
           />
+          <Text style={{ fontSize: 25, marginRight: 15 }}>{currentPatient}</Text>
         </View>
       : <React.Fragment></React.Fragment>
-      const measurements = ["Pulse", "Blood Pressure", "Weight", "Temperature", "Oxygen Saturation", "Test", "Test"];
       return (
         <View style={{justifyContent:'center'}}>
           {backArrow}
-          <ScrollView>
-            <Stack fill center spacing={4}>
-              {measurements.map((measurement, index) => {
-                return(
-                  <Surface
-                    key={index}
-                    elevation={2}
-                    category="medium"
-                    style={styles.measurementSelection}
-                  >
-                    <TouchableOpacity
-                      onPress={() => {navigation.navigate(measurement);}}
-                    >
-                      <Text style={{color:'black', textAlign:'center'}}>{measurement}</Text>
-                    </TouchableOpacity>
-                  </Surface>
-                );
-              })} 
-            </Stack>
+          <ScrollView style={styles.pageContainer}>
+              <View style={styles.box}>
+                  <View style={styles.inner}  onStartShouldSetResponder={() => navigation.navigate('Pulse')}>
+                      <Text style={{color:'black'}}>Pulse</Text>
+                  </View>
+              </View>
+  
+              <View style={styles.box}>
+                  <View style={styles.inner}  onStartShouldSetResponder={() => navigation.navigate('Blood Pressure')}>
+                      <Text style={{color:'black'}}>Blood Pressure</Text>
+                  </View>
+              </View>
+  
+              <View style={styles.box}>
+                  <View style={styles.inner}  onStartShouldSetResponder={() => navigation.navigate('Weight')}>
+                      <Text style={{color:'black'}}>Weight</Text>
+                  </View>
+              </View>
+  
+              <View style={styles.box}>
+                  <View style={styles.inner}  onStartShouldSetResponder={() => navigation.navigate('Temperature')}>
+                      <Text style={{color:'black'}}>Temperature</Text>
+                  </View>
+              </View>
+  
+              <View style={styles.box}>
+                  <View style={styles.inner}  onStartShouldSetResponder={() => navigation.navigate('Oxygen Saturation')}>
+                      <Text style={{color:'black'}}>Oxygen Saturation</Text>
+                  </View>
+              </View>
+  
+              <View style={styles.box}>
+                  <View style={styles.inner}>
+                      <Text style={{color:'black'}}>Whatever</Text>
+                  </View>
+              </View>
+  
+              <View style={styles.lastBox}>
+                  <View style={styles.inner}>
+                      <Text style={{color:'black'}}>Whatever</Text>
+                  </View>
+              </View>
           </ScrollView>
         </View>
       );
@@ -166,11 +182,6 @@ const styles = StyleSheet.create ({
     marginVertical: 10,
     height: '7%',
     width: '90%'
-  },
-  measurementSelection: {
-    width:390, 
-    height:100,
-    justifyContent:'center'
   },
   nameText: {
     textAlign: 'left',
