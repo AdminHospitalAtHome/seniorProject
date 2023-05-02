@@ -1,4 +1,4 @@
-import { Platform,RefreshControl, View } from 'react-native';
+import { Platform, RefreshControl, View } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { DataList, PageHeader, SingleValueChart, fetchPatientData, uploadPatientData, } from '../../components/MeasurementPageComponents';
 import { ListItem } from '@react-native-material/core';
@@ -20,6 +20,7 @@ class WeightData {
 export default function WeightScreen() {
   interface Data {
     type: string;
+    patient: string;
     datetime: string;
     lbs: number;
   }
@@ -41,6 +42,7 @@ export default function WeightScreen() {
         const output = res.reverse().map(item => {
           return {
             type: "weight",
+            patient: UserManager.getInstance().getId(),
             datetime: item.endDate.toString(),
             lbs: Math.round(item.value * 100) / 100
           }
@@ -63,6 +65,7 @@ export default function WeightScreen() {
           const output = results.map(item => {
             return {
               type: "weight",
+              patient: UserManager.getInstance().getId(),
               datetime: item.endDate.toString(),
               lbs: Math.round(item.value * 100) / 100
             }
@@ -96,7 +99,7 @@ export default function WeightScreen() {
               if (authResult.success) {
                 console.log('AUTH_SUCCESS');
                 // if successfully authorized, fetch data
-                 await getWeight();
+                await getWeight();
               } else {
                 console.log('AUTH_DENIED ' + authResult.message);
               }
@@ -150,7 +153,7 @@ export default function WeightScreen() {
     if (!UserManager.getInstance().isPatient()) {
       return;
     }
-    
+
     const diffData: Data[] = [];
     weight.forEach((d) => {
       const index = binarySearch(data, d.datetime);
@@ -164,30 +167,58 @@ export default function WeightScreen() {
     };
   }, [data]);
 
-  return (
-  <React.Fragment key={"weight"}>
-    {PageHeader((() => {setRefresh(!refresh)}), "weight")}
-    {SingleValueChart(
-      data.map((datum) => {
-        return ({
-          value: datum.lbs,
-          date: datum.dateString
-        });
-      })
-    )}
-    {DataList(
-      data.map((datum, index) => {
-        return (
-          <ListItem
-            key={index}
-            title={`${datum.lbs} lbs`}
-            secondaryText={moment(datum.dateString).format("MMMM Do YYYY, h:mm:ss a")}
-          />
-        );
-      })
-    )}
-    </React.Fragment>
-  );
+  if (UserManager.getInstance().isPatient()) {
+    return (
+      <React.Fragment key={"weight"}>
+        {PageHeader((() => { setRefresh(!refresh) }), "weight")}
+        {SingleValueChart(
+          data.map((datum) => {
+            return ({
+              value: datum.lbs,
+              date: datum.dateString
+            });
+          })
+        )}
+        {DataList(
+          data.map((datum, index) => {
+            return (
+              <ListItem
+                key={index}
+                title={`${datum.lbs} lbs`}
+                secondaryText={moment(datum.dateString).format("MMMM Do YYYY, h:mm:ss a")}
+              />
+            );
+          })
+        )}
+      </React.Fragment>
+    );
+  } else {
+    return (
+      <React.Fragment key={"weight"}>
+        {SingleValueChart(
+          data.map((datum) => {
+            return ({
+              value: datum.lbs,
+              date: datum.dateString
+            });
+          })
+        )}
+        {DataList(
+          data.map((datum, index) => {
+            return (
+              <ListItem
+                key={index}
+                title={`${datum.lbs} lbs`}
+                secondaryText={moment(datum.dateString).format("MMMM Do YYYY, h:mm:ss a")}
+              />
+            );
+          })
+        )}
+      </React.Fragment>
+    );
+  }
+
+
 }
 function dispatch(arg0: string) {
   throw new Error('Function not implemented.');

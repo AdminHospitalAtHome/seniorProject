@@ -5,6 +5,7 @@ import { ListItem } from '@react-native-material/core';
 import GoogleFit, { Scopes } from 'react-native-google-fit';
 import moment from 'moment';
 import AppleHealthKit, { HealthKitPermissions, HealthValue } from 'react-native-health';
+import UserManager from '../../managers/UserManager';
 
 class OxygenData {
   dateString: string;
@@ -18,6 +19,7 @@ class OxygenData {
 export default function OxygenSaturationScreen() {
   interface Data {
     type: string;
+    patient: string;
     datetime: string;
     percent: number,
   }
@@ -39,6 +41,7 @@ export default function OxygenSaturationScreen() {
         const output = res.reverse().map(item => {
           return {
             type: "oxygen saturation",
+            patient: UserManager.getInstance().getId(),
             datetime: item.endDate.toString(),
             percent: Math.round(item.value * 100) / 100
           }
@@ -61,6 +64,7 @@ export default function OxygenSaturationScreen() {
           const output = results.map(item => {
             return {
               type: "oxygen saturation",
+              patient: UserManager.getInstance().getId(),
               datetime: item.endDate.toString(),
               percent: Math.round(item.value * 100) / 100
             }
@@ -157,30 +161,58 @@ export default function OxygenSaturationScreen() {
     };
   }, [data]);
 
-  return (
-    <React.Fragment key={"oxygen saturation"}>
-      {PageHeader(() => {setRefresh(!refresh)}, "oxygen saturation")}
-      {SingleValueChart(
-        data.map((datum) => {
-          return ({
-            value: datum.percent,
-            date: datum.dateString
-          });
-        })
-      )}
-      {DataList(
-        data.map((datum, index) => {
-          return (
-            <ListItem
-              key={index}
-              title={`${datum.percent} %  `}
-              secondaryText={moment(datum.dateString).format("MMMM Do YYYY, h:mm:ss a")}
-            />
-          );
-        })
-      )}
-    </React.Fragment>
-  );
+  if (UserManager.getInstance().isPatient()) {
+    return (
+      <React.Fragment key={"oxygen saturation"}>
+        {PageHeader(() => { setRefresh(!refresh) }, "oxygen saturation")}
+        {SingleValueChart(
+          data.map((datum) => {
+            return ({
+              value: datum.percent,
+              date: datum.dateString
+            });
+          })
+        )}
+        {DataList(
+          data.map((datum, index) => {
+            return (
+              <ListItem
+                key={index}
+                title={`${datum.percent} %  `}
+                secondaryText={moment(datum.dateString).format("MMMM Do YYYY, h:mm:ss a")}
+              />
+            );
+          })
+        )}
+      </React.Fragment>
+    );
+  } else {
+    return (
+      <React.Fragment key={"oxygen saturation"}>
+        {SingleValueChart(
+          data.map((datum) => {
+            return ({
+              value: datum.percent,
+              date: datum.dateString
+            });
+          })
+        )}
+        {DataList(
+          data.map((datum, index) => {
+            return (
+              <ListItem
+                key={index}
+                title={`${datum.percent} %  `}
+                secondaryText={moment(datum.dateString).format("MMMM Do YYYY, h:mm:ss a")}
+              />
+            );
+          })
+        )}
+      </React.Fragment>
+    );
+  }
+
+
 }
 
 function dispatch(arg0: string) {

@@ -162,7 +162,7 @@ function uploadData(dataType: string, first: any, second: any) {
   } else if (dataType === "blood pressure") {
     value = [{ type: "oxygen saturation", patient: UserManager.getInstance().getId(), datetime: new Date().toISOString(), systolic: first, diastolic: second }]
   }
-  uploadPatientData(dataType,value);
+  uploadPatientData(dataType, value);
 }
 
 function generateSingleModal(dataType: string) {
@@ -236,7 +236,7 @@ function generateDoubleModal(dataType: string) {
                 onPress={() => {
                   uploadData(dataType, Number(first), Number(second));
                   setModalVisible(!modalVisible);
-                  
+
                 }}>
                 <Text style={styles.textStyle}>Done</Text>
               </Pressable>
