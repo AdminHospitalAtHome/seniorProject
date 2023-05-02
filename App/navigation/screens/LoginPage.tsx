@@ -42,7 +42,7 @@ export default function LoginScreen({navigation}:{navigation:any}) {
                       firstName:userCredentials.first_name,
                       lastName:userCredentials.last_name,
                       phoneNumber:userCredentials.phone,
-                      streamToken:"",
+                      streamToken:userCredentials.stream_token,
                       isPatient:userCredentials.is_patient
                     });
                     navigation.navigate('MainContainer');
