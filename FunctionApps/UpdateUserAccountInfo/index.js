@@ -1,4 +1,5 @@
 const { CosmosClient } = require("@azure/cosmos")
+const StreamChat = require('stream-chat').StreamChat
 
 module.exports = async function (context, req) {
   context.log('JavaScript HTTP trigger function processed a request.');
@@ -33,6 +34,14 @@ module.exports = async function (context, req) {
     return;
   }
 
+  const serverClient = StreamChat.getInstance(process.env["GETSTREAM_API_KEY"], process.env["GETSTREAM_SECRET"]);
+  const streamResponse = await serverClient.upsertUser({
+    id: readDoc.id.replaceAll('.', ''),
+    role: 'user',
+    name: `${req.query.first} ${req.query.last}`
+  });
+  const token = serverClient.createToken(readDoc.id);
+
   // Valid User: Update account info
   const patch = [];
   if (req.query.first) {
@@ -56,6 +65,7 @@ module.exports = async function (context, req) {
   if (req.query.ecName) {
     patch.push({"op": "add", "path":"/ec_name", "value": req.query.ecName});
   }
+  patch.push({"op": "add", "path":"/getstream_token", "value": token});
   if (patch.length > 0) {
     user.patch(patch);
   }
