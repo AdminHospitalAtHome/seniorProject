@@ -152,17 +152,16 @@ function checkType(dataType: string) {
 function uploadData(dataType: string, first: any, second: any) {
   let value: any = []
   if (dataType === "weight") {
-    value = [{ type: "weight", datetime: new Date().toISOString(), lbs: first }]
+    value = [{ type: "weight", patient: UserManager.getInstance().getId(), datetime: new Date().toISOString(), lbs: first }]
   } else if (dataType === "pulse") {
-    value = [{ type: "pulse", datetime: new Date().toISOString(), bpm: first }]
+    value = [{ type: "pulse", patient: UserManager.getInstance().getId(), datetime: new Date().toISOString(), bpm: first }]
   } else if (dataType === "temperature") {
-    value = [{ type: "temperature", datetime: new Date().toISOString(), degree: first }]
+    value = [{ type: "temperature", patient: UserManager.getInstance().getId(), datetime: new Date().toISOString(), degree: first }]
   } else if (dataType === "oxygen saturation") {
-    value = [{ type: "oxygen saturation", datetime: new Date().toISOString(), percent: first }]
+    value = [{ type: "oxygen saturation", patient: UserManager.getInstance().getId(), datetime: new Date().toISOString(), percent: first }]
   } else if (dataType === "blood pressure") {
-    value = [{ type: "oxygen saturation", datetime: new Date().toISOString(), systolic: first, diastolic: second }]
+    value = [{ type: "oxygen saturation", patient: UserManager.getInstance().getId(), datetime: new Date().toISOString(), systolic: first, diastolic: second }]
   }
-  console.log("the uploaded value is: ", JSON.stringify(value));
   uploadPatientData(dataType,value);
 }
 
