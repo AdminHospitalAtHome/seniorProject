@@ -145,11 +145,7 @@ export default function WeightScreen() {
     init().then(() => fetchPatientData(WeightData, setData, "weight", ["lbs"]));
   }, [refresh]);
 
-  useEffect(() => {
-    if (UserManager.getInstance().isPatient()) {
-      return;
-    }
-    
+  useEffect(() => {    
     const diffData: Data[] = [];
     weight.forEach((d) => {
       const index = binarySearch(data, d.datetime);

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, TouchableOpacity, Text } from 'react-native';
+import Config from 'react-native-config';
 import { Channel as ChannelType, StreamChat } from 'stream-chat';
 import {
   Channel,
@@ -11,8 +12,9 @@ import {
   OverlayProvider,
   Thread,
 } from 'stream-chat-react-native';
+import UserManager from '../../managers/UserManager';
 
-const client = StreamChat.getInstance('9xeusjscj7dz');
+const client = StreamChat.getInstance(`${Config.STREAM_CLIENT_API_KEY}`);
 
 export default function StreamChatScreen() {
   const [channel, setChannel] = useState<ChannelType>();
@@ -24,10 +26,10 @@ export default function StreamChatScreen() {
       try {
         await client.connectUser(
           {
-            id: 'hah',
-            name: 'Aidan Mazany',
+            id: UserManager.getInstance().getId().replace(/[^a-zA-Z]+/g, ''),
+            name: `${UserManager.getInstance().getFirstName()} ${UserManager.getInstance().getLastName()}`,
           },
-          client.devToken('hah'),
+          UserManager.getInstance().getStreamToken()
         );
         setClientReady(true);
       } catch (e) {
