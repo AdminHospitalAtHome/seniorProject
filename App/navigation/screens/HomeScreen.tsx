@@ -1,14 +1,12 @@
 /* eslint-disable prettier/prettier */
-import React, { useState, useEffect, Component } from 'react';
+import React, { useState, useEffect} from 'react';
 //import GoogleFit, { Scopes } from 'react-native-google-fit';
-import {SafeAreaView, StyleSheet, View, Text, TextInput, Image, Button, Alert, TouchableOpacity, ScrollView} from 'react-native';
-import CheckBox from  '@react-native-community/checkbox'
-import { DataList, PageHeader, SingleValueChart } from '../../components/MeasurementPageComponents';
+import {StyleSheet, View, Text, TouchableOpacity, ScrollView} from 'react-native';
 import Config from 'react-native-config';
-import { Flex, ListItem, Stack, Surface } from '@react-native-material/core';
+import {ListItem, Stack, Surface } from '@react-native-material/core';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import UserManager from '../../managers/UserManager';
-import { List } from 'react-native-paper';
+
 
 class PatientPreview {
     first_name:string;
@@ -25,6 +23,7 @@ class PatientPreview {
 export default function HomeScreen({navigation}:{navigation:any}) {
   const [patients, setPatients] = useState<PatientPreview[]>([]);
   const [refresh, setRefresh] = useState(false);
+  const [currentPatient, setCurrentPatient] = useState<string>();
   
   useEffect(() => {
     if (UserManager.getInstance().getPatient() != undefined) {
@@ -65,15 +64,6 @@ export default function HomeScreen({navigation}:{navigation:any}) {
   if (UserManager.getInstance().getPatient() == undefined) {
       return (
         <ScrollView>
-            {/* <SearchBar
-                placeholder="Type Here..."
-                style={styles.searchBar}
-                // onChangeText={this.updateSearch}
-                // value={search}
-                inputStyle={{backgroundColor: 'white'}}
-                containerStyle={{backgroundColor: 'white', borderWidth: 1, borderRadius: 5}}
-                inputContainerStyle={{backgroundColor: 'white'}}
-            />  */}
             <Stack fill center spacing={4}>
               {patients.map((patient, index) => {
                 return(
@@ -87,6 +77,7 @@ export default function HomeScreen({navigation}:{navigation:any}) {
                       key={index}
                       onPress={() => {
                         UserManager.getInstance().setPatient(patient.email);
+                        setCurrentPatient(patient.first_name+" "+patient.last_name);
                         setRefresh(!refresh);
                       }}
                       title={`${patient.first_name} ${patient.last_name}`}
@@ -100,13 +91,14 @@ export default function HomeScreen({navigation}:{navigation:any}) {
       )
   } else {
       const backArrow = !UserManager.getInstance().isPatient()
-      ? <View style={styles.backButton}>
+      ? <View style={{ flexDirection: 'row', alignItems: 'center'}}>
           <Ionicons name='arrow-back-outline' size={50} color='black' 
             onPress={() => {
               UserManager.getInstance().clearPatient();
               setRefresh(!refresh);
             }}
           />
+          <Text style={{ fontSize: 25, marginRight: 15 }}>{currentPatient}</Text>
         </View>
       : <React.Fragment></React.Fragment>
       const measurements = ["Pulse", "Blood Pressure", "Weight", "Temperature", "Oxygen Saturation", "Test", "Test"];
