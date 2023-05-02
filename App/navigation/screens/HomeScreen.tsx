@@ -1,14 +1,12 @@
 /* eslint-disable prettier/prettier */
-import React, { useState, useEffect, Component } from 'react';
+import React, { useState, useEffect} from 'react';
 //import GoogleFit, { Scopes } from 'react-native-google-fit';
-import {SafeAreaView, StyleSheet, View, Text, TextInput, Image, Button, Alert, TouchableOpacity, ScrollView} from 'react-native';
-import CheckBox from  '@react-native-community/checkbox'
-import { DataList, PageHeader, SingleValueChart } from '../../components/MeasurementPageComponents';
+import {StyleSheet, View, Text, TouchableOpacity, ScrollView} from 'react-native';
 import Config from 'react-native-config';
-import { Flex, ListItem, Stack, Surface } from '@react-native-material/core';
+import {ListItem, Stack, Surface } from '@react-native-material/core';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import UserManager from '../../managers/UserManager';
-import Patient from '../../models/Patient';
+
 
 class PatientPreview {
     first_name:string;
@@ -93,7 +91,7 @@ export default function HomeScreen({navigation}:{navigation:any}) {
       )
   } else {
       const backArrow = !UserManager.getInstance().isPatient()
-      ? <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+      ? <View style={{ flexDirection: 'row', alignItems: 'center'}}>
           <Ionicons name='arrow-back-outline' size={50} color='black' 
             onPress={() => {
               UserManager.getInstance().clearPatient();
@@ -103,51 +101,29 @@ export default function HomeScreen({navigation}:{navigation:any}) {
           <Text style={{ fontSize: 25, marginRight: 15 }}>{currentPatient}</Text>
         </View>
       : <React.Fragment></React.Fragment>
+      const measurements = ["Pulse", "Blood Pressure", "Weight", "Temperature", "Oxygen Saturation", "Test", "Test"];
       return (
         <View style={{justifyContent:'center'}}>
           {backArrow}
-          <ScrollView style={styles.pageContainer}>
-              <View style={styles.box}>
-                  <View style={styles.inner}  onStartShouldSetResponder={() => navigation.navigate('Pulse')}>
-                      <Text style={{color:'black'}}>Pulse</Text>
-                  </View>
-              </View>
-  
-              <View style={styles.box}>
-                  <View style={styles.inner}  onStartShouldSetResponder={() => navigation.navigate('Blood Pressure')}>
-                      <Text style={{color:'black'}}>Blood Pressure</Text>
-                  </View>
-              </View>
-  
-              <View style={styles.box}>
-                  <View style={styles.inner}  onStartShouldSetResponder={() => navigation.navigate('Weight')}>
-                      <Text style={{color:'black'}}>Weight</Text>
-                  </View>
-              </View>
-  
-              <View style={styles.box}>
-                  <View style={styles.inner}  onStartShouldSetResponder={() => navigation.navigate('Temperature')}>
-                      <Text style={{color:'black'}}>Temperature</Text>
-                  </View>
-              </View>
-  
-              <View style={styles.box}>
-                  <View style={styles.inner}  onStartShouldSetResponder={() => navigation.navigate('Oxygen Saturation')}>
-                      <Text style={{color:'black'}}>Oxygen Saturation</Text>
-                  </View>
-              </View>
-  
-              <View style={styles.box}>
-                  <View style={styles.inner}>
-                      <Text style={{color:'black'}}>Whatever</Text>
-                  </View>
-              </View>
-  
-              <View style={styles.lastBox}>
-                  <View style={styles.inner}>
-                      <Text style={{color:'black'}}>Whatever</Text>
-                  </View>
-              </View>
+          <ScrollView>
+            <Stack fill center spacing={4}>
+              {measurements.map((measurement, index) => {
+                return(
+                  <Surface
+                    key={index}
+                    elevation={2}
+                    category="medium"
+                    style={styles.measurementSelection}
+                  >
+                    <TouchableOpacity
+                      onPress={() => {navigation.navigate(measurement);}}
+                    >
+                      <Text style={{color:'black', textAlign:'center'}}>{measurement}</Text>
+                    </TouchableOpacity>
+                  </Surface>
+                );
+              })} 
+            </Stack>
           </ScrollView>
         </View>
       );
@@ -182,6 +158,11 @@ const styles = StyleSheet.create ({
     marginVertical: 10,
     height: '7%',
     width: '90%'
+  },
+  measurementSelection: {
+    width:390, 
+    height:100,
+    justifyContent:'center'
   },
   nameText: {
     textAlign: 'left',
