@@ -117,11 +117,13 @@ export default function SettingsScreen() {
               style={styles.inputTextTop} 
               placeholder={displayFirstName} 
               placeholderTextColor='#000'
+              editable={false}
             />
             <TextInput
               style={styles.inputTextTop} 
               placeholder={displayLastName} 
               placeholderTextColor='#000'
+              editable={false}
             />
           </View>
         </View>
@@ -152,11 +154,13 @@ export default function SettingsScreen() {
               <Text style={styles.ecInfoHeader}>Emergency Contact Information</Text>
               <TextInput
                 value={patient.getEmergencyContactName()}
-                style={styles.inputText} />
+                style={styles.inputText}
+                editable={false} />
               <TextInputMask
                 value={patient.getEmergencyContactPhoneNumber()}
                 style={styles.inputText}
-                mask={'([000]) [000]-[0000]'} />
+                mask={'([000]) [000]-[0000]'}
+                editable={false} />
             </View>
               : <></>}
         </View>
