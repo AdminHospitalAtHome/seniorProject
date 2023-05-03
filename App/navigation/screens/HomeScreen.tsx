@@ -109,18 +109,18 @@ export default function HomeScreen({navigation}:{navigation:any}) {
             <Stack fill center spacing={4}>
               {measurements.map((measurement, index) => {
                 return(
-                  <Surface
-                    key={index}
-                    elevation={2}
-                    category="medium"
-                    style={styles.measurementSelection}
-                  >
-                    <TouchableOpacity
-                      onPress={() => {navigation.navigate(measurement);}}
+                  <TouchableOpacity
+                    onPress={() => {navigation.navigate(measurement);}}
+                    key={index}>
+                    <Surface
+                      key={index}
+                      elevation={2}
+                      category="medium"
+                      style={styles.measurementSelection}
                     >
                       <Text style={{color:'black', textAlign:'center'}}>{measurement}</Text>
-                    </TouchableOpacity>
-                  </Surface>
+                    </Surface>
+                  </TouchableOpacity>
                 );
               })} 
             </Stack>
