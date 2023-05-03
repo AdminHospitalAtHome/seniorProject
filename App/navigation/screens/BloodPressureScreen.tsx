@@ -5,6 +5,7 @@ import { ListItem } from '@react-native-material/core';
 import GoogleFit, { Scopes } from 'react-native-google-fit';
 import moment from 'moment';
 import AppleHealthKit, { BloodPressureSampleValue, HealthKitPermissions, HealthValue } from 'react-native-health';
+import UserManager from '../../managers/UserManager';
 
 class BloodpressureData {
   dateString: string;
@@ -20,6 +21,7 @@ class BloodpressureData {
 export default function BloodPressureScreen() {
   interface Data {
     type: string;
+    patient: string;
     datetime: string;
     systolic: number,
     diastolic: number,
@@ -41,6 +43,7 @@ export default function BloodPressureScreen() {
         const output = res.reverse().map(item => {
           return {
             type: "blood pressure",
+            patient: UserManager.getInstance().getId(),
             datetime: item.endDate.toString(),
             systolic: Math.round(item.systolic * 100) / 100,
             diastolic: Math.round(item.diastolic * 100) / 100
@@ -64,6 +67,7 @@ export default function BloodPressureScreen() {
           const output = results.map(item => {
             return {
               type: "blood pressure",
+              patient: UserManager.getInstance().getId(),
               datetime: item.endDate.toString(),
               systolic: Math.round(item.bloodPressureSystolicValue * 100) / 100,
               diastolic: Math.round(item.bloodPressureDiastolicValue * 100) / 100
@@ -163,7 +167,7 @@ export default function BloodPressureScreen() {
 
   return (
     <React.Fragment key={"blood pressure"}>
-      {PageHeader(() => {setRefresh(!refresh)})}
+      {PageHeader(() => { setRefresh(!refresh) }, "blood pressure")}
       {DoubleValueChart(
         data.map((datum) => {
           return ({
@@ -186,6 +190,7 @@ export default function BloodPressureScreen() {
       )}
     </React.Fragment>
   );
+
 }
 
 function dispatch(arg0: string) {

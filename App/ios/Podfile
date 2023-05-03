@@ -4,6 +4,7 @@ require_relative '../node_modules/@react-native-community/cli-platform-ios/nativ
 platform :ios, '12.4'
 install! 'cocoapods', :deterministic_uuids => false
 pod 'React-RCTText', :path => '../node_modules/react-native/Libraries/Text', :modular_headers => true
+pod 'react-native-config', :path => '../node_modules/react-native-config/react-native-config.podspec'
 
 target 'TestProject' do
   config = use_native_modules!

@@ -5,6 +5,7 @@ import { ListItem } from '@react-native-material/core';
 import GoogleFit, { Scopes } from 'react-native-google-fit';
 import moment from 'moment';
 import AppleHealthKit, { HealthKitPermissions, HealthValue } from 'react-native-health';
+import UserManager from '../../managers/UserManager';
 
 class TemperatureData {
   dateString: string;
@@ -18,6 +19,7 @@ class TemperatureData {
 export default function TemperatureScreen() {
   interface Data {
     type: string;
+    patient: string;
     datetime: string;
     degree: number,
   }
@@ -38,6 +40,7 @@ export default function TemperatureScreen() {
         const output = res.reverse().map(item => {
           return {
             type: "temperature",
+            patient: UserManager.getInstance().getId(),
             datetime: item.endDate.toString(),
             degree: Math.round(item.value * 100) / 100
           }
@@ -60,6 +63,7 @@ export default function TemperatureScreen() {
           const output = results.map(item => {
             return {
               type: "temperature",
+              patient: UserManager.getInstance().getId(),
               datetime: item.endDate.toString(),
               degree: Math.round(item.value * 100) / 100
             }
@@ -158,7 +162,7 @@ export default function TemperatureScreen() {
 
   return (
     <React.Fragment key={"temperature"}>
-      {PageHeader(() => {setRefresh(!refresh)})}
+      {PageHeader(() => { setRefresh(!refresh) }, "temperature")}
       {SingleValueChart(
         data.map((datum) => {
           return ({
@@ -180,6 +184,9 @@ export default function TemperatureScreen() {
       )}
     </React.Fragment>
   );
+
+
+
 }
 
 function dispatch(arg0: string) {
