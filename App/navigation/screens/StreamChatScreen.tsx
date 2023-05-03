@@ -53,7 +53,9 @@ export default function StreamChatScreen() {
   return (
     <OverlayProvider topInset={60}>
       <TouchableOpacity onPress={onBackPress} disabled={!channel}>
-        <View style={{ height: 60, paddingLeft: 16, paddingTop: 40 }}>{channel && <Text>Back</Text>}</View>
+        <View style={{ height: 60, paddingLeft: 16, paddingTop: 40 }}>
+          {channel && <Text style={{color:'black'}}>Back</Text>}
+        </View>
       </TouchableOpacity>
       <View style={{ flex: 1 }}>
         <Chat client={client}>
