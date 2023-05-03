@@ -200,11 +200,14 @@ function generateSingleModal(dataType: string) {
           </View>
         </View>
       </Modal>
-      <Pressable
+      {UserManager.getInstance().isPatient() ?
+        <Pressable
         style={[styles.button0, styles.buttonOpen]}
         onPress={() => setModalVisible(true)}>
         <Text style={styles.textStyle}>+</Text>
-      </Pressable>
+      </Pressable> :
+      <></>
+      }
       <View style={styles.plusStyle} />
     </View>
 

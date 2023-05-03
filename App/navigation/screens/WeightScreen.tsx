@@ -162,7 +162,6 @@ export default function WeightScreen() {
     };
   }, [data]);
 
-  if (UserManager.getInstance().isPatient()) {
     return (
       <React.Fragment key={"weight"}>
         {PageHeader((() => { setRefresh(!refresh) }), "weight")}
@@ -187,31 +186,6 @@ export default function WeightScreen() {
         )}
       </React.Fragment>
     );
-  } else {
-    return (
-      <React.Fragment key={"weight"}>
-        {SingleValueChart(
-          data.map((datum) => {
-            return ({
-              value: datum.lbs,
-              date: datum.dateString
-            });
-          })
-        )}
-        {DataList(
-          data.map((datum, index) => {
-            return (
-              <ListItem
-                key={index}
-                title={`${datum.lbs} lbs`}
-                secondaryText={moment(datum.dateString).format("MMMM Do YYYY, h:mm:ss a")}
-              />
-            );
-          })
-        )}
-      </React.Fragment>
-    );
-  }
 
 
 }

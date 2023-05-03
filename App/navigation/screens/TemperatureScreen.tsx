@@ -160,56 +160,31 @@ export default function TemperatureScreen() {
     };
   }, [data]);
 
-  if (UserManager.getInstance().isPatient()) {
-    return (
-      <React.Fragment key={"temperature"}>
-        {PageHeader(() => { setRefresh(!refresh) }, "temperature")}
-        {SingleValueChart(
-          data.map((datum) => {
-            return ({
-              value: datum.degree,
-              date: datum.dateString
-            });
-          })
-        )}
-        {DataList(
-          data.map((datum, index) => {
-            return (
-              <ListItem
-                key={index}
-                title={`${datum.degree} ${'\u00b0'}F  `}
-                secondaryText={moment(datum.dateString).format("MMMM Do YYYY, h:mm:ss a")}
-              />
-            );
-          })
-        )}
-      </React.Fragment>
-    );
-  } else {
-    return (
-      <React.Fragment key={"temperature"}>
-        {SingleValueChart(
-          data.map((datum) => {
-            return ({
-              value: datum.degree,
-              date: datum.dateString
-            });
-          })
-        )}
-        {DataList(
-          data.map((datum, index) => {
-            return (
-              <ListItem
-                key={index}
-                title={`${datum.degree} ${'\u00b0'}F  `}
-                secondaryText={moment(datum.dateString).format("MMMM Do YYYY, h:mm:ss a")}
-              />
-            );
-          })
-        )}
-      </React.Fragment>
-    );
-  }
+  return (
+    <React.Fragment key={"temperature"}>
+      {PageHeader(() => { setRefresh(!refresh) }, "temperature")}
+      {SingleValueChart(
+        data.map((datum) => {
+          return ({
+            value: datum.degree,
+            date: datum.dateString
+          });
+        })
+      )}
+      {DataList(
+        data.map((datum, index) => {
+          return (
+            <ListItem
+              key={index}
+              title={`${datum.degree} ${'\u00b0'}F  `}
+              secondaryText={moment(datum.dateString).format("MMMM Do YYYY, h:mm:ss a")}
+            />
+          );
+        })
+      )}
+    </React.Fragment>
+  );
+
 
 
 }

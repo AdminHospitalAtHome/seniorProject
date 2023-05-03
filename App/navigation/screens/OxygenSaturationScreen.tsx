@@ -161,56 +161,30 @@ export default function OxygenSaturationScreen() {
     };
   }, [data]);
 
-  if (UserManager.getInstance().isPatient()) {
-    return (
-      <React.Fragment key={"oxygen saturation"}>
-        {PageHeader(() => { setRefresh(!refresh) }, "oxygen saturation")}
-        {SingleValueChart(
-          data.map((datum) => {
-            return ({
-              value: datum.percent,
-              date: datum.dateString
-            });
-          })
-        )}
-        {DataList(
-          data.map((datum, index) => {
-            return (
-              <ListItem
-                key={index}
-                title={`${datum.percent} %  `}
-                secondaryText={moment(datum.dateString).format("MMMM Do YYYY, h:mm:ss a")}
-              />
-            );
-          })
-        )}
-      </React.Fragment>
-    );
-  } else {
-    return (
-      <React.Fragment key={"oxygen saturation"}>
-        {SingleValueChart(
-          data.map((datum) => {
-            return ({
-              value: datum.percent,
-              date: datum.dateString
-            });
-          })
-        )}
-        {DataList(
-          data.map((datum, index) => {
-            return (
-              <ListItem
-                key={index}
-                title={`${datum.percent} %  `}
-                secondaryText={moment(datum.dateString).format("MMMM Do YYYY, h:mm:ss a")}
-              />
-            );
-          })
-        )}
-      </React.Fragment>
-    );
-  }
+  return (
+    <React.Fragment key={"oxygen saturation"}>
+      {PageHeader(() => { setRefresh(!refresh) }, "oxygen saturation")}
+      {SingleValueChart(
+        data.map((datum) => {
+          return ({
+            value: datum.percent,
+            date: datum.dateString
+          });
+        })
+      )}
+      {DataList(
+        data.map((datum, index) => {
+          return (
+            <ListItem
+              key={index}
+              title={`${datum.percent} %  `}
+              secondaryText={moment(datum.dateString).format("MMMM Do YYYY, h:mm:ss a")}
+            />
+          );
+        })
+      )}
+    </React.Fragment>
+  );
 
 
 }

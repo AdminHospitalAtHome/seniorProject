@@ -165,59 +165,31 @@ export default function BloodPressureScreen() {
     };
   }, [data]);
 
-  if (UserManager.getInstance().isPatient()) {
-    return (
-      <React.Fragment key={"blood pressure"}>
-        {PageHeader(() => { setRefresh(!refresh) }, "blood pressure")}
-        {DoubleValueChart(
-          data.map((datum) => {
-            return ({
-              first_value: datum.systolic,
-              second_value: datum.diastolic,
-              date: datum.dateString
-            });
-          })
-        )}
-        {DataList(
-          data.map((datum, index) => {
-            return (
-              <ListItem
-                key={index}
-                title={`${datum.systolic} mmHg       ${datum.diastolic} mmHg`}
-                secondaryText={moment(datum.dateString).format("MMMM Do YYYY, h:mm:ss a")}
-              />
-            );
-          })
-        )}
-      </React.Fragment>
-    );
-  } else {
-    return (
-      <React.Fragment key={"blood pressure"}>
-        {DoubleValueChart(
-          data.map((datum) => {
-            return ({
-              first_value: datum.systolic,
-              second_value: datum.diastolic,
-              date: datum.dateString
-            });
-          })
-        )}
-        {DataList(
-          data.map((datum, index) => {
-            return (
-              <ListItem
-                key={index}
-                title={`${datum.systolic} mmHg       ${datum.diastolic} mmHg`}
-                secondaryText={moment(datum.dateString).format("MMMM Do YYYY, h:mm:ss a")}
-              />
-            );
-          })
-        )}
-      </React.Fragment>
-    );
-  }
-
+  return (
+    <React.Fragment key={"blood pressure"}>
+      {PageHeader(() => { setRefresh(!refresh) }, "blood pressure")}
+      {DoubleValueChart(
+        data.map((datum) => {
+          return ({
+            first_value: datum.systolic,
+            second_value: datum.diastolic,
+            date: datum.dateString
+          });
+        })
+      )}
+      {DataList(
+        data.map((datum, index) => {
+          return (
+            <ListItem
+              key={index}
+              title={`${datum.systolic} mmHg       ${datum.diastolic} mmHg`}
+              secondaryText={moment(datum.dateString).format("MMMM Do YYYY, h:mm:ss a")}
+            />
+          );
+        })
+      )}
+    </React.Fragment>
+  );
 
 }
 

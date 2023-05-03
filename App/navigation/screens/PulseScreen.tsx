@@ -162,58 +162,32 @@ export default function PulseScreen() {
     };
   }, [data]);
 
-  if (UserManager.getInstance().isPatient()) {
-    return (
-      <React.Fragment key={"pulse"}>
-        {PageHeader((() => { setRefresh(!refresh) }), "pulse")}
-        {SingleValueChart(
-          data.map((datum) => {
-            return ({
-              value: datum.bpm,
-              date: datum.dateString
-            });
-          })
 
-        )}
-        {DataList(
-          data.map((datum, index) => {
-            return (
-              <ListItem
-                key={index}
-                title={`${datum.bpm} bpm`}
-                secondaryText={moment(datum.dateString).format("MMMM Do YYYY, h:mm:ss a")}
-              />
-            );
-          })
-        )}
-      </React.Fragment>
-    );
-  } else {
-    return (
-      <React.Fragment key={"pulse"}>
-        {SingleValueChart(
-          data.map((datum) => {
-            return ({
-              value: datum.bpm,
-              date: datum.dateString
-            });
-          })
+  return (
+    <React.Fragment key={"pulse"}>
+      {PageHeader((() => { setRefresh(!refresh) }), "pulse")}
+      {SingleValueChart(
+        data.map((datum) => {
+          return ({
+            value: datum.bpm,
+            date: datum.dateString
+          });
+        })
 
-        )}
-        {DataList(
-          data.map((datum, index) => {
-            return (
-              <ListItem
-                key={index}
-                title={`${datum.bpm} bpm`}
-                secondaryText={moment(datum.dateString).format("MMMM Do YYYY, h:mm:ss a")}
-              />
-            );
-          })
-        )}
-      </React.Fragment>
-    );
-  }
+      )}
+      {DataList(
+        data.map((datum, index) => {
+          return (
+            <ListItem
+              key={index}
+              title={`${datum.bpm} bpm`}
+              secondaryText={moment(datum.dateString).format("MMMM Do YYYY, h:mm:ss a")}
+            />
+          );
+        })
+      )}
+    </React.Fragment>
+  );
 
 }
 function dispatch(arg0: string) {
