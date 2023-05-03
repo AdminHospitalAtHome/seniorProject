@@ -38,7 +38,7 @@ export function SingleValueChart(entries: any[]) {
             data: entries.map((entry) => {
               return (entry.value);
             }),
-          }, { data: [150], withDots: false, }, // TODO: Find a better way of doing this
+          }, { data: [0], withDots: false, }, // TODO: Find a better way of doing this
         ],
       }}
       segments={6}
@@ -133,7 +133,7 @@ interface PageHeaderProps {
 export function PageHeader(setRefresh: () => void, dataType: string) {
   return (
     <View style={styles.checkboxContainer}>
-      {checkType(dataType)}
+      {checkType(dataType, setRefresh)}
       <Button
         style={styles.plus}
         onPress={setRefresh}
@@ -143,10 +143,10 @@ export function PageHeader(setRefresh: () => void, dataType: string) {
   );
 }
 
-function checkType(dataType: string) {
+function checkType(dataType: string, refreshCallback: () => void) {
   if (dataType === "blood pressure") {
-    return generateDoubleModal(dataType);
-  } else return generateSingleModal(dataType);
+    return generateDoubleModal(dataType, refreshCallback);
+  } else return generateSingleModal(dataType, refreshCallback);
 }
 
 function uploadData(dataType: string, first: any, second: any) {
@@ -165,7 +165,7 @@ function uploadData(dataType: string, first: any, second: any) {
   uploadPatientData(dataType, value);
 }
 
-function generateSingleModal(dataType: string) {
+function generateSingleModal(dataType: string, refreshCallback: () => void) {
   const [modalVisible, setModalVisible] = useState(false);
   const [addValue, setAddValue] = useState('');
   return (
@@ -188,6 +188,7 @@ function generateSingleModal(dataType: string) {
                 onPress={() => {
                   uploadData(dataType, Number(addValue), null);
                   setModalVisible(!modalVisible);
+                  refreshCallback();
                 }}>
                 <Text style={styles.textStyle}>Done</Text>
               </Pressable>
@@ -214,7 +215,7 @@ function generateSingleModal(dataType: string) {
   )
 }
 
-function generateDoubleModal(dataType: string) {
+function generateDoubleModal(dataType: string, refreshCallback: () => void) {
   const [modalVisible, setModalVisible] = useState(false);
   const [first, setFirstValue] = useState('');
   const [second, setSecondValue] = useState('');
@@ -239,7 +240,7 @@ function generateDoubleModal(dataType: string) {
                 onPress={() => {
                   uploadData(dataType, Number(first), Number(second));
                   setModalVisible(!modalVisible);
-
+                  refreshCallback();
                 }}>
                 <Text style={styles.textStyle}>Done</Text>
               </Pressable>
