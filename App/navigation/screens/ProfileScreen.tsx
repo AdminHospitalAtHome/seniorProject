@@ -154,13 +154,13 @@ export default function SettingsScreen() {
               <Text style={styles.ecInfoHeader}>Emergency Contact Information</Text>
               <TextInput
                 value={patient.getEmergencyContactName()}
-                style={styles.inputText} 
-                editable={false}/>
+                style={styles.inputText}
+                editable={false} />
               <TextInputMask
                 value={patient.getEmergencyContactPhoneNumber()}
                 style={styles.inputText}
-                mask={'([000]) [000]-[0000]'} />
-                editable={false}
+                mask={'([000]) [000]-[0000]'}
+                editable={false} />
             </View>
               : <></>}
         </View>
