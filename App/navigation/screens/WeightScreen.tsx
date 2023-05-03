@@ -158,8 +158,7 @@ export default function WeightScreen() {
       }
     });
     if (diffData.length > 0) {
-      //uploadPatientData("weight", diffData);
-      console.log("upload");
+      uploadPatientData("weight", diffData);
     };
   }, [data]);
 
