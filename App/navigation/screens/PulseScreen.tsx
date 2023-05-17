@@ -1,3 +1,10 @@
+/*
+This file contains the code for the pulse measurement screen. 
+It imports components from MeasurementPageComponents.tsx to display and handle pulse data.
+It displays the user's pulse data in a chart format, fetched from either Google Fit or Apple HealthKit based on the platform. 
+It also allows users to upload new pulse data to their account.
+*/
+
 import { Platform } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { DataList, PageHeader, SingleValueChart, fetchPatientData, uploadPatientData } from '../../components/MeasurementPageComponents';
@@ -7,6 +14,7 @@ import moment from 'moment';
 import AppleHealthKit, { HealthKitPermissions, HealthValue } from 'react-native-health';
 import UserManager from '../../managers/UserManager';
 
+// This class will be used to store individual heart rate data points with their respective date and value (beats per minute).
 class PulseData {
   dateString: string;
   bpm: number;
@@ -16,7 +24,10 @@ class PulseData {
   }
 }
 
+// Define the PulseScreen component which renders the UI and handles data fetching and display.
+// This component is responsible for fetching heart rate data from Google Fit (Android) or Apple HealthKit (iOS) and displaying it in a chart.
 export default function PulseScreen() {
+  //  This interface will be used to format the fetched data from Google Fit or Apple HealthKit.
   interface Data {
     type: string;
     patient: string;
@@ -27,6 +38,7 @@ export default function PulseScreen() {
   const [pulse, setPulse] = useState<Data[]>([]);
   const [refresh, setRefresh] = useState(false);
 
+  // This function is called during the component's initialization to fetch the necessary data.
   async function getPulse() {
     if (Platform.OS === 'android') {
       var today = new Date();
@@ -75,6 +87,8 @@ export default function PulseScreen() {
     }
   }
 
+  //  Define a function called init() which handles the initialization of Google Fit or Apple HealthKit depending on the platform (Android or iOS).
+  // This function checks whether authorization is granted and fetches the heart rate data, calling the getPulse() function.
   async function init() {
     if (Platform.OS === 'android') {
       const options = {
@@ -140,6 +154,7 @@ export default function PulseScreen() {
     return -1;
   };
 
+  // Call the useEffect() hook to fetch heart rate data when the component is mounted.
   useEffect(() => {
     init().then(() => fetchPatientData(PulseData, setData, "pulse", ["bpm"]));
   }, [refresh]);
@@ -193,4 +208,6 @@ export default function PulseScreen() {
 function dispatch(arg0: string) {
   throw new Error('Function not implemented.');
 }
+
+// Please note that for a complete understanding of the code, it's essential to also review the code and comments in the imported files like MeasurementPageComponents.tsx, UserManager.tsx, and Patient.tsx. 
 

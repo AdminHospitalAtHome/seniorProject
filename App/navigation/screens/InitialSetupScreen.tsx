@@ -1,6 +1,15 @@
 /* eslint-disable @typescript-eslint/no-shadow */
+
+/*
+This file contains the code for the initial setup screen where new users can sign up for the application. 
+It collects user information, provides validation, and handles the registration process.
+It is displayed when the user launches the app for the first time, guiding them through the process of setting up their profile, including personal information and medical details.
+*/
+
+// Importing React and the useState hook from the 'react' library. useState is used to manage local state in functional components.
 import React, {useState} from 'react';
 
+// Importing various components and StyleSheet from the 'react-native' library. These components are used to build the UI of the InitialSetupScreen.
 import {
   StyleSheet,
   Text,
@@ -10,11 +19,16 @@ import {
   SafeAreaView,
 } from 'react-native';
 import {Button} from '@react-native-material/core';
+// Importing TextInputMask from the 'react-native-masked-text' library. 
+//This component provides input masking, which helps with formatting user input in a specific pattern (e.g., phone numbers, dates).
 import {TextInput} from 'react-native-paper';
 import TextInputMask from 'react-native-text-input-mask';
 import Config from 'react-native-config';
 
+// Declaring a functional component named InitialSetupScreen which takes a prop 'navigation' (used for navigating between screens in a React Native app).
+// The InitialSetupScreen component is responsible for rendering the registration form and handling user input.
 export default function InitialSetupScreen({navigation}: {navigation: any}) {
+  // Local state variables for storing user inputs.
   const [fName, setFName] = useState('');
   const [fNameError, setFNameError] = useState(false);
   const [lName, setLName] = useState('');
@@ -32,6 +46,7 @@ export default function InitialSetupScreen({navigation}: {navigation: any}) {
   const [ecName, setECName] = useState('');
   const [ecPhone, setECPhone] = useState('');
 
+  // Function to handle form submission and perform validation.
   return (
     <SafeAreaView style={styles.pageContainer}>
       <View style={styles.pageTitleContainer}>
@@ -39,6 +54,10 @@ export default function InitialSetupScreen({navigation}: {navigation: any}) {
       </View>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.scrollView}>
+          {/*
+          Use the TextInput component with the mode 'outlined' for better visual separation of input fields.
+          onChangeText prop is used to handle the changes in the input value and update the local state.
+          */}
           <TextInput
             mode="outlined"
             style={styles.textEntry}
@@ -175,6 +194,7 @@ export default function InitialSetupScreen({navigation}: {navigation: any}) {
             color="#D72C06"
             onPress={async () => {
               let notReady:boolean = false;
+              // Check that all required fields are filled
               if (!fName) {
                 setFNameError(true);
                 notReady = true;
@@ -263,6 +283,7 @@ async function createAccount(
   console.log("*********************************************");
 
   /* ------------------ */
+  // Verifies user input and sends a POST request to the server for user registration
   const url = `${Config.CREATE_USER_ACCOUNT_URL}?code=${Config.CREATE_USER_ACCOUNT_FUNCTION_KEY}` +
                 `&first=${first}&last=${last}&email=${email}&password=${password}&phone=${phone}` + 
                 `&dob=${dob}&ecName=${ecName}&ecPhone=${ecPhone}`;

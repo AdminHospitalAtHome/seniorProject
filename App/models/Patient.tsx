@@ -1,8 +1,18 @@
+/*
+This file contains the Patient class, which represents a patient object with properties such as first name, last name, email, etc. 
+It is used to store and manage patient-related information within the application.
+It also has methods for getting and setting these properties, as well as for managing the patient's emergency contact information.
+*/
+
+// Importing the react-native-config library to access environment variables in the application.
 import Config from "react-native-config";
+// Importing the UserManager class to manage user-related operations.
 import UserManager from "../managers/UserManager";
 
+// Defining the Patient class which will represent a patient object in the application.
 export default class Patient {
 
+  // Defining the private properties for the Patient class. These properties store information about the patient's personal details, emergency contact, and normal measurement ranges.
   private id:string;
   private firstName:string = "";
   private lastName:string = "";
@@ -19,6 +29,7 @@ export default class Patient {
   private normalTemperatureRange:any;
   private normalBloodOxygenPercentageRange:any;
 
+  // Defining the constructor for the Patient class. It takes the patient's ID as a parameter.
   public constructor(id:string) {
     this.id = id;
   }
@@ -83,6 +94,7 @@ export default class Patient {
     return this.normalBloodOxygenPercentageRange;
   }
 
+  // Backend
   public async fetchNewData():Promise<boolean> {
     var headers = new Headers();
     headers.append("Authorization", UserManager.getInstance().getEncodedAuthorization());

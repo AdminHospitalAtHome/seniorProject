@@ -1,9 +1,18 @@
+/*
+This file contains the code for the temperature measurement screen. 
+It imports components from MeasurementPageComponents.tsx to display and handle temperature data.
+It displays the user's body temperature data in a chart format, fetched from either Google Fit or Apple HealthKit based on the platform.
+It also allows users to upload new temperature data to their account.
+*/
+
 import { Platform } from 'react-native';
 import React, { useState, useEffect, Component } from 'react';
 import { DataList, PageHeader, SingleValueChart, DoubleValueChart, fetchPatientData, uploadPatientData } from '../../components/MeasurementPageComponents';
 import { ListItem } from '@react-native-material/core';
+// Import GoogleFit library for fetching health data from Android devices.
 import GoogleFit, { Scopes } from 'react-native-google-fit';
 import moment from 'moment';
+// Import AppleHealthKit library for fetching health data from iOS devices and required types.
 import AppleHealthKit, { HealthKitPermissions, HealthValue } from 'react-native-health';
 import UserManager from '../../managers/UserManager';
 
@@ -27,6 +36,7 @@ export default function TemperatureScreen() {
   const [temperature, setTemperature] = useState<Data[]>([]);
   const [refresh, setRefresh] = useState(false);
 
+  // Define getTemperature function to fetch temperature data from GoogleFit (Android) and AppleHealthKit (iOS).
   async function getTemperature() {
     if (Platform.OS === 'android') {
       var today = new Date();
@@ -127,7 +137,9 @@ export default function TemperatureScreen() {
     fetchPatientData(TemperatureData, setData, "temperature", ["degree"]).then(() => init());
   }, []);
 
+  // useEffect hook to compare and upload the difference in fetched data (from GoogleFit and AppleHealthKit) to the server.
   useEffect(() => {
+    // Define binarySearch function to find an element in a sorted array.
     const binarySearch = (arr: TemperatureData[], target: string): number => {
       let left = 0;
       let right = arr.length - 1;

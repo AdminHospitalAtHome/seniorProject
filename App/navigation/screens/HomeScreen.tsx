@@ -1,4 +1,14 @@
 /* eslint-disable prettier/prettier */
+
+/*
+This file contains the code for the home screen of the application, which is the main screen of the application.  
+It displays a list of patients or measurement options depending on whether the user is a patient or a healthcare provider. 
+It also handles navigation to other screens based on user interactions.
+It displays a list of patients if the current user is a healthcare professional or a list of measurements if the current user is a patient. 
+The HomeScreen component handles the navigation between different measurement screens depending on the selection made by the user. 
+*/
+
+// Import necessary libraries and components from React, React Native, and external packages
 import React, { useState, useEffect} from 'react';
 //import GoogleFit, { Scopes } from 'react-native-google-fit';
 import {StyleSheet, View, Text, TouchableOpacity, ScrollView} from 'react-native';
@@ -7,7 +17,7 @@ import {ListItem, Stack, Surface } from '@react-native-material/core';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import UserManager from '../../managers/UserManager';
 
-
+// Define the PatientPreview class which is used to store patient information (first name, last name, and email)
 class PatientPreview {
     first_name:string;
     last_name:string;
@@ -20,7 +30,11 @@ class PatientPreview {
     }
   }
 
+// Define the HomeScreen component, which is the main screen users see when they open the app
 export default function HomeScreen({navigation}:{navigation:any}) {
+  /* 
+    Initialize states for patients list, current patient, and refresh trigger    
+  */
   const [patients, setPatients] = useState<PatientPreview[]>([]);
   const [refresh, setRefresh] = useState(false);
   const [currentPatient, setCurrentPatient] = useState<string>();
@@ -44,6 +58,7 @@ export default function HomeScreen({navigation}:{navigation:any}) {
 
       /* ------------------ */
 
+      // Fetch and set the list of patients when the component mounts
       const url = `${Config.GET_PATIENT_LIST_URL}?code=${Config.GET_PATIENT_LIST_FUNCTION_KEY}`;
       fetch(url, requestOptions)
       .then(response => response.text())
@@ -61,6 +76,8 @@ export default function HomeScreen({navigation}:{navigation:any}) {
   }, []);
 
 
+  // Define a function to refresh the HomeScreen component when required
+  // If the user is not a patient and has not selected a patient to view, display a list of patients to choose from
   if (UserManager.getInstance().getPatient() == undefined) {
       return (
         <ScrollView>
@@ -76,6 +93,7 @@ export default function HomeScreen({navigation}:{navigation:any}) {
                     <ListItem
                       key={index}
                       onPress={() => {
+                        // When a patient is selected, set the current patient state and refresh the HomeScreen component
                         UserManager.getInstance().setPatient(patient.email);
                         setCurrentPatient(patient.first_name+" "+patient.last_name);
                         setRefresh(!refresh);
@@ -90,6 +108,7 @@ export default function HomeScreen({navigation}:{navigation:any}) {
         </ScrollView>
       )
   } else {
+      // If the user is a patient or has selected a patient to view, display a list of available measurements to navigate to
       const backArrow = !UserManager.getInstance().isPatient()
       ? <View style={{ flexDirection: 'row', alignItems: 'center'}}>
           <Ionicons name='arrow-back-outline' size={50} color='black' 
@@ -103,6 +122,7 @@ export default function HomeScreen({navigation}:{navigation:any}) {
       : <React.Fragment></React.Fragment>
       const measurements = ["Pulse", "Blood Pressure", "Weight", "Temperature", "Oxygen Saturation", "Test", "Test"];
       return (
+        // If the user is not a patient, provide a back arrow to deselect the current patient and return to the patients list
         <View style={{justifyContent:'center'}}>
           {backArrow}
           <ScrollView>
@@ -110,6 +130,7 @@ export default function HomeScreen({navigation}:{navigation:any}) {
               {measurements.map((measurement, index) => {
                 return(
                   <TouchableOpacity
+                    // When a measurement is selected, navigate to the corresponding screen
                     onPress={() => {navigation.navigate(measurement);}}
                     key={index}>
                     <Surface

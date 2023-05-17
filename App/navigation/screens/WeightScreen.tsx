@@ -1,3 +1,11 @@
+/*
+This file contains the code for the weight measurement screen. 
+It imports components from MeasurementPageComponents.tsx to display and handle weight data. 
+It displays the user's weight data in a chart format, fetched from either Google Fit or Apple HealthKit based on the platform. 
+It also allows users to upload new weight data to their account.
+*/
+
+// Import necessary modules and components from React Native and other libraries
 import { Platform, RefreshControl, View } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { DataList, PageHeader, SingleValueChart, fetchPatientData, uploadPatientData, } from '../../components/MeasurementPageComponents';
@@ -8,6 +16,7 @@ import AppleHealthKit, { HealthKitPermissions, HealthValue, } from 'react-native
 import { ScrollView } from 'react-native-gesture-handler';
 import UserManager from '../../managers/UserManager';
 
+// Create a WeightData class for storing weight data
 class WeightData {
   dateString: string;
   lbs: number;
@@ -17,6 +26,8 @@ class WeightData {
   }
 }
 
+// In the following lines, comments should be added to clarify the purpose of each line of code in the WeightScreen.tsx file.
+// Initialize state variables for weight data, loading status, and refresh status
 export default function WeightScreen() {
   interface Data {
     type: string;
@@ -28,9 +39,12 @@ export default function WeightScreen() {
   const [weight, setWeight] = useState<Data[]>([]);
   const [refresh, setRefresh] = useState(false);
 
+  // Define a function to fetch weight data from Google Fit or Apple HealthKit based on the platform
   async function getWeight() {
+    // Check if the platform is Android
     if (Platform.OS === 'android') {
       var today = new Date();
+      // Request necessary permissions for Google Fit
       const opt = {
         startDate: "2017-01-01T00:00:17.971Z", // required ISO8601Timestamp
         endDate: today.toISOString(),
@@ -77,6 +91,7 @@ export default function WeightScreen() {
     }
   }
 
+  // // Define an async function that checks for authorization and calls the 'getWeight' function to fetch weight data.
   async function init() {
     if (!UserManager.getInstance().isPatient()) {
       return;
@@ -91,6 +106,7 @@ export default function WeightScreen() {
         var authorized = GoogleFit.isAuthorized;
         console.log("Status: " + authorized);
         if (authorized) {
+          // Authorize Google Fit
           await getWeight();
         } else {
           // Authentication if already not authorized for a particular device
@@ -149,6 +165,7 @@ export default function WeightScreen() {
     init().then(() => fetchPatientData(WeightData, setData, "weight", ["lbs"]));
   }, [refresh]);
 
+  // Use the 'useEffect' hook to call the 'fetchPatientData' and 'setData' functions on component mount and when the refresh state changes.
   useEffect(() => {    
     const diffData: Data[] = [];
     weight.forEach((d) => {
@@ -162,6 +179,7 @@ export default function WeightScreen() {
     };
   }, [data]);
 
+  // Render the WeightScreen component. This includes the PageHeader, DoubleValueChart, and DataList components.
     return (
       <React.Fragment key={"weight"}>
         {PageHeader((() => { setRefresh(!refresh) }), "weight")}

@@ -1,16 +1,31 @@
+/*
+This file contains the code for the login screen. 
+It handles user authentication, input validation, and navigation to the main application after successful login or to the initial setup screen for new users.
+It allows users to input their email and password to log in to their account, providing access to their personal data, measurements, and other features of the app.
+*/
+
+// Import required libraries and components
 import * as React from 'react';
 import {StyleSheet, View, Text, TouchableOpacity, ScrollView, Dimensions} from 'react-native';
 import {TextInput} from 'react-native-paper';
 import {useState} from 'react';
 import Config from 'react-native-config';
+// Import UserManager, our custom class for managing user-related information.
 import UserManager from '../../managers/UserManager';
 
+// Define the LoginScreen functional component which receives navigation prop as an argument.
 export default function LoginScreen({navigation}:{navigation:any}) {
+  // Declare state variables for email input and password input
   const [emailInputValue, setEmailInputValue] = useState('');
   const [passwordInputValue, setPasswordInputValue] = useState('');
+
+  // Render the LoginScreen component
   return (
     <ScrollView style={styles.pageContainer}>
       <View style={styles.pageTitleContainer}>
+        {/*
+        Display a welcome title for the login page.
+        */}
         <Text style={styles.pageTitle}>Welcome!</Text>
       </View>
       <View style={styles.mainContainer}>
@@ -22,6 +37,9 @@ export default function LoginScreen({navigation}:{navigation:any}) {
                 onChangeText={(data) => setEmailInputValue(data.trim())} 
                 style={styles.textEntry}
               />
+              {/*
+              Password input field with secure text entry
+              */}
              <TextInput 
                 mode="outlined"
                 label={'Password'}
@@ -30,12 +48,17 @@ export default function LoginScreen({navigation}:{navigation:any}) {
                 style={styles.textEntry} 
               />
           </View>
+          {/*
+          Create a TouchableOpacity component to act as the login button. 
+          When pressed, it calls verifyLoginInfo function with email and password input values.
+          */}
           <TouchableOpacity
             style={styles.emeregencyButton}
             onPress={async () => {
               verifyLoginInfo(emailInputValue, passwordInputValue)
                 .then((userCredentials:any) => {
                   if (userCredentials) {
+                    // Set the user credentials in UserManager if the login is successful
                     UserManager.getInstance().setCredentials({
                       id:emailInputValue, 
                       password:passwordInputValue,
@@ -45,15 +68,21 @@ export default function LoginScreen({navigation}:{navigation:any}) {
                       streamToken:userCredentials.stream_token,
                       isPatient:userCredentials.is_patient
                     });
+                    // Navigate to the MainContainer screen
                     navigation.navigate('MainContainer');
                   }
                 });
             }}>
             <Text style={styles.emeregencyText}>Login</Text>
           </TouchableOpacity>
+          {/*
+          Create another TouchableOpacity component to act as a sign-up button. 
+          When pressed, it navigates the user to the InitialSetupScreen.
+          */}
           <TouchableOpacity
             style={styles.emeregencyButton}
             onPress={() => {
+              // Navigate to the InitialSetupScreen
               navigation.navigate('InitialSetupScreen')
             }}>
             <Text style={styles.emeregencyText}>Sign Up Instead</Text>
@@ -64,6 +93,7 @@ export default function LoginScreen({navigation}:{navigation:any}) {
   );
 }
 
+// Backend
 async function verifyLoginInfo(id:string, password:string):Promise<string> {
   const Buffer = require("buffer").Buffer;
   let encodedAuth = new Buffer(id + ":" + password).toString("base64");

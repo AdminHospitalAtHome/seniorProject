@@ -1,3 +1,9 @@
+/*
+This file contains the code for the blood pressure measurement screen. 
+It imports components from MeasurementPageComponents.tsx to display and handle blood pressure data.
+It fetches the blood pressure data from the UserManager and displays it in the appropriate components.
+*/
+
 import { Platform } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { DataList, PageHeader, DoubleValueChart, fetchPatientData, uploadPatientData } from '../../components/MeasurementPageComponents';
@@ -5,12 +11,15 @@ import { ListItem } from '@react-native-material/core';
 import GoogleFit, { Scopes } from 'react-native-google-fit';
 import moment from 'moment';
 import AppleHealthKit, { BloodPressureSampleValue, HealthKitPermissions, HealthValue } from 'react-native-health';
+// Import UserManager from '../../managers/UserManager' for managing user data and authentication
 import UserManager from '../../managers/UserManager';
 
+// Define BloodpressureData class to store blood pressure readings with date, systolic, and diastolic values
 class BloodpressureData {
   dateString: string;
   systolic: number;
   diastolic: number;
+  // Constructor for BloodpressureData class, initializing its properties with provided values
   constructor(dateString: string, systolic: number, diastolic: number) {
     this.dateString = dateString;
     this.systolic = systolic;
@@ -18,6 +27,7 @@ class BloodpressureData {
   }
 }
 
+// Export default function BloodPressureScreen for rendering the blood pressure screen
 export default function BloodPressureScreen() {
   interface Data {
     type: string;
@@ -79,6 +89,7 @@ export default function BloodPressureScreen() {
     }
   }
 
+  // Define init function to initialize and authorize Google Fit or Apple HealthKit based on the platform and fetch blood pressure data
   async function init() {
     if (Platform.OS === 'android') {
       const options = {
@@ -128,6 +139,7 @@ export default function BloodPressureScreen() {
     }
   }
 
+  // Call init function on component mount to fetch blood pressure data and set state
   useEffect(() => {
     fetchPatientData(BloodpressureData, setData, "blood pressure", ["systolic", "diastolic"]).then(() => init());
   }, []);
@@ -165,6 +177,7 @@ export default function BloodPressureScreen() {
     };
   }, [data]);
 
+  // Render the blood pressure data in a chart and list using imported components and state variables 
   return (
     <React.Fragment key={"blood pressure"}>
       {PageHeader(() => { setRefresh(!refresh) }, "blood pressure")}
@@ -196,3 +209,5 @@ export default function BloodPressureScreen() {
 function dispatch(arg0: string) {
   throw new Error('Function not implemented.');
 }
+
+// Please note that for a complete understanding of the code, it's essential to also review the code and comments in the imported files like MeasurementPageComponents.tsx, UserManager.tsx, and Patient.tsx. 

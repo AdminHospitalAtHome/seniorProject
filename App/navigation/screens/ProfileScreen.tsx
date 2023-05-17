@@ -1,3 +1,13 @@
+/*
+This file contains the code for the profile screen, which displays user or patient information (e.g., name, phone number, etc.) 
+and emergency contact information if available. 
+For non-patient users, it also shows the personal information of the currently selected patient.
+*/
+
+
+// Import necessary modules and components from React, React Native, and external libraries.
+// These imports include styles, TextInputMask for formatted input fields, Config for environment variables,
+// UserManager for controlling user-related data, and Patient model for handling patient data.
 import * as React from 'react';
 import {StyleSheet, View, Text, TextInput, Image, Button, Alert, TouchableOpacity, ScrollView} from 'react-native';
 import {useState, useEffect } from 'react';
@@ -8,6 +18,9 @@ import { ActivityIndicator } from 'react-native-paper';
 import Patient from '../../models/Patient';
 
 export default function SettingsScreen() {
+  // Define local state variables for holding user's profile information.
+  // These variables include first name, last name, birth date, phone number, sex, emergency contact name and phone number.
+  // useState hooks are used to manage these state variables, providing default values and state update functions.
   const [firstNameState, setFirstNameState] = useState("");
   const [lastNameState, setLastNameState] = useState("");
   const [birthDateState, setBirthDateState] = useState("");
@@ -64,6 +77,8 @@ export default function SettingsScreen() {
   //   fetchPatientData()
   // }
 
+  // Define a function called reloadDisplayData for fetching user's profile data and updating the local state variables.
+  // This function is used to keep the displayed data up-to-date whenever the user visits the Profile screen.
   function reloadDisplayData() {
     if (UserManager.getInstance().getPatient() != undefined) {
       UserManager.getInstance().updatePatientData()
@@ -76,6 +91,8 @@ export default function SettingsScreen() {
     }
   }
 
+  // useEffect hook is used to call the reloadDisplayData function when the component mounts.
+  // This ensures that the user's profile data is fetched and displayed as soon as the Profile screen is loaded.
   useEffect(() => {
     reloadDisplayData();
   }, []);
@@ -104,6 +121,12 @@ export default function SettingsScreen() {
   //UserManager.getInstance().getPatient()?.getLastName() == ""
   const patient:Patient = UserManager.getInstance().getPatient()!;
   
+
+  // The main functional component for the Profile screen.
+  // The component uses a ScrollView to display the user's profile information in a scrollable view, making it suitable for different screen sizes.
+  // The component conditionally renders different elements based on the user's role (patient or non-patient) and the availability of patient data.
+  // If the user has a patient profile, the user's data is displayed along with emergency contact information.
+  // In case the user is not a patient, the component renders a list of patients for the user to select and view their profile information.
   return (
     <ScrollView style={styles.pageContainer}>
       <View style={styles.mainContainer}>
@@ -135,6 +158,12 @@ export default function SettingsScreen() {
               mask={'([000]) [000]-[0000]'} 
               editable={false}
             />
+            {/*
+            If the user has a patient profile, display the user's profile information including name, birth date, and phone number.
+            Also, display the emergency contact information if available.
+            The TextInput and TextInputMask components are used to display the data in a formatted and readable manner.
+            These input fields are set to non-editable mode, meaning the user cannot directly change the data on this screen.
+            */}
             {(UserManager.getInstance().getPatient() != undefined) ?
               <TextInputMask 
               value={patient.getBirthDate()} 
@@ -149,6 +178,12 @@ export default function SettingsScreen() {
               placeholderTextColor='#000'
             /> */}
           </View>
+          {/*
+          If the user is not a patient, render a list of patients for the user to select and view their profile information.
+          The list of patients is fetched from the UserManager and displayed using a Stack and Surface components from the react-native-material library.
+          Each patient is displayed as a ListItem component, allowing the user to tap on a patient's name to view their profile information.
+          When a patient is selected, the UserManager's setPatient method is called, and the Profile screen is re-rendered to display the selected patient's information.
+          */}
          {(UserManager.getInstance().getPatient() != undefined) ?
             <View style={styles.emergencyContainer}>
               <Text style={styles.ecInfoHeader}>Emergency Contact Information</Text>

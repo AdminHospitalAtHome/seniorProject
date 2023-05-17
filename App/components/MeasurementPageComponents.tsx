@@ -1,3 +1,8 @@
+/*
+This file contains various components such as DataList, PageHeader, SingleValueChart, DoubleValueChart, fetchPatientData, and uploadPatientData. 
+These components are used across different screens related to patient measurements (e.g., blood pressure, temperature, etc.).
+*/
+
 import { Stack, Surface, Button, TextInput } from "@react-native-material/core";
 import moment from "moment";
 import React, { useState } from "react";
@@ -6,6 +11,8 @@ import { LineChart } from 'react-native-chart-kit';
 import Config from 'react-native-config';
 import UserManager from "../managers/UserManager";
 
+// DataList component is used to display measurement data in a list format
+// It receives data as a prop and renders a list of ListItem components with the corresponding data
 export function DataList(listItems: any[]) {
   return (
     <ScrollView>
@@ -26,6 +33,8 @@ export function DataList(listItems: any[]) {
   );
 }
 
+// SingleValueChart component is used to display a chart with a single value (e.g., Pulse, Temperature, Oxygen Saturation)
+// It receives data as a prop and renders a chart using the provided data
 export function SingleValueChart(entries: any[]) {
   return (
     <LineChart
@@ -70,6 +79,8 @@ export function SingleValueChart(entries: any[]) {
   );
 }
 
+// DoubleValueChart component is used to display a chart with two values (e.g., Blood Pressure)
+// It receives data as a prop and renders a chart using the provided data
 export function DoubleValueChart(entries: any[]) {
   return (
     <LineChart
@@ -130,6 +141,8 @@ interface PageHeaderProps {
   onRefresh: () => void;
 }
 
+// PageHeader component is used to display the header section of each measurement page
+// It contains a back button to navigate back to the previous screen and the title of the current measurement page
 export function PageHeader(setRefresh: () => void, dataType: string) {
   return (
     <View style={styles.checkboxContainer}>
@@ -264,6 +277,8 @@ function generateDoubleModal(dataType: string, refreshCallback: () => void) {
   )
 }
 
+// uploadPatientData function uploads the patient's measurement data to an external API
+// It receives the patient ID, measurement type, and data as parameters and updates the corresponding data in the API
 export async function uploadPatientData(type: string, newDataJSON: object) {
   var myHeaders = new Headers();
   myHeaders.append("Authorization", UserManager.getInstance().getEncodedAuthorization());
@@ -286,6 +301,8 @@ export async function uploadPatientData(type: string, newDataJSON: object) {
 
 }
 
+// fetchPatientData function fetches the patient's measurement data from an external API
+// It receives the patient ID, measurement type, and date range as parameters and returns the corresponding data
 export async function fetchPatientData(MeasureData: any, setData: any, type: any, unit: any[]) {
 
   var myHeaders = new Headers();
